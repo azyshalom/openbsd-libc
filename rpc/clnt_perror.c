@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: clnt_perror.c,v 1.5 1996/12/19 18:38:40 deraadt Exp $";
+static char *rcsid = "$OpenBSD: clnt_perror.c,v 1.3 1996/08/19 08:31:26 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -46,7 +46,6 @@ static char *rcsid = "$OpenBSD: clnt_perror.c,v 1.5 1996/12/19 18:38:40 deraadt 
 #include <rpc/clnt.h>
 
 static char *auth_errmsg();
-#define CLNT_PERROR_BUFLEN 256
 
 static char *buf;
 
@@ -55,7 +54,7 @@ _buf()
 {
 
 	if (buf == 0)
-		buf = (char *)malloc(CLNT_PERROR_BUFLEN);
+		buf = (char *)malloc(256);
 	return (buf);
 }
 
@@ -68,6 +67,7 @@ clnt_sperror(rpch, s)
 	char *s;
 {
 	struct rpc_err e;
+	void clnt_perrno();
 	char *err;
 	char *str = _buf();
 	char *strstart = str;
@@ -76,7 +76,10 @@ clnt_sperror(rpch, s)
 		return (0);
 	CLNT_GETERR(rpch, &e);
 
-	(void) sprintf(str, "%s: %s", s, clnt_sperrno(e.re_status));
+	(void) sprintf(str, "%s: ", s);  
+	str += strlen(str);
+
+	(void) strcpy(str, clnt_sperrno(e.re_status));  
 	str += strlen(str);
 
 	switch (e.re_status) {
@@ -97,45 +100,48 @@ clnt_sperror(rpch, s)
 
 	case RPC_CANTSEND:
 	case RPC_CANTRECV:
-		(void) snprintf(str, CLNT_PERROR_BUFLEN - (str - strstart),
-			"; errno = %s\n", strerror(e.re_errno));
+		(void) sprintf(str, "; errno = %s",
+		    strerror(e.re_errno)); 
+		str += strlen(str);
 		break;
 
 	case RPC_VERSMISMATCH:
 		(void) sprintf(str,
-			"; low version = %lu, high version = %lu\n", 
+			"; low version = %lu, high version = %lu", 
 			e.re_vers.low, e.re_vers.high);
+		str += strlen(str);
 		break;
 
 	case RPC_AUTHERROR:
 		err = auth_errmsg(e.re_why);
-		(void) sprintf(str, "; why = ");
+		(void) sprintf(str,"; why = ");
 		str += strlen(str);
 		if (err != NULL) {
-			(void) sprintf(str, "%s\n", err);
+			(void) sprintf(str, "%s",err);
 		} else {
 			(void) sprintf(str,
-				"(unknown authentication error - %d)\n",
+				"(unknown authentication error - %d)",
 				(int) e.re_why);
 		}
+		str += strlen(str);
 		break;
 
 	case RPC_PROGVERSMISMATCH:
-		(void) sprintf(str,
-			"; low version = %lu, high version = %lu\n",
+		(void) sprintf(str, 
+			"; low version = %lu, high version = %lu", 
 			e.re_vers.low, e.re_vers.high);
+		str += strlen(str);
 		break;
 
 	default:	/* unknown */
-		(void) sprintf(str,
-			"; s1 = %lu, s2 = %lu\n",
+		(void) sprintf(str, 
+			"; s1 = %lu, s2 = %lu", 
 			e.re_lb.s1, e.re_lb.s2);
 		str += strlen(str);
 		break;
 	}
-	strstart[CLNT_PERROR_BUFLEN-2] = '\n';
-	strstart[CLNT_PERROR_BUFLEN-1] = '\0';
-	return(strstart);
+	(void) sprintf(str, "\n");
+	return(strstart) ;
 }
 
 void
@@ -175,6 +181,8 @@ char *
 clnt_sperrno(stat)
 	enum clnt_stat stat;
 {
+	int i;
+
 	unsigned int errnum = stat;
 
 	if (errnum < (sizeof(rpc_errlist)/sizeof(rpc_errlist[0])))
@@ -199,24 +207,21 @@ clnt_spcreateerror(s)
 
 	if (str == 0)
 		return(0);
+	(void) sprintf(str, "%s: ", s);
+	(void) strcat(str, clnt_sperrno(rpc_createerr.cf_stat));
 	switch (rpc_createerr.cf_stat) {
 	case RPC_PMAPFAILURE:
-		(void) snprintf(str, CLNT_PERROR_BUFLEN, "%s: %s - %s\n", s,
-		    clnt_sperrno(rpc_createerr.cf_stat),
+		(void) strcat(str, " - ");
+		(void) strcat(str,
 		    clnt_sperrno(rpc_createerr.cf_error.re_status));
 		break;
+
 	case RPC_SYSTEMERROR:
-		(void) snprintf(str, CLNT_PERROR_BUFLEN, "%s: %s - %s\n", s,
-		    clnt_sperrno(rpc_createerr.cf_stat),
-		    strerror(rpc_createerr.cf_error.re_errno));
-		break;
-	default:
-		(void) snprintf(str, CLNT_PERROR_BUFLEN, "%s: %s\n", s,
-		    clnt_sperrno(rpc_createerr.cf_stat));
+		(void) strcat(str, " - ");
+		(void) strcat(str, strerror(rpc_createerr.cf_error.re_errno));
 		break;
 	}
-	str[CLNT_PERROR_BUFLEN-2] = '\n';
-	str[CLNT_PERROR_BUFLEN-1] = '\0';
+	(void) strcat(str, "\n");
 	return (str);
 }
 
