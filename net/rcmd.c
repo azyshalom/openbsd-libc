@@ -1,5 +1,4 @@
 /*
- * Copyright (c) 1995, 1996 Theo de Raadt.  All rights reserved.
  * Copyright (c) 1983, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
  *
@@ -15,7 +14,6 @@
  *    must display the following acknowledgement:
  *	This product includes software developed by the University of
  *	California, Berkeley and its contributors.
- *	This product includes software developed by Theo de Raadt.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -34,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: rcmd.c,v 1.18 1996/09/05 02:37:27 millert Exp $";
+static char *rcsid = "$OpenBSD: rcmd.c,v 1.11 1996/08/19 08:29:39 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -54,7 +52,6 @@ static char *rcsid = "$OpenBSD: rcmd.c,v 1.18 1996/09/05 02:37:27 millert Exp $"
 #include <ctype.h>
 #include <string.h>
 #include <syslog.h>
-#include <stdlib.h>
 
 int	__ivaliduser __P((FILE *, u_long, const char *, const char *));
 static int __icheckhost __P((u_int32_t, const char *));
@@ -73,25 +70,7 @@ rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	int oldmask;
 	pid_t pid;
 	int s, lport, timo;
-	char c, *p;
-
-	/* call rcmdsh() with specified remote shell if appropriate. */
-	if (!issetugid() && (p = getenv("RSH"))) {
-		struct servent *sp = getservbyname("shell", "tcp");
-
-		if (sp && sp->s_port == rport)
-			return (rcmdsh(ahost, rport, locuser, remuser,
-			    cmd, p));
-	}
-
-	/* use rsh(1) if non-root and remote port is shell. */
-	if (geteuid()) {
-		struct servent *sp = getservbyname("shell", "tcp");
-
-		if (sp && sp->s_port == rport)
-			return (rcmdsh(ahost, rport, locuser, remuser,
-			    cmd, NULL));
-	}
+	char c;
 
 	pid = getpid();
 	hp = gethostbyname(*ahost);
@@ -100,7 +79,6 @@ rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 		return (-1);
 	}
 	*ahost = hp->h_name;
-
 	oldmask = sigblock(sigmask(SIGURG));
 	for (timo = 1, lport = IPPORT_RESERVED - 1;;) {
 		s = rresvport(&lport);
@@ -260,13 +238,11 @@ rresvport(alport)
 	if (s < 0)
 		return (-1);
 	sin.sin_port = htons((u_short)*alport);
-	if (*alport != IPPORT_RESERVED - 1) {
-		if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) >= 0)
-			return (s);
-		if (errno != EADDRINUSE) {
-			(void)close(s);
-			return (-1);
-		}
+	if (bind(s, (struct sockaddr *)&sin, sizeof(sin)) >= 0)
+		return (s);
+	if (errno != EADDRINUSE) {
+		(void)close(s);
+		return (-1);
 	}
 	sin.sin_port = 0;
 	if (bindresvport(s, &sin) == -1) {

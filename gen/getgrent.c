@@ -33,11 +33,10 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: getgrent.c,v 1.5 1996/09/15 10:09:10 tholo Exp $";
+static char rcsid[] = "$OpenBSD: getgrent.c,v 1.4 1996/08/19 08:23:29 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
-#include <sys/param.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,7 +45,6 @@ static char rcsid[] = "$OpenBSD: getgrent.c,v 1.5 1996/09/15 10:09:10 tholo Exp 
 #include <rpc/rpc.h>
 #include <rpcsvc/yp.h>
 #include <rpcsvc/ypclnt.h>
-#include "ypinternal.h"
 #endif
 
 static FILE *_gr_fp;
