@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: __strsignal.c,v 1.3 1996/09/16 05:43:39 tholo Exp $";
+static char *rcsid = "$OpenBSD: __strsignal.c,v 1.5 1996/09/25 13:19:01 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef NLS
@@ -45,6 +45,7 @@ static char *rcsid = "$OpenBSD: __strsignal.c,v 1.3 1996/09/16 05:43:39 tholo Ex
 #define sys_siglist	_sys_siglist
 
 #include <stdio.h>
+#include <limits.h>
 #include <signal.h>
 #include <string.h>
 
@@ -79,18 +80,20 @@ __strsignal(num, buf)
 	signum = num;				/* convert to unsigned */
 	if (signum < NSIG) {
 #ifdef NLS
-		strcpy(buf, catgets(catd, 2, signum,
-		    (char *)sys_siglist[signum])); 
+		strncpy(buf, catgets(catd, 2, signum,
+		    (char *)sys_siglist[signum]), NL_TEXTMAX-1);
+		buf[NL_TEXTMAX-1] = '\0';
 #else
 		return((char *)sys_siglist[signum]);
 #endif
 	} else {
 #ifdef NLS
-		strcpy(buf, catgets(catd, 1, 0xffff, UPREFIX));
+		strncpy(buf, catgets(catd, 1, 0xffff, UPREFIX), NL_TEXTMAX-1);
+		buf[NL_TEXTMAX-1] = '\0';
 #else
 		strcpy(buf, UPREFIX);
 #endif
-		strcat(buf, itoa(signum));
+		strncat(buf, itoa(signum), NL_TEXTMAX-strlen(buf)-1);
 	}
 
 #ifdef NLS

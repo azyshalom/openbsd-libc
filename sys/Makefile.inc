@@ -5,7 +5,7 @@
 .PATH: ${.CURDIR}/arch/${MACHINE_ARCH}/sys ${.CURDIR}/sys
 
 # modules with non-default implementations on at least one architecture:
-SRCS+=	Ovfork.S brk.S cerror.S exect.S fork.S pipe.S ptrace.S reboot.S \
+SRCS+=	Ovfork.S brk.S cerror.S exect.S fork.S pipe.S ptrace.S \
 	sbrk.S setlogin.S sigpending.S sigprocmask.S sigreturn.S \
 	sigsuspend.S syscall.S
 
@@ -22,15 +22,15 @@ ASM=	accept.o access.o acct.o adjtime.o bind.o chdir.o chflags.o chmod.o \
 	getpgrp.o getpid.o getppid.o getpriority.o getrlimit.o getrusage.o \
 	getsockname.o getsockopt.o gettimeofday.o getuid.o issetugid.o \
 	ioctl.o kill.o \
-	ktrace.o lfs_bmapv.o lfs_markv.o lfs_segclean.o lfs_segwait.o link.o \
-	listen.o lstat.o madvise.o mincore.o minherit.o mkdir.o mkfifo.o \
-	mknod.o mlock.o \
+	ktrace.o lchown.o lfs_bmapv.o lfs_markv.o lfs_segclean.o lfs_segwait.o \
+	link.o listen.o lstat.o madvise.o mincore.o minherit.o mkdir.o \
+	mkfifo.o mknod.o mlock.o \
 	mount.o mprotect.o msgctl.o msgget.o msgrcv.o msgsnd.o msync.o \
 	munlock.o munmap.o nfssvc.o \
 	ntp_gettime.o ntp_adjtime.o \
 	open.o pathconf.o poll.o profil.o quotactl.o \
-	read.o readlink.o readv.o recvfrom.o recvmsg.o rename.o revoke.o \
-	rfork.o \
+	read.o readlink.o readv.o reboot.o recvfrom.o recvmsg.o rename.o \
+	revoke.o rfork.o \
 	rmdir.o select.o semconfig.o semget.o semop.o sendmsg.o sendto.o \
 	setegid.o seteuid.o setgid.o setgroups.o setitimer.o setpgid.o \
 	setpriority.o setrlimit.o setsid.o setsockopt.o settimeofday.o \
@@ -133,6 +133,7 @@ MLINKS+=chdir.2 fchdir.2
 MLINKS+=chflags.2 fchflags.2
 MLINKS+=chmod.2 fchmod.2
 MLINKS+=chown.2 fchown.2
+MLINKS+=chown.2 lchown.2
 MLINKS+=getgid.2 getegid.2
 MLINKS+=getitimer.2 setitimer.2
 MLINKS+=getlogin.2 setlogin.2
