@@ -29,7 +29,7 @@
 
 #if defined(SYSLIBC_SCCS)
 	.text
-	.asciz "$OpenBSD: brk.S,v 1.6 2003/12/25 18:49:07 miod Exp $"
+	.asciz "$OpenBSD: brk.S,v 1.5.2.1 2003/12/25 21:23:58 brad Exp $"
 #endif /* SYSLIBC_SCCS */
 
 #include "SYS.h"
