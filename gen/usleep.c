@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: usleep.c,v 1.4 1996/09/15 09:31:11 tholo Exp $";
+static char rcsid[] = "$OpenBSD: usleep.c,v 1.3 1996/08/19 08:27:19 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/time.h>
@@ -41,7 +41,6 @@ static char rcsid[] = "$OpenBSD: usleep.c,v 1.4 1996/09/15 09:31:11 tholo Exp $"
 
 #define	TICK	10000		/* system clock resolution in microseconds */
 
-static void sleephandler __P((int));
 static volatile int ringring;
 
 void
@@ -51,6 +50,7 @@ usleep(useconds)
 	struct itimerval itv, oitv;
 	struct sigaction act, oact;
 	sigset_t set, oset;
+	static void sleephandler();
 
 	if (!useconds)
 		return;
@@ -108,10 +108,8 @@ usleep(useconds)
 	(void) setitimer(ITIMER_REAL, &oitv, NULL);
 }
 
-/* ARGSUSED */
 static void
-sleephandler(sig)
-	int sig;
+sleephandler()
 {
 	ringring = 1;
 }

@@ -34,7 +34,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: rcmd.c,v 1.18 1996/09/05 02:37:27 millert Exp $";
+static char *rcsid = "$OpenBSD: rcmd.c,v 1.15 1996/09/01 18:31:29 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -54,7 +54,6 @@ static char *rcsid = "$OpenBSD: rcmd.c,v 1.18 1996/09/05 02:37:27 millert Exp $"
 #include <ctype.h>
 #include <string.h>
 #include <syslog.h>
-#include <stdlib.h>
 
 int	__ivaliduser __P((FILE *, u_long, const char *, const char *));
 static int __icheckhost __P((u_int32_t, const char *));
@@ -73,16 +72,7 @@ rcmd(ahost, rport, locuser, remuser, cmd, fd2p)
 	int oldmask;
 	pid_t pid;
 	int s, lport, timo;
-	char c, *p;
-
-	/* call rcmdsh() with specified remote shell if appropriate. */
-	if (!issetugid() && (p = getenv("RSH"))) {
-		struct servent *sp = getservbyname("shell", "tcp");
-
-		if (sp && sp->s_port == rport)
-			return (rcmdsh(ahost, rport, locuser, remuser,
-			    cmd, p));
-	}
+	char c;
 
 	/* use rsh(1) if non-root and remote port is shell. */
 	if (geteuid()) {
