@@ -8,23 +8,21 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: mdXhl.c,v 1.5 1996/11/24 02:25:59 niklas Exp $";
+static char rcsid[] = "$OpenBSD: mdXhl.c,v 1.3 1996/09/15 09:31:16 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include "mdX.h"
 #include <sys/file.h>
 #include <sys/types.h>
 #include <sys/uio.h>
 #include <unistd.h>
-#include "mdX.h"
 
 /* ARGSUSED */
 char *
-MDXEnd(ctx, buf)
-    MDX_CTX *ctx;
-    char *buf;
+MDXEnd(MDX_CTX *ctx, char *buf)
 {
     int i;
     char *p = malloc(33);
@@ -45,9 +43,7 @@ MDXEnd(ctx, buf)
 }
 
 char *
-MDXFile (filename, buf)
-    char *filename;
-    char *buf;
+MDXFile (char *filename, char *buf)
 {
     unsigned char buffer[BUFSIZ];
     MDX_CTX ctx;
@@ -67,10 +63,7 @@ MDXFile (filename, buf)
 }
 
 char *
-MDXData (data, len, buf)
-    const unsigned char *data;
-    size_t len;
-    char *buf;
+MDXData (const unsigned char *data, unsigned int len, char *buf)
 {
     MDX_CTX ctx;
 
