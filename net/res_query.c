@@ -52,7 +52,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: res_query.c,v 1.7 1996/08/27 03:32:54 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: res_query.c,v 1.4 1996/08/19 08:29:48 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -361,6 +361,8 @@ __hostalias(name)
 
 	if (_res.options & RES_NOALIASES)
 		return (NULL);
+	if (getuid() != setuid())
+		return (NULL);
 	file = getenv("HOSTALIASES");
 	if (file == NULL || (fp = fopen(file, "r")) == NULL)
 		return (NULL);
@@ -379,8 +381,8 @@ __hostalias(name)
 				break;
 			for (cp2 = cp1 + 1; *cp2 && !isspace(*cp2); ++cp2)
 				;
-			(void)strncpy(abuf, cp1, sizeof(abuf) - 1);
 			abuf[sizeof(abuf) - 1] = *cp2 = '\0';
+			(void)strncpy(abuf, cp1, sizeof(abuf) - 1);
 			fclose(fp);
 			return (abuf);
 		}

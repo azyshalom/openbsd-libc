@@ -52,7 +52,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: res_init.c,v 1.10 1996/09/22 11:52:07 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: res_init.c,v 1.4 1996/08/19 08:29:45 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -112,9 +112,9 @@ res_init()
 	int haveenv = 0;
 	int havesearch = 0;
 	int nsort = 0;
-
-	if (_res.id == 0)
-		_res.id = res_randomid();
+	int dots;
+	u_long mask;
+	int notsuid = (getuid() == geteuid());
 
 	_res.nsaddr.sin_len = sizeof(struct sockaddr_in);
 	_res.nsaddr.sin_family = AF_INET;
@@ -130,9 +130,8 @@ res_init()
 	strncpy(_res.lookups, "f", sizeof _res.lookups);
 
 	/* Allow user to override the local domain definition */
-	if (issetugid() == 0 && (cp = getenv("LOCALDOMAIN")) != NULL) {
+	if (notsuid && (cp = getenv("LOCALDOMAIN")) != NULL) {
 		(void)strncpy(_res.defdname, cp, sizeof(_res.defdname) - 1);
-		_res.defdname[sizeof(_res.defdname) - 1] = '\0';
 		if ((cp = strpbrk(_res.defdname, " \t\n")) != NULL)
 			*cp = '\0';
 		haveenv++;
@@ -185,7 +184,6 @@ res_init()
 			    continue;
 		    (void)strncpy(_res.defdname, cp,
 				  sizeof(_res.defdname) - 1);
-		    _res.defdname[sizeof(_res.defdname) - 1] = '\0';
 		    if ((cp = strpbrk(_res.defdname, " \t\n")) != NULL)
 			    *cp = '\0';
 		    havesearch = 0;
@@ -229,7 +227,6 @@ res_init()
 			    continue;
 		    (void)strncpy(_res.defdname, cp,
 				  sizeof(_res.defdname) - 1);
-		    _res.defdname[sizeof(_res.defdname) - 1] = '\0';
 		    if ((cp = strchr(_res.defdname, '\n')) != NULL)
 			    *cp = '\0';
 		    /*
@@ -337,15 +334,12 @@ res_init()
 #endif
 	}
 
-	if (issetugid())
-		_res.options |= RES_NOALIASES;
-	else if ((cp = getenv("RES_OPTIONS")) != NULL)
+	if (notsuid && (cp = getenv("RES_OPTIONS")) != NULL)
 		res_setoptions(cp, "env");
 	_res.options |= RES_INIT;
 	return (0);
 }
 
-/* ARGSUSED */
 static void
 res_setoptions(options, source)
 	char *options, *source;

@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: __strsignal.c,v 1.5 1996/09/25 13:19:01 deraadt Exp $";
+static char *rcsid = "$OpenBSD: __strsignal.c,v 1.2 1996/08/19 08:33:56 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef NLS
@@ -45,31 +45,15 @@ static char *rcsid = "$OpenBSD: __strsignal.c,v 1.5 1996/09/25 13:19:01 deraadt 
 #define sys_siglist	_sys_siglist
 
 #include <stdio.h>
-#include <limits.h>
 #include <signal.h>
 #include <string.h>
-
-static char *itoa(num)
-	int num;
-{
-	static char buffer[11];
-	char *p;
-
-	p = buffer + 4;
-	while (num >= 10) {
-		*--p = (num % 10) + '0';
-		num /= 10;
-	}
-	*p = (num % 10) + '0';
-	return p;
-}
 
 char *
 __strsignal(num, buf)
 	int num;
 	char *buf;
 {
-#define	UPREFIX	"Unknown signal: "
+#define	UPREFIX	"Unknown signal: %u"
 	register unsigned int signum;
 
 #ifdef NLS
@@ -80,20 +64,17 @@ __strsignal(num, buf)
 	signum = num;				/* convert to unsigned */
 	if (signum < NSIG) {
 #ifdef NLS
-		strncpy(buf, catgets(catd, 2, signum,
-		    (char *)sys_siglist[signum]), NL_TEXTMAX-1);
-		buf[NL_TEXTMAX-1] = '\0';
+		strcpy(buf, catgets(catd, 2, signum,
+		    (char *)sys_siglist[signum])); 
 #else
 		return((char *)sys_siglist[signum]);
 #endif
 	} else {
 #ifdef NLS
-		strncpy(buf, catgets(catd, 1, 0xffff, UPREFIX), NL_TEXTMAX-1);
-		buf[NL_TEXTMAX-1] = '\0';
+		sprintf(buf, catgets(catd, 1, 0xffff, UPREFIX), signum);
 #else
-		strcpy(buf, UPREFIX);
+		sprintf(buf, UPREFIX, signum);
 #endif
-		strncat(buf, itoa(signum), NL_TEXTMAX-strlen(buf)-1);
 	}
 
 #ifdef NLS
