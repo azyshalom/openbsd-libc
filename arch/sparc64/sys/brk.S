@@ -1,4 +1,4 @@
-/*	$OpenBSD: brk.S,v 1.3 2003/06/02 20:18:33 millert Exp $	*/
+/*	$OpenBSD: brk.S,v 1.2.8.1 2004/01/16 01:05:17 brad Exp $	*/
 /*	$NetBSD: brk.S,v 1.9 2000/07/25 20:15:40 mycroft Exp $	*/
 
 /*
@@ -17,7 +17,11 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -59,7 +63,7 @@ ENTRY(_brk)
 	ldx	[%o5 + %o4], %o4
 	ldx	[%o4], %o1		/* %o1 = minbrk */
 	cmp	%o1, %o0		/* if (minbrk > %o0) */
-	movg	%xcc, %o1, %o0		/*	%o0 = minbrk */
+	movgu	%xcc, %o1, %o0		/*	%o0 = minbrk */
 	mov	%o0, %o2		/* save argument to syscall */
 	mov	SYS_break, %g1
 	t	ST_SYSCALL
@@ -74,7 +78,7 @@ ENTRY(_brk)
 	sethi	%hi(_C_LABEL(minbrk)), %o1	/* %o1 = minbrk */
 	ldx	[%o1 + %lo(_C_LABEL(minbrk))], %o1
 	cmp	%o1, %o0		/* if (minbrk > %o0) */
-	movg	%xcc, %o1, %o0		/*	%o0 = minbrk */
+	movgu	%xcc, %o1, %o0		/*	%o0 = minbrk */
 	mov	%o0, %o2		/* save argument to syscall */
 	mov	SYS_break, %g1
 	t	ST_SYSCALL

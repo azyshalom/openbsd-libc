@@ -14,7 +14,11 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
+ * 3. All advertising materials mentioning features or use of this software
+ *    must display the following acknowledgement:
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
+ * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
  *
@@ -33,7 +37,7 @@
 
 #if defined(SYSLIBC_SCCS)
 	.text
-	.asciz "$OpenBSD: brk.S,v 1.4 2003/06/02 20:18:31 millert Exp $"
+	.asciz "$OpenBSD: brk.S,v 1.3.2.1 2004/01/16 01:05:17 brad Exp $"
 #endif /* SYSLIBC_SCCS */
 
 #include "SYS.h"
@@ -56,7 +60,7 @@ ENTRY(brk)
 	movl	minbrk,d0
 #endif
 	cmpl	sp@(4),d0
-	jle	ok
+	jls	ok
 	movl	d0,sp@(4)
 ok:
 	movl	#SYS_break,d0
