@@ -1,4 +1,4 @@
-/*	$OpenBSD: getaddrinfo.c,v 1.34 2002/06/26 06:01:16 itojun Exp $	*/
+/*	$OpenBSD: getaddrinfo.c,v 1.30.2.1 2002/09/09 18:25:08 miod Exp $	*/
 /*	$KAME: getaddrinfo.c,v 1.31 2000/08/31 17:36:43 itojun Exp $	*/
 
 /*
@@ -179,11 +179,7 @@ static const struct explore explore[] = {
 #define PTON_MAX	4
 #endif
 
-#if PACKETSZ > 1024
-#define MAXPACKET	PACKETSZ
-#else
-#define MAXPACKET	1024
-#endif
+#define MAXPACKET	(64*1024)
 
 typedef union {
 	HEADER hdr;
@@ -199,47 +195,49 @@ struct res_target {
 	int n;			/* result length */
 };
 
-static int str_isnumber(const char *);
-static int explore_fqdn(const struct addrinfo *, const char *,
-	const char *, struct addrinfo **);
-static int explore_null(const struct addrinfo *,
-	const char *, struct addrinfo **);
-static int explore_numeric(const struct addrinfo *, const char *,
-	const char *, struct addrinfo **);
-static int explore_numeric_scope(const struct addrinfo *, const char *,
-	const char *, struct addrinfo **);
-static int get_canonname(const struct addrinfo *,
-	struct addrinfo *, const char *);
-static struct addrinfo *get_ai(const struct addrinfo *,
-	const struct afd *, const char *);
-static int get_portmatch(const struct addrinfo *, const char *);
-static int get_port(struct addrinfo *, const char *, int);
-static const struct afd *find_afd(int);
+static int str_isnumber __P((const char *));
+static int explore_fqdn __P((const struct addrinfo *, const char *,
+	const char *, struct addrinfo **));
+static int explore_null __P((const struct addrinfo *,
+	const char *, struct addrinfo **));
+static int explore_numeric __P((const struct addrinfo *, const char *,
+	const char *, struct addrinfo **));
+static int explore_numeric_scope __P((const struct addrinfo *, const char *,
+	const char *, struct addrinfo **));
+static int get_canonname __P((const struct addrinfo *,
+	struct addrinfo *, const char *));
+static struct addrinfo *get_ai __P((const struct addrinfo *,
+	const struct afd *, const char *));
+static int get_portmatch __P((const struct addrinfo *, const char *));
+static int get_port __P((struct addrinfo *, const char *, int));
+static const struct afd *find_afd __P((int));
 #if 0
-static int addrconfig(const struct addrinfo *);
+static int addrconfig __P((const struct addrinfo *));
 #endif
 #ifdef INET6
-static int ip6_str2scopeid(char *, struct sockaddr_in6 *);
+static int ip6_str2scopeid __P((char *, struct sockaddr_in6 *));
 #endif
 
-static void _sethtent(void);
-static void _endhtent(void);
-static struct addrinfo * _gethtent(const char *, const struct addrinfo *);
-static struct addrinfo *_files_getaddrinfo(const char *,
-	const struct addrinfo *);
+static void _sethtent __P((void));
+static void _endhtent __P((void));
+static struct addrinfo * _gethtent __P((const char *, const struct addrinfo *));
+static struct addrinfo *_files_getaddrinfo __P((const char *,
+	const struct addrinfo *));
 
 #ifdef YP
-static struct addrinfo *_yphostent(char *, const struct addrinfo *);
-static struct addrinfo *_yp_getaddrinfo(const char *,
-	const struct addrinfo *);
+static struct addrinfo *_yphostent __P((char *, const struct addrinfo *));
+static struct addrinfo *_yp_getaddrinfo __P((const char *,
+	const struct addrinfo *));
 #endif
 
-static struct addrinfo *getanswer(const querybuf *, int, const char *, int,
-	const struct addrinfo *);
-static int res_queryN(const char *, struct res_target *);
-static int res_searchN(const char *, struct res_target *);
-static int res_querydomainN(const char *, const char *, struct res_target *);
-static struct addrinfo *_dns_getaddrinfo(const char *, const struct addrinfo *);
+static struct addrinfo *getanswer __P((const querybuf *, int, const char *, int,
+	const struct addrinfo *));
+static int res_queryN __P((const char *, struct res_target *));
+static int res_searchN __P((const char *, struct res_target *));
+static int res_querydomainN __P((const char *, const char *,
+	struct res_target *));
+static struct addrinfo *_dns_getaddrinfo __P((const char *,
+	const struct addrinfo *));
 
 
 /* XXX macros that make external reference is BAD. */
@@ -1031,11 +1029,11 @@ getanswer(answer, anslen, qname, qtype, pai)
 	const u_char *cp;
 	int n;
 	const u_char *eom;
-	char *bp, *ep;
-	int type, class, ancount, qdcount;
+	char *bp;
+	int type, class, buflen, ancount, qdcount;
 	int haveanswer, had_error;
 	char tbuf[MAXDNAME];
-	int (*name_ok)(const char *);
+	int (*name_ok) __P((const char *));
 	char hostbuf[8*1024];
 
 	memset(&sentinel, 0, sizeof(sentinel));
@@ -1050,7 +1048,7 @@ getanswer(answer, anslen, qname, qtype, pai)
 		name_ok = res_hnok;
 		break;
 	default:
-		return (NULL);	/* XXX should be abort() -- but that is illegal */
+		return (NULL);	/* XXX should be abort(); */
 	}
 	/*
 	 * find first satisfactory answer
@@ -1059,13 +1057,13 @@ getanswer(answer, anslen, qname, qtype, pai)
 	ancount = ntohs(hp->ancount);
 	qdcount = ntohs(hp->qdcount);
 	bp = hostbuf;
-	ep = hostbuf + sizeof hostbuf;
+	buflen = sizeof hostbuf;
 	cp = answer->buf + HFIXEDSZ;
 	if (qdcount != 1) {
 		h_errno = NO_RECOVERY;
 		return (NULL);
 	}
-	n = dn_expand(answer->buf, eom, cp, bp, ep - bp);
+	n = dn_expand(answer->buf, eom, cp, bp, buflen);
 	if ((n < 0) || !(*name_ok)(bp)) {
 		h_errno = NO_RECOVERY;
 		return (NULL);
@@ -1083,13 +1081,14 @@ getanswer(answer, anslen, qname, qtype, pai)
 		}
 		canonname = bp;
 		bp += n;
+		buflen -= n;
 		/* The qname can be abbreviated, but h_name is now absolute. */
 		qname = canonname;
 	}
 	haveanswer = 0;
 	had_error = 0;
 	while (ancount-- > 0 && cp < eom && !had_error) {
-		n = dn_expand(answer->buf, eom, cp, bp, ep - bp);
+		n = dn_expand(answer->buf, eom, cp, bp, buflen);
 		if ((n < 0) || !(*name_ok)(bp)) {
 			had_error++;
 			continue;
@@ -1116,13 +1115,14 @@ getanswer(answer, anslen, qname, qtype, pai)
 			cp += n;
 			/* Get canonical name. */
 			n = strlen(tbuf) + 1;	/* for the \0 */
-			if (n > ep - bp || n >= MAXHOSTNAMELEN) {
+			if (n > buflen || n >= MAXHOSTNAMELEN) {
 				had_error++;
 				continue;
 			}
 			strcpy(bp, tbuf);
 			canonname = bp;
 			bp += n;
+			buflen -= n;
 			continue;
 		}
 		if (qtype == T_ANY) {
@@ -1162,6 +1162,7 @@ getanswer(answer, anslen, qname, qtype, pai)
 				canonname = bp;
 				nn = strlen(bp) + 1;	/* for the \0 */
 				bp += nn;
+				buflen -= nn;
 			}
 
 			/* don't overwrite pai */
@@ -1180,7 +1181,7 @@ getanswer(answer, anslen, qname, qtype, pai)
 			cp += n;
 			break;
 		default:
-			abort();	/* XXX abort illegal in library */
+			abort();
 		}
 		if (!had_error)
 			haveanswer++;
@@ -1205,7 +1206,7 @@ _dns_getaddrinfo(name, pai)
 	const struct addrinfo *pai;
 {
 	struct addrinfo *ai;
-	querybuf buf, buf2;
+	querybuf *buf, *buf2;
 	struct addrinfo sentinel, *cur;
 	struct res_target q, q2;
 
@@ -1214,47 +1215,66 @@ _dns_getaddrinfo(name, pai)
 	memset(&sentinel, 0, sizeof(sentinel));
 	cur = &sentinel;
 
+	buf = malloc(sizeof(*buf));
+	if (buf == NULL) {
+		h_errno = NETDB_INTERNAL;
+		return NULL;
+	}
+	buf2 = malloc(sizeof(*buf2));
+	if (buf2 == NULL) {
+		free(buf);
+		h_errno = NETDB_INTERNAL;
+		return NULL;
+	}
+
 	switch (pai->ai_family) {
 	case AF_UNSPEC:
 		/* prefer IPv6 */
 		q.qclass = C_IN;
 		q.qtype = T_AAAA;
-		q.answer = buf.buf;
-		q.anslen = sizeof(buf);
+		q.answer = buf->buf;
+		q.anslen = sizeof(buf->buf);
 		q.next = &q2;
 		q2.qclass = C_IN;
 		q2.qtype = T_A;
-		q2.answer = buf2.buf;
-		q2.anslen = sizeof(buf2);
+		q2.answer = buf2->buf;
+		q2.anslen = sizeof(buf2->buf);
 		break;
 	case AF_INET:
 		q.qclass = C_IN;
 		q.qtype = T_A;
-		q.answer = buf.buf;
-		q.anslen = sizeof(buf);
+		q.answer = buf->buf;
+		q.anslen = sizeof(buf->buf);
 		break;
 	case AF_INET6:
 		q.qclass = C_IN;
 		q.qtype = T_AAAA;
-		q.answer = buf.buf;
-		q.anslen = sizeof(buf);
+		q.answer = buf->buf;
+		q.anslen = sizeof(buf->buf);
 		break;
 	default:
+		free(buf);
+		free(buf2);
 		return NULL;
 	}
-	if (res_searchN(name, &q) < 0)
+	if (res_searchN(name, &q) < 0) {
+		free(buf);
+		free(buf2);
 		return NULL;
-	ai = getanswer(&buf, q.n, q.name, q.qtype, pai);
+	}
+	ai = getanswer(buf, q.n, q.name, q.qtype, pai);
 	if (ai) {
 		cur->ai_next = ai;
 		while (cur && cur->ai_next)
 			cur = cur->ai_next;
 	}
 	if (q.next) {
-		ai = getanswer(&buf2, q2.n, q2.name, q2.qtype, pai);
+		ai = getanswer(buf2, q2.n, q2.name, q2.qtype, pai);
 		if (ai)
 			cur->ai_next = ai;
 	}
+	free(buf);
+	free(buf2);
 	return sentinel.ai_next;
 }
 
@@ -1504,9 +1524,9 @@ _yp_getaddrinfo(name, pai)
 
 /* resolver logic */
 
-extern const char *__hostalias(const char *);
+extern const char *__hostalias __P((const char *));
 extern int h_errno;
-extern int res_opt(int, u_char *, int, int);
+extern int res_opt __P((int, u_char *, int, int));
 
 /*
  * Formulate a normal query, send, and await answer.
