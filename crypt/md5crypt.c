@@ -1,5 +1,3 @@
-/*	$OpenBSD: md5crypt.c,v 1.6 1996/10/15 09:25:32 deraadt Exp $	*/
-
 /*
  * ----------------------------------------------------------------------------
  * "THE BEER-WARE LICENSE" (Revision 42):
@@ -8,24 +6,18 @@
  * this stuff is worth it, you can buy me a beer in return.   Poul-Henning Kamp
  * ----------------------------------------------------------------------------
  *
- * $FreeBSD: crypt.c,v 1.5 1996/10/14 08:34:02 phk Exp $
- *
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: md5crypt.c,v 1.6 1996/10/15 09:25:32 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: md5crypt.c,v 1.4 1996/08/19 08:19:50 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
 #include <md5.h>
-#include <string.h>
 
 static unsigned char itoa64[] =		/* 0 ... 63 => ascii - 64 */
 	"./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
-static void to64 __P((char *, unsigned long, int));
 
 static void
 to64(s, v, n)
@@ -54,7 +46,7 @@ md5crypt(pw, salt)
 	 * This string is magic for this algorithm.  Having
 	 * it this way, we can get get better later on
 	 */
-	static char	*magic = "$1$";
+	static char	*magic = "$1$";	
 
 	static char     passwd[120], *p;
 	static const char *sp,*ep;
@@ -101,11 +93,11 @@ md5crypt(pw, salt)
 	memset(final,0,sizeof final);
 
 	/* Then something really weird... */
-	for (i = strlen(pw); i ; i >>= 1)
+	for (j=0,i = strlen(pw); i ; i >>= 1)
 		if(i&1)
-		    MD5Update(&ctx, final, 1);
+		    MD5Update(&ctx, final+j, 1);
 		else
-		    MD5Update(&ctx, pw, 1);
+		    MD5Update(&ctx, pw+j, 1);
 
 	/* Now make the output string */
 	strcpy(passwd,magic);

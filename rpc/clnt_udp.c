@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: clnt_udp.c,v 1.9 1996/11/14 06:51:48 etheisen Exp $";
+static char *rcsid = "$OpenBSD: clnt_udp.c,v 1.6 1996/08/19 08:31:30 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -115,10 +115,6 @@ clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz, recvsz)
 	register struct cu_data *cu;
 	struct timeval now;
 	struct rpc_msg call_msg;
-	static u_int32_t disrupt;
-
-	if (disrupt == 0)
-		disrupt = (u_int32_t)(long)raddr;
 
 	cl = (CLIENT *)mem_alloc(sizeof(CLIENT));
 	if (cl == NULL) {
@@ -156,7 +152,7 @@ clntudp_bufcreate(raddr, program, version, wait, sockp, sendsz, recvsz)
 	cu->cu_total.tv_usec = -1;
 	cu->cu_sendsz = sendsz;
 	cu->cu_recvsz = recvsz;
-	call_msg.rm_xid = (++disrupt) ^ getpid() ^ now.tv_sec ^ now.tv_usec;
+	call_msg.rm_xid = getpid() ^ now.tv_sec ^ now.tv_usec;
 	call_msg.rm_direction = CALL;
 	call_msg.rm_call.cb_rpcvers = RPC_MSG_VERSION;
 	call_msg.rm_call.cb_prog = program;
@@ -238,11 +234,10 @@ clntudp_call(cl, proc, xargs, argsp, xresults, resultsp, utimeout)
 		timeout = cu->cu_total; /* use default timeout */
 
 	if (cu->cu_sock+1 > FD_SETSIZE) {
-		int bytes = howmany(cu->cu_sock+1, NFDBITS) * sizeof(fd_mask);
-		fds = (fd_set *)malloc(bytes);
+		fds = (fd_set *)malloc(howmany(cu->cu_sock+1, NBBY));
 		if (fds == NULL)
 			return (cu->cu_error.re_status = RPC_CANTSEND);
-		memset(fds, 0, bytes);
+		memset(fds, '\0', howmany(cu->cu_sock+1, NBBY));
 	} else {
 		fds = &readfds;
 		FD_ZERO(fds);

@@ -30,7 +30,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: protolib.c,v 1.4 1996/09/15 10:09:13 tholo Exp $";
+static char rcsid[] = "$OpenBSD: protolib.c,v 1.2 1996/08/19 08:34:32 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
@@ -43,14 +43,12 @@ static char rcsid[] = "$OpenBSD: protolib.c,v 1.4 1996/09/15 10:09:13 tholo Exp 
 #include <sys/mount.h>
 #include <sys/msg.h>
 #include <sys/mman.h>
-#include <sys/poll.h>
 #include <sys/ptrace.h>
 #include <sys/resource.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
-#include <sys/timex.h>
 #include <sys/wait.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -59,8 +57,6 @@ static char rcsid[] = "$OpenBSD: protolib.c,v 1.4 1996/09/15 10:09:13 tholo Exp 
 #include <unistd.h>
 
 #include "protolib.h"
-
-struct blockinfo;
 
 /*
  * Don't include anything after protolib.h,
@@ -256,5 +252,3 @@ int	shmget(key_t, int, int);				/* 231 */
 
 int	minherit(caddr_t, size_t, int);				/* 250 */
 int	rfork(int);						/* 251 */
-int	poll(struct pollfd *, unsigned long, int);		/* 252 */
-int	issetugid(void);					/* 253 */
