@@ -1,10 +1,10 @@
-#	$OpenBSD: Makefile.inc,v 1.4 1996/08/21 03:12:17 downsj Exp $
+#	$OpenBSD: Makefile.inc,v 1.6 1996/08/21 03:47:21 tholo Exp $
 
 # stdlib sources
 .PATH: ${.CURDIR}/arch/${MACHINE_ARCH}/stdlib ${.CURDIR}/stdlib
 
 SRCS+=	a64l.c abort.c atexit.c atoi.c atof.c atol.c bsearch.c calloc.c \
-	exit.c getenv.c getopt.c heapsort.c l64a.c malloc.c merge.c \
+	cfree.c exit.c getenv.c getopt.c heapsort.c l64a.c malloc.c merge.c \
 	multibyte.c putenv.c qsort.c radixsort.c rand.c random.c realpath.c \
 	setenv.c strtod.c strtol.c strtoq.c strtoul.c strtouq.c system.c \
 	_rand48.c drand48.c erand48.c jrand48.c lcong48.c lrand48.c \
@@ -37,7 +37,8 @@ MAN+=	abort.3 abs.3 alloca.3 atexit.3 atof.3 atoi.3 atol.3 bsearch.3 \
 	random.3 realpath.3 strtod.3 strtol.3 strtoul.3 system.3
 
 MLINKS+=getenv.3 setenv.3 getenv.3 unsetenv.3 getenv.3 putenv.3
-MLINKS+=malloc.3 free.3 malloc.3 realloc.3 cfree.3
+MLINKS+=malloc.3 free.3 malloc.3 realloc.3
+MLINKS+=malloc.3 cfree.3
 MLINKS+=qsort.3 heapsort.3 qsort.3 mergesort.3
 MLINKS+=rand.3 srand.3
 MLINKS+=random.3 initstate.3 random.3 setstate.3 random.3 srandom.3
