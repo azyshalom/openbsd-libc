@@ -35,7 +35,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: hash_buf.c,v 1.4 1996/10/14 22:17:27 downsj Exp $";
+static char rcsid[] = "$OpenBSD: hash_buf.c,v 1.3 1996/08/19 08:20:35 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -331,10 +331,8 @@ __buf_free(hashp, do_free, to_disk)
 		}
 		/* Check if we are freeing stuff */
 		if (do_free) {
-			if (bp->page) {
-				(void)memset(bp->page, 0, hashp->BSIZE);
+			if (bp->page)
 				free(bp->page);
-			}
 			BUF_REMOVE(bp);
 			free(bp);
 			bp = LRU;
