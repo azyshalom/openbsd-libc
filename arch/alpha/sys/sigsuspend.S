@@ -1,6 +1,3 @@
-/*	$OpenBSD: sigsuspend.S,v 1.3 1996/11/13 22:05:16 niklas Exp $	*/
-/*	$NetBSD: sigsuspend.S,v 1.2 1996/10/17 03:08:22 cgd Exp $	*/
-
 /*
  * Copyright (c) 1994, 1995 Carnegie-Mellon University.
  * All rights reserved.
@@ -32,12 +29,12 @@
 
 #if defined(SYSLIBC_SCCS)
 	.text
-	.asciz "$OpenBSD: sigsuspend.S,v 1.3 1996/11/13 22:05:16 niklas Exp $"
+	.asciz "$OpenBSD: sigsuspend.S,v 1.2 1996/08/19 08:11:20 tholo Exp $"
 #endif /* SYSLIBC_SCCS */
 
 LEAF(sigsuspend, 1)
 	ldl	a0, 0(a0)		/* pass *mask instead of mask */
-	CALLSYS_ERROR(sigsuspend)
+	SYSCALL_NOLABEL(sigsuspend)
 	mov	zero, v0		/* shouldn't need; just in case... */
 	RET
 END(sigsuspend)

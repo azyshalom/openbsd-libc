@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: mktemp.c,v 1.6 1997/02/07 13:01:24 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: mktemp.c,v 1.2 1996/08/19 08:32:55 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
@@ -54,25 +54,12 @@ mkstemp(path)
 	return (_gettemp(path, &fd) ? fd : -1);
 }
 
-char *_mktemp __P((char *));
-
-char *
-_mktemp(path)
-	char *path;
-{
-	return(_gettemp(path, (int *)NULL) ? path : (char *)NULL);
-}
-
-__warn_references(mktemp,
-    "warning: mktemp() possibly used unsafely; consider using mkstemp()");
-
 char *
 mktemp(path)
 	char *path;
 {
-	return(_mktemp(path));
+	return(_gettemp(path, (int *)NULL) ? path : (char *)NULL);
 }
-
 
 static int
 _gettemp(path, doopen)
@@ -82,25 +69,13 @@ _gettemp(path, doopen)
 	extern int errno;
 	register char *start, *trv;
 	struct stat sbuf;
-	int pid;
+	u_int pid;
 
 	pid = getpid();
-	for (trv = path; *trv; ++trv)
-		;
-	--trv;
-	while (*trv == 'X' && pid != 0) {
-		*trv-- = (pid % 10) + '0';
+	for (trv = path; *trv; ++trv);		/* extra X's get set to 0's */
+	while (*--trv == 'X') {
+		*trv = (pid % 10) + '0';
 		pid /= 10;
-	}
-	while (*trv == 'X') {
-		char c;
-
-		pid = (arc4random() & 0xffff) % (26+26);
-		if (pid < 26)
-			c = pid + 'A';
-		else
-			c = (pid - 26) + 'a';
-		*trv-- = c;
 	}
 
 	/*
