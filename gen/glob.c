@@ -35,7 +35,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: glob.c,v 1.2 1996/08/19 08:24:20 tholo Exp $";
+static char rcsid[] = "$OpenBSD: glob.c,v 1.4 1996/10/27 17:46:40 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -355,11 +355,14 @@ globtilde(pattern, patbuf, pglob)
 		 * handle a plain ~ or ~/ by expanding $HOME 
 		 * first and then trying the password file
 		 */
-		if ((h = getenv("HOME")) == NULL) {
+		if (issetugid() != 0 || (h = getenv("HOME")) == NULL) {
 			if ((pwd = getpwuid(getuid())) == NULL)
 				return pattern;
 			else
 				h = pwd->pw_dir;
+		} else {
+			if (strlen(h) >= MAXPATHLEN-1)
+				return pattern;
 		}
 	}
 	else {
