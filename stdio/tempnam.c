@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: tempnam.c,v 1.8 1997/02/12 20:44:47 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: tempnam.c,v 1.4 1996/09/05 21:18:17 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -42,11 +42,6 @@ static char rcsid[] = "$OpenBSD: tempnam.c,v 1.8 1997/02/12 20:44:47 deraadt Exp
 #include <string.h>
 #include <unistd.h>
 #include <paths.h>
-
-__warn_references(tempnam,
-    "warning: tempnam() possibly used unsafely; consider using mkstemp()");
-
-extern char *_mktemp __P((char *));
 
 char *
 tempnam(dir, pfx)
@@ -62,27 +57,27 @@ tempnam(dir, pfx)
 		pfx = "tmp.";
 
 	if (issetugid() == 0 && (f = getenv("TMPDIR"))) {
-		(void)snprintf(name, MAXPATHLEN, "%s%s%sXXXXXXXXX", f,
+		(void)snprintf(name, MAXPATHLEN, "%s%s%sXXXXXX", f,
 		    *(f + strlen(f) - 1) == '/'? "": "/", pfx);
-		if (f = _mktemp(name))
+		if (f = mktemp(name))
 			return(f);
 	}
 
 	if (f = (char *)dir) {
-		(void)snprintf(name, MAXPATHLEN, "%s%s%sXXXXXXXXX", f,
+		(void)snprintf(name, MAXPATHLEN, "%s%s%sXXXXXX", f,
 		    *(f + strlen(f) - 1) == '/'? "": "/", pfx);
-		if (f = _mktemp(name))
+		if (f = mktemp(name))
 			return(f);
 	}
 
 	f = P_tmpdir;
-	(void)snprintf(name, MAXPATHLEN, "%s%sXXXXXXXXX", f, pfx);
-	if (f = _mktemp(name))
+	(void)snprintf(name, MAXPATHLEN, "%s%sXXXXXX", f, pfx);
+	if (f = mktemp(name))
 		return(f);
 
 	f = _PATH_TMP;
-	(void)snprintf(name, MAXPATHLEN, "%s%sXXXXXXXXX", f, pfx);
-	if (f = _mktemp(name))
+	(void)snprintf(name, MAXPATHLEN, "%s%sXXXXXX", f, pfx);
+	if (f = mktemp(name))
 		return(f);
 
 	sverrno = errno;
