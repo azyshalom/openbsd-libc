@@ -32,14 +32,13 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: sleep.c,v 1.6 1996/09/30 12:21:30 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: sleep.c,v 1.4 1996/08/19 08:26:20 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/time.h>
 #include <signal.h>
 #include <unistd.h>
 
-static void sleephandler __P((int));
 static volatile int ringring;
 
 unsigned int
@@ -50,6 +49,7 @@ sleep(seconds)
 	struct sigaction act, oact;
 	struct timeval diff;
 	sigset_t set, oset;
+	static void sleephandler();
 
 	if (!seconds)
 		return 0;
@@ -108,11 +108,10 @@ sleep(seconds)
 		timerclear(&nulltv.it_interval);
 		timerclear(&nulltv.it_value);
 		(void) setitimer(ITIMER_REAL, &nulltv, &itv);
-	} else
-		timerclear(&itv.it_value);
+	}
 	sigprocmask(SIG_SETMASK, &oset, NULL);
 	sigaction(SIGALRM, &oact, NULL);
-	(void) setitimer(ITIMER_REAL, &oitv, NULL);
+	(void) setitimer(ITIMER_REAL, &oitv, &itv);
 
 	if (timerisset(&diff))
 		timeradd(&itv.it_value, &diff, &itv.it_value);
@@ -120,10 +119,8 @@ sleep(seconds)
 	return (itv.it_value.tv_sec);
 }
 
-/* ARGSUSED */
 static void
-sleephandler(sig)
-	int sig;
+sleephandler()
 {
 	ringring = 1;
 }
