@@ -52,7 +52,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: res_init.c,v 1.10 1996/09/22 11:52:07 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: res_init.c,v 1.6 1996/08/27 03:32:53 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -112,9 +112,8 @@ res_init()
 	int haveenv = 0;
 	int havesearch = 0;
 	int nsort = 0;
-
-	if (_res.id == 0)
-		_res.id = res_randomid();
+	int dots;
+	u_long mask;
 
 	_res.nsaddr.sin_len = sizeof(struct sockaddr_in);
 	_res.nsaddr.sin_family = AF_INET;
@@ -345,7 +344,6 @@ res_init()
 	return (0);
 }
 
-/* ARGSUSED */
 static void
 res_setoptions(options, source)
 	char *options, *source;
