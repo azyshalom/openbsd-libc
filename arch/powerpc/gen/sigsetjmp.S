@@ -1,10 +1,11 @@
+/*	$NetBSD$	*/
+
 /*-
  * Copyright (c) 1990 The Regents of the University of California.
  * All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
- * the Systems Programming Group of the University of Utah Computer
- * Science Department.
+ * William Jolitz.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -33,15 +34,66 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+ *
+ *	from: @(#)setjmp.s	5.1 (Berkeley) 4/23/90"
  */
+#if 0
+#include <sys/syscall.h>
 
-#if defined(SYSLIBC_SCCS)
-	.text
-	.asciz "$OpenBSD: reboot.S,v 1.2 1996/08/19 08:15:39 tholo Exp $"
-#endif /* SYSLIBC_SCCS */
+#include <machine/asm.h>
+#endif
 
 #include "SYS.h"
+#include <machine/asm.h>
 
-SYSCALL(reboot)
-	stop	#0
+#if defined(LIBC_SCCS)
+	.text
+	.asciz "$NetBSD$"
+#endif
 
+#if 1
+ENTRY(sigsetjmp)
+#else
+	.globl sigsetjmp
+sigsetjmp:
+#endif
+	mr	6,3
+	or.	7,4,4
+	beq	1f
+	li	3,1			# SIG_BLOCK
+	li	4,0
+	li	0,SYS_sigprocmask
+	sc				# assume no error	XXX
+1:
+	mflr	11
+	mfcr	12
+	mr	10,1
+	mr	9,2
+	mr	8,3
+	stmw	7,0(6)
+	li	3,0
+	blr
+
+#if 1
+ENTRY(siglongjmp)
+#else
+	.globl siglongjmp
+siglongjmp:
+#endif
+	lmw	7,0(3)
+	mr	6,4
+	mtlr	11
+	mtcr	12
+	mr	2,9
+	mr	1,10
+	or.	7,7,7
+	beq	1f
+	mr	4,8
+	li	3,3			# SIG_SETMASK
+	li	0,SYS_sigprocmask
+	sc				# assume no error	XXX
+1:
+	or.	3,6,6
+	bnelr
+	li	3,1
+	blr
