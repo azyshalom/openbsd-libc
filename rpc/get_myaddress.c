@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: get_myaddress.c,v 1.7 1997/01/22 18:50:40 deraadt Exp $";
+static char *rcsid = "$OpenBSD: get_myaddress.c,v 1.5 1996/08/19 08:31:31 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -43,7 +43,6 @@ static char *rcsid = "$OpenBSD: get_myaddress.c,v 1.7 1997/01/22 18:50:40 deraad
 #include <rpc/pmap_prot.h>
 #include <sys/socket.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <netinet/in.h>
@@ -60,30 +59,20 @@ get_myaddress(addr)
 	struct sockaddr_in *addr;
 {
 	int s;
-	char *inbuf = NULL;
+	char buf[BUFSIZ];
 	struct ifconf ifc;
 	struct ifreq ifreq, *ifr;
-	int len, inbuflen = 8192, slop;
+	int len, slop;
 	int loopback = 0, gotit = 0;
 
 	if ((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		return (-1);
 	}
-	while (1) {
-		ifc.ifc_len = inbuflen;
-		ifc.ifc_buf = inbuf = realloc(inbuf, inbuflen);
-		if (inbuf == NULL) {
-			close(s);
-			return (-1);
-		}
-		if (ioctl(s, SIOCGIFCONF, (char *)&ifc) < 0) {
-			(void) close(s);
-			free(inbuf);
-			return (-1);
-		}
-		if (ifc.ifc_len + sizeof(ifreq) < inbuflen)
-			break;
-		inbuflen *= 2;
+	ifc.ifc_len = sizeof (buf);
+	ifc.ifc_buf = buf;
+	if (ioctl(s, SIOCGIFCONF, (char *)&ifc) < 0) {
+		(void) close(s);
+		return (-1);
 	}
 again:
 	ifr = ifc.ifc_req;
@@ -91,7 +80,6 @@ again:
 		ifreq = *ifr;
 		if (ioctl(s, SIOCGIFFLAGS, (char *)&ifreq) < 0) {
 			(void) close(s);
-			free(inbuf);
 			return (-1);
 		}
 		if ((ifreq.ifr_flags & IFF_UP) &&
@@ -117,6 +105,5 @@ again:
 		goto again;
 	}
 	(void) close(s);
-	free (inbuf);
 	return (0);
 }
