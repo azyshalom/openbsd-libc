@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: svc_run.c,v 1.6 1996/08/20 20:01:56 deraadt Exp $";
+static char *rcsid = "$OpenBSD: svc_run.c,v 1.9 1996/11/14 06:33:12 etheisen Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -38,6 +38,8 @@ static char *rcsid = "$OpenBSD: svc_run.c,v 1.6 1996/08/20 20:01:56 deraadt Exp 
 #include <rpc/rpc.h>
 #include <sys/errno.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
 extern int __svc_fdsetsize;
 extern fd_set *__svc_fdset;
@@ -49,9 +51,10 @@ svc_run()
 
 	for (;;) {
 		if (__svc_fdset) {
-			fds = (fd_set *)malloc(howmany(__svc_fdsetsize, NBBY));
-			memcpy(fds, __svc_fdset, howmany(__svc_fdsetsize,
-			    NBBY));
+			int bytes = howmany(__svc_fdsetsize, NFDBITS) *
+			    sizeof(fd_mask);
+			fds = (fd_set *)malloc(bytes);
+			memcpy(fds, __svc_fdset, bytes);
 		} else
 			fds = NULL;
 		switch (select(svc_maxfd+1, fds, 0, 0, (struct timeval *)0)) {
