@@ -1,6 +1,9 @@
-/*
- * Copyright (c) 1988 Regents of the University of California.
+/*-
+ * Copyright (c) 1990 The Regents of the University of California.
  * All rights reserved.
+ *
+ * This code is derived from software contributed to Berkeley by
+ * William Jolitz.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,78 +34,12 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: __strerror.c,v 1.5 1996/09/16 05:43:38 tholo Exp $";
-#endif /* LIBC_SCCS and not lint */
+#include "SYS.h"
 
-#ifdef NLS
-#define catclose	_catclose
-#define catgets		_catgets
-#define catopen		_catopen
-#include <nl_types.h>
-#endif
+#if defined(SYSLIBC_SCCS) 
+	.text
+	.asciz "$OpenBSD: reboot.S,v 1.2 1996/08/19 08:13:36 tholo Exp $"
+#endif /* SYSLIBC_SCCS */
 
-#define sys_errlist	_sys_errlist
-#define sys_nerr	_sys_nerr
-
-#include <errno.h>
-#include <stdio.h>
-#include <string.h>
-
-static char *itoa(num)
-	int num;
-{
-	static char buffer[11];
-	char *p;
-
-	p = buffer + 4;
-	while (num >= 10) {
-		*--p = (num % 10) + '0';
-		num /= 10;
-	}
-	*p = (num % 10) + '0';
-	return p;
-}
-
-/*
- * Since perror() is not allowed to change the contents of strerror()'s
- * static buffer, both functions supply their own buffers to the
- * internal function __strerror().
- */
-
-char *
-__strerror(num, buf)
-	int num;
-	char *buf;
-{
-#define	UPREFIX	"Unknown error: "
-	register unsigned int errnum;
-
-#ifdef NLS
-	nl_catd catd;
-	catd = catopen("libc", 0);
-#endif
-
-	errnum = num;				/* convert to unsigned */
-	if (errnum < sys_nerr) {
-#ifdef NLS
-		strcpy(buf, catgets(catd, 1, errnum,
-		    (char *)sys_errlist[errnum])); 
-#else
-		return(sys_errlist[errnum]);
-#endif
-	} else {
-#ifdef NLS
-		strcpy(buf, catgets(catd, 1, 0xffff, UPREFIX));
-#else
-		strcpy(buf, UPREFIX);
-#endif
-		strcat(buf, itoa(errnum));
-	}
-
-#ifdef NLS
-	catclose(catd);
-#endif
-
-	return buf;
-}
+SYSCALL(reboot)
+	iret
