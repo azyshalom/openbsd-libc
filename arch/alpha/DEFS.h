@@ -1,3 +1,5 @@
+/*	$OpenBSD: DEFS.h,v 1.2 1996/08/19 08:10:13 tholo Exp $	*/
+
 /*
  * Copyright (c) 1994, 1995 Carnegie-Mellon University.
  * All rights reserved.
@@ -25,27 +27,4 @@
  * rights to redistribute these changes.
  */
 
-#include "SYS.h"
-
-#if defined(SYSLIBC_SCCS)
-	.text
-	.asciz "$OpenBSD: sbrk.S,v 1.3 1996/08/19 08:11:14 tholo Exp $"
-#endif /* SYSLIBC_SCCS */
-
-	.globl	_end
-
-	.data
-EXPORT(curbrk)
-	.quad	_end
-
-	.text
-LEAF(sbrk, 1)
-	br	pv, 1f				/* XXX profiling */
-1:	SETGP(pv)
-	ldq	a1, curbrk
-	addq	a0, a1, a0
-	SYSCALL_NOLABEL(break)
-	stq	a0, curbrk
-	mov	a1, v0
-	RET
-END(sbrk)
+#include <machine/asm.h>
