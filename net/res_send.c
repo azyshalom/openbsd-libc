@@ -1,8 +1,4 @@
-/*	$OpenBSD: res_send.c,v 1.4 1997/03/13 19:07:41 downsj Exp $	*/
-
-/*
- * ++Copyright++ 1985, 1989, 1993
- * -
+/*-
  * Copyright (c) 1985, 1989, 1993
  *    The Regents of the University of California.  All rights reserved.
  * 
@@ -56,12 +52,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-#if 0
-static char sccsid[] = "@(#)res_send.c	8.1 (Berkeley) 6/4/93";
-static char rcsid[] = "$From: res_send.c,v 8.12 1996/10/08 04:51:06 vixie Exp $";
-#else
-static char rcsid[] = "$OpenBSD: res_send.c,v 1.4 1997/03/13 19:07:41 downsj Exp $";
-#endif
+static char rcsid[] = "$OpenBSD: res_send.c,v 1.3 1996/08/19 08:29:49 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 	/* change this to "0"
@@ -75,7 +66,6 @@ static char rcsid[] = "$OpenBSD: res_send.c,v 1.4 1997/03/13 19:07:41 downsj Exp
  * Send query to name server and wait for reply.
  */
 
-#include <sys/types.h>
 #include <sys/param.h>
 #include <sys/time.h>
 #include <sys/socket.h>
@@ -88,23 +78,23 @@ static char rcsid[] = "$OpenBSD: res_send.c,v 1.4 1997/03/13 19:07:41 downsj Exp
 #include <netdb.h>
 #include <errno.h>
 #include <resolv.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
+#if defined(BSD) && (BSD >= 199306)
+# include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
+#else
+# include "../conf/portability.h"
+#endif
+
+#if defined(USE_OPTIONS_H)
+# include <../conf/options.h>
+#endif
+
+void _res_close __P((void));
 
 static int s = -1;	/* socket used for communications */
 static int connected = 0;	/* is the socket connected */
 static int vc = 0;	/* is the socket a virtual ciruit? */
-
-#ifndef FD_SET
-/* XXX - should be in portability.h */
-#define	NFDBITS		32
-#define	FD_SETSIZE	32
-#define	FD_SET(n, p)	((p)->fds_bits[(n)/NFDBITS] |= (1 << ((n) % NFDBITS)))
-#define	FD_CLR(n, p)	((p)->fds_bits[(n)/NFDBITS] &= ~(1 << ((n) % NFDBITS)))
-#define	FD_ISSET(n, p)	((p)->fds_bits[(n)/NFDBITS] & (1 << ((n) % NFDBITS)))
-#define FD_ZERO(p)	bzero((char *)(p), sizeof(*(p)))
-#endif
 
 #define CAN_RECONNECT 1
 
@@ -311,7 +301,7 @@ res_send(buf, buflen, ans, anssiz)
 		struct sockaddr_in *nsap = &_res.nsaddr_list[ns];
     same_ns:
 		if (badns & (1 << ns)) {
-			res_close();
+			_res_close();
 			goto next_ns;
 		}
 
@@ -328,7 +318,7 @@ res_send(buf, buflen, ans, anssiz)
 					done = 1;
 					break;
 				case res_nextns:
-					res_close();
+					_res_close();
 					goto next_ns;
 				case res_done:
 					return (resplen);
@@ -363,7 +353,7 @@ res_send(buf, buflen, ans, anssiz)
 			truncated = 0;
 			if ((s < 0) || (!vc)) {
 				if (s >= 0)
-					res_close();
+					_res_close();
 
 				s = socket(PF_INET, SOCK_STREAM, 0);
 				if (s < 0) {
@@ -378,7 +368,7 @@ res_send(buf, buflen, ans, anssiz)
 					Aerror(stderr, "connect/vc",
 					       errno, *nsap);
 					badns |= (1 << ns);
-					res_close();
+					_res_close();
 					goto next_ns;
 				}
 				vc = 1;
@@ -395,13 +385,12 @@ res_send(buf, buflen, ans, anssiz)
 				terrno = errno;
 				Perror(stderr, "write failed", errno);
 				badns |= (1 << ns);
-				res_close();
+				_res_close();
 				goto next_ns;
 			}
 			/*
 			 * Receive length & response
 			 */
-read_len:
 			cp = ans;
 			len = INT16SZ;
 			while ((n = read(s, (char *)cp, (int)len)) > 0) {
@@ -412,7 +401,7 @@ read_len:
 			if (n <= 0) {
 				terrno = errno;
 				Perror(stderr, "read failed", errno);
-				res_close();
+				_res_close();
 				/*
 				 * A long running process might get its TCP
 				 * connection reset if the remote server was
@@ -424,10 +413,10 @@ read_len:
 				 */
 				if (terrno == ECONNRESET && !connreset) {
 					connreset = 1;
-					res_close();
+					_res_close();
 					goto same_ns;
 				}
-				res_close();
+				_res_close();
 				goto next_ns;
 			}
 			resplen = _getshort(ans);
@@ -448,7 +437,7 @@ read_len:
 			if (n <= 0) {
 				terrno = errno;
 				Perror(stderr, "read(vc)", errno);
-				res_close();
+				_res_close();
 				goto next_ns;
 			}
 			if (truncated) {
@@ -470,20 +459,6 @@ read_len:
 						break;
 				}
 			}
-			/*
-			 * The calling applicating has bailed out of
-			 * a previous call and failed to arrange to have
-			 * the circuit closed or the server has got
-			 * itself confused. Anyway drop the packet and
-			 * wait for the correct one.
-			 */
-			if (hp->id != anhp->id) {
-				DprintQ((_res.options & RES_DEBUG) ||
-					(_res.pfcode & RES_PRF_REPLY),
-					(stdout, ";; old answer (unexpected):\n"),
-					ans, (resplen>anssiz)?anssiz:resplen);
-				goto read_len;
-			}
 		} else {
 			/*
 			 * Use datagrams.
@@ -495,7 +470,7 @@ read_len:
 
 			if ((s < 0) || vc) {
 				if (vc)
-					res_close();
+					_res_close();
 				s = socket(PF_INET, SOCK_DGRAM, 0);
 				if (s < 0) {
 #if !CAN_RECONNECT
@@ -535,7 +510,7 @@ read_len:
 						       "connect(dg)",
 						       errno, *nsap);
 						badns |= (1 << ns);
-						res_close();
+						_res_close();
 						goto next_ns;
 					}
 					connected = 1;
@@ -543,7 +518,7 @@ read_len:
 				if (send(s, (char*)buf, buflen, 0) != buflen) {
 					Perror(stderr, "send", errno);
 					badns |= (1 << ns);
-					res_close();
+					_res_close();
 					goto next_ns;
 				}
 			} else {
@@ -580,7 +555,7 @@ read_len:
 				    != buflen) {
 					Aerror(stderr, "sendto", errno, *nsap);
 					badns |= (1 << ns);
-					res_close();
+					_res_close();
 					goto next_ns;
 				}
 			}
@@ -600,10 +575,8 @@ read_len:
 			n = select(s+1, &dsmask, (fd_set *)NULL,
 				   (fd_set *)NULL, &timeout);
 			if (n < 0) {
-				if (errno == EINTR)
-					goto wait;
 				Perror(stderr, "select", errno);
-				res_close();
+				_res_close();
 				goto next_ns;
 			}
 			if (n == 0) {
@@ -613,7 +586,7 @@ read_len:
 				Dprint(_res.options & RES_DEBUG,
 				       (stdout, ";; timeout\n"));
 				gotsomewhere = 1;
-				res_close();
+				_res_close();
 				goto next_ns;
 			}
 			errno = 0;
@@ -622,7 +595,7 @@ read_len:
 					   (struct sockaddr *)&from, &fromlen);
 			if (resplen <= 0) {
 				Perror(stderr, "recvfrom", errno);
-				res_close();
+				_res_close();
 				goto next_ns;
 			}
 			gotsomewhere = 1;
@@ -635,7 +608,7 @@ read_len:
 				DprintQ((_res.options & RES_DEBUG) ||
 					(_res.pfcode & RES_PRF_REPLY),
 					(stdout, ";; old answer:\n"),
-					ans, (resplen>anssiz)?anssiz:resplen);
+					ans, resplen);
 				goto wait;
 			}
 #if CHECK_SRVR_ADDR
@@ -649,7 +622,7 @@ read_len:
 				DprintQ((_res.options & RES_DEBUG) ||
 					(_res.pfcode & RES_PRF_REPLY),
 					(stdout, ";; not our server:\n"),
-					ans, (resplen>anssiz)?anssiz:resplen);
+					ans, resplen);
 				goto wait;
 			}
 #endif
@@ -664,7 +637,7 @@ read_len:
 				DprintQ((_res.options & RES_DEBUG) ||
 					(_res.pfcode & RES_PRF_REPLY),
 					(stdout, ";; wrong query name:\n"),
-					ans, (resplen>anssiz)?anssiz:resplen);
+					ans, resplen);
 				goto wait;
 			}
 			if (anhp->rcode == SERVFAIL ||
@@ -672,9 +645,9 @@ read_len:
 			    anhp->rcode == REFUSED) {
 				DprintQ(_res.options & RES_DEBUG,
 					(stdout, "server rejected query:\n"),
-					ans, (resplen>anssiz)?anssiz:resplen);
+					ans, resplen);
 				badns |= (1 << ns);
-				res_close();
+				_res_close();
 				/* don't retry if called from dig */
 				if (!_res.pfcode)
 					goto next_ns;
@@ -687,7 +660,7 @@ read_len:
 				Dprint(_res.options & RES_DEBUG,
 				       (stdout, ";; truncated answer\n"));
 				v_circuit = 1;
-				res_close();
+				_res_close();
 				goto same_ns;
 			}
 		} /*if vc/dg*/
@@ -698,7 +671,7 @@ read_len:
 		DprintQ((_res.options & RES_DEBUG) ||
 			(_res.pfcode & RES_PRF_REPLY),
 			(stdout, ""),
-			ans, (resplen>anssiz)?anssiz:resplen);
+			ans, resplen);
 		/*
 		 * If using virtual circuits, we assume that the first server
 		 * is preferred over the rest (i.e. it is on the local
@@ -709,7 +682,7 @@ read_len:
 		 */
 		if ((v_circuit && (!(_res.options & RES_USEVC) || ns != 0)) ||
 		    !(_res.options & RES_STAYOPEN)) {
-			res_close();
+			_res_close();
 		}
 		if (Rhook) {
 			int done = 0, loops = 0;
@@ -725,7 +698,7 @@ read_len:
 					done = 1;
 					break;
 				case res_nextns:
-					res_close();
+					_res_close();
 					goto next_ns;
 				case res_modified:
 					/* give the hook another try */
@@ -744,7 +717,7 @@ read_len:
     next_ns: ;
 	   } /*foreach ns*/
 	} /*foreach retry*/
-	res_close();
+	_res_close();
 	if (!v_circuit)
 		if (!gotsomewhere)
 			errno = ECONNREFUSED;	/* no nameservers found */
@@ -763,7 +736,7 @@ read_len:
  * This routine is not expected to be user visible.
  */
 void
-res_close()
+_res_close()
 {
 	if (s >= 0) {
 		(void) close(s);

@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: clnt_simple.c,v 1.6 1996/12/10 07:46:33 deraadt Exp $";
+static char *rcsid = "$OpenBSD: clnt_simple.c,v 1.4 1996/09/15 09:31:33 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /* 
@@ -71,7 +71,7 @@ callrpc(host, prognum, versnum, procnum, inproc, in, outproc, out)
 		callrpc_private = crp;
 	}
 	if (crp->oldhost == NULL) {
-		crp->oldhost = malloc(MAXHOSTNAMELEN);
+		crp->oldhost = malloc(256);
 		crp->oldhost[0] = 0;
 		crp->socket = RPC_ANYSOCK;
 	}
@@ -80,8 +80,7 @@ callrpc(host, prognum, versnum, procnum, inproc, in, outproc, out)
 		/* reuse old client */		
 	} else {
 		crp->valid = 0;
-		if (crp->socket != -1)
-			(void)close(crp->socket);
+		(void)close(crp->socket);
 		crp->socket = RPC_ANYSOCK;
 		if (crp->client) {
 			clnt_destroy(crp->client);

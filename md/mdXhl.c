@@ -8,7 +8,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: mdXhl.c,v 1.5 1996/11/24 02:25:59 niklas Exp $";
+static char rcsid[] = "$OpenBSD: mdXhl.c,v 1.4 1996/09/29 14:55:26 millert Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <stdlib.h>
@@ -69,7 +69,7 @@ MDXFile (filename, buf)
 char *
 MDXData (data, len, buf)
     const unsigned char *data;
-    size_t len;
+    unsigned int len;
     char *buf;
 {
     MDX_CTX ctx;

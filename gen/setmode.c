@@ -1,6 +1,3 @@
-/*	$OpenBSD: setmode.c,v 1.5 1997/03/07 02:15:18 millert Exp $	*/
-/*	$NetBSD: setmode.c,v 1.15 1997/02/07 22:21:06 christos Exp $	*/
-
 /*
  * Copyright (c) 1989, 1993, 1994
  *	The Regents of the University of California.  All rights reserved.
@@ -38,11 +35,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-#if 0
-static char sccsid[] = "@(#)setmode.c	8.2 (Berkeley) 3/25/94";
-#else
-static char rcsid[] = "$OpenBSD: setmode.c,v 1.5 1997/03/07 02:15:18 millert Exp $";
-#endif
+static char rcsid[] = "$OpenBSD: setmode.c,v 1.4 1996/08/19 08:25:55 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
@@ -94,10 +87,10 @@ getmode(bbox, omode)
 	mode_t omode;
 #endif
 {
-	register const BITCMD *set;
+	register BITCMD *set;
 	register mode_t clrval, newmode, value;
 
-	set = (const BITCMD *)bbox;
+	set = (BITCMD *)bbox;
 	newmode = omode;
 	for (value = 0;; set++)
 		switch(set->cmd) {
@@ -265,19 +258,13 @@ getop:		if ((op = *p++) != '+' && op != '-' && op != '=') {
 				perm |= S_IRUSR|S_IRGRP|S_IROTH;
 				break;
 			case 's':
-				/*
-				 * If specific bits where requested and
-				 * only "other" bits ignore set-id.
-				 */
-				if (who == 0 || (who & ~S_IRWXO))
+				/* If only "other" bits ignore set-id. */
+				if (who & ~S_IRWXO)
 					perm |= S_ISUID|S_ISGID;
 				break;
 			case 't':
-				/*
-				 * If specific bits where requested and
-				 * only "other" bits ignore sticky.
-				 */
-				if (who == 0 || (who & ~S_IRWXO)) {
+				/* If only "other" bits ignore sticky. */
+				if (who & ~S_IRWXO) {
 					who |= S_ISTXT;
 					perm |= S_ISTXT;
 				}
@@ -416,7 +403,7 @@ dumpmode(set)
 /*
  * Given an array of bitcmd structures, compress by compacting consecutive
  * '+', '-' and 'X' commands into at most 3 commands, one of each.  The 'u',
- * 'g' and 'o' commands continue to be separate.  They could probably be
+ * 'g' and 'o' commands continue to be separate.  They could probably be 
  * compacted, but it's not worth the effort.
  */
 static void

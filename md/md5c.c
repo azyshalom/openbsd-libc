@@ -23,7 +23,7 @@ documentation and/or software.
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: md5c.c,v 1.8 1997/01/07 10:09:00 niklas Exp $";
+static char rcsid[] = "$OpenBSD: md5c.c,v 1.4 1996/10/02 03:50:26 millert Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <string.h>
@@ -58,8 +58,10 @@ static void MD5Transform __P ((u_int32_t [4], const unsigned char [64]));
 #define Encode memcpy
 #define Decode memcpy
 #else /* BIG_ENDIAN */
-static void Encode __P((void *, const void *, size_t));
-static void Decode __P((void *, const void *, size_t));
+static void Encode __P
+    ((unsigned char *, u_int32_t *, unsigned int));
+static void Decode __P
+    ((u_int32_t *, const unsigned char *, unsigned int));
 #endif /* LITTLE_ENDIAN */
 
 static unsigned char PADDING[64] = {
@@ -107,14 +109,12 @@ Rotation is separate from addition to prevent recomputation.
 /* Encodes input (u_int32_t) into output (unsigned char). Assumes len is
   a multiple of 4.
  */
-static void Encode (out, in, len)
-void *out;
-const void *in;
-size_t len;
+static void Encode (output, input, len)
+unsigned char *output;
+u_int32_t *input;
+unsigned int len;
 {
-  unsigned char *output = out;
-  size_t i, j;
-  const u_int32_t *input = in;
+  unsigned int i, j;
 
   for (i = 0, j = 0; j < len; i++, j += 4) {
     output[j] = (unsigned char)(input[i] & 0xff);
@@ -127,14 +127,12 @@ size_t len;
 /* Decodes input (unsigned char) into output (u_int32_t). Assumes len is
   a multiple of 4.
  */
-static void Decode (out, in, len)
-void *out;
-const void *in;
-size_t len;
+static void Decode (output, input, len)
+u_int32_t *output;
+const unsigned char *input;
+unsigned int len;
 {
-  u_int32_t *output = out;
-  const unsigned char *input = in;
-  size_t i, j;
+  unsigned int i, j;
 
   for (i = 0, j = 0; j < len; i++, j += 4)
     output[i] = ((u_int32_t)input[j]) | (((u_int32_t)input[j+1]) << 8) |
@@ -147,8 +145,9 @@ size_t len;
 void MD5Init (context)
 MD5_CTX *context;                                        /* context */
 {
-  context->count = 0;
-  /* Load magic initialization constants. */
+  context->count[0] = context->count[1] = 0;
+  /* Load magic initialization constants.
+*/
   context->state[0] = 0x67452301;
   context->state[1] = 0xefcdab89;
   context->state[2] = 0x98badcfe;
@@ -162,33 +161,40 @@ MD5_CTX *context;                                        /* context */
 void MD5Update (context, input, inputLen)
 MD5_CTX *context;                                        /* context */
 const unsigned char *input;                                /* input block */
-size_t inputLen;                     /* length of input block */
+unsigned int inputLen;                     /* length of input block */
 {
   unsigned int i, index, partLen;
 
   /* Compute number of bytes mod 64 */
-  index = (unsigned int)((context->count >> 3) & 0x3F);
+  index = (unsigned int)((context->count[0] >> 3) & 0x3F);
 
   /* Update number of bits */
-  context->count += ((u_int64_t)inputLen << 3);
+  if ((context->count[0] += ((u_int32_t)inputLen << 3))
+   < ((u_int32_t)inputLen << 3))
+ context->count[1]++;
+  context->count[1] += ((u_int32_t)inputLen >> 29);
 
   partLen = 64 - index;
 
-  /* Transform as many times as possible. */
+  /* Transform as many times as possible.
+*/
   if (inputLen >= partLen) {
-    memcpy ((POINTER)&context->buffer[index], (POINTER)input, partLen);
-    MD5Transform (context->state, context->buffer);
+ memcpy
+   ((POINTER)&context->buffer[index], (POINTER)input, partLen);
+ MD5Transform (context->state, context->buffer);
 
-    for (i = partLen; i + 63 < inputLen; i += 64)
-      MD5Transform (context->state, &input[i]);
+ for (i = partLen; i + 63 < inputLen; i += 64)
+   MD5Transform (context->state, &input[i]);
 
-    index = 0;
+ index = 0;
   }
   else
-    i = 0;
+ i = 0;
 
   /* Buffer remaining input */
-  memcpy ((POINTER)&context->buffer[index], (POINTER)&input[i], inputLen-i);
+  memcpy
+ ((POINTER)&context->buffer[index], (POINTER)&input[i],
+  inputLen-i);
 }
 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
@@ -199,18 +205,14 @@ unsigned char digest[16];                         /* message digest */
 MD5_CTX *context;                                       /* context */
 {
   unsigned char bits[8];
-  unsigned int index;
-  size_t padLen;
-  u_int32_t hi, lo;
+  unsigned int index, padLen;
 
   /* Save number of bits */
-  hi = context->count >> 32;
-  lo = context->count & 0xffffffff;
-  Encode (bits, &lo, 4);
-  Encode (bits + 4, &hi, 4);
+  Encode (bits, context->count, 8);
 
-  /* Pad out to 56 mod 64. */
-  index = (unsigned int)((context->count >> 3) & 0x3f);
+  /* Pad out to 56 mod 64.
+*/
+  index = (unsigned int)((context->count[0] >> 3) & 0x3f);
   padLen = (index < 56) ? (56 - index) : (120 - index);
   MD5Update (context, PADDING, padLen);
 
@@ -219,7 +221,8 @@ MD5_CTX *context;                                       /* context */
   /* Store state in digest */
   Encode (digest, context->state, 16);
 
-  /* Zeroize sensitive information.  */
+  /* Zeroize sensitive information.
+*/
   memset ((POINTER)context, 0, sizeof (*context));
 }
 
@@ -310,7 +313,8 @@ const unsigned char block[64];
   state[2] += c;
   state[3] += d;
 
-  /* Zeroize sensitive information. */
+  /* Zeroize sensitive information.
+*/
   memset ((POINTER)x, 0, sizeof (x));
 }
 
