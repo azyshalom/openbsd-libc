@@ -1,5 +1,5 @@
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: localtime.c,v 1.7 1996/10/30 00:20:14 tholo Exp $";
+static char rcsid[] = "$OpenBSD: localtime.c,v 1.5 1996/08/25 10:11:11 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -285,7 +285,7 @@ register struct state * const	sp;
 		if (!doaccess && issetugid() == 0) {
 			if ((p = TZDIR) == NULL)
 				return -1;
-			if (strlen(p) + 1 + strlen(name) + 1 >= sizeof fullname)
+			if ((strlen(p) + strlen(name) + 1) >= sizeof fullname)
 				return -1;
 			(void) strcpy(fullname, p);
 			(void) strcat(fullname, "/");
@@ -1366,14 +1366,7 @@ int * const		okayp;
 		dir = tmcomp(&mytm, &yourtm);
 		if (dir != 0) {
 			if (bits-- < 0)
-#ifdef PCTS
-			{
-				t += 2;
-				break;
-			}
-#else
 				return WRONG;
-#endif
 			if (bits < 0)
 				--t; /* may be needed if new t is minimal */
 			else if (dir > 0)
