@@ -1,4 +1,4 @@
-.\"	$OpenBSD: sysctl.3,v 1.107 2003/07/29 14:53:11 jmc Exp $
+.\"	$OpenBSD: sysctl.3,v 1.100.2.1 2004/03/03 08:40:07 brad Exp $
 .\"
 .\" Copyright (c) 1993
 .\"	The Regents of the University of California.  All rights reserved.
@@ -11,7 +11,11 @@
 .\" 2. Redistributions in binary form must reproduce the above copyright
 .\"    notice, this list of conditions and the following disclaimer in the
 .\"    documentation and/or other materials provided with the distribution.
-.\" 3. Neither the name of the University nor the names of its contributors
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
 .\"    may be used to endorse or promote products derived from this software
 .\"    without specific prior written permission.
 .\"
@@ -226,14 +230,13 @@ privileges may change the value.
 .It Dv HW_DISKNAMES No "	string	no"
 .It Dv HW_DISKSTATS No "	struct	no"
 .It Dv HW_DISKCOUNT No "	integer	no"
-.It Dv HW_SENSORS No "	struct	no"
 .El
 .Pp
 .Bl -tag -width "123456"
 .It Dv HW_MACHINE
 The machine class.
 .It Dv HW_MODEL
-The machine model.
+The machine model
 .It Dv HW_NCPU
 The number of CPUs.
 .It Dv HW_BYTEORDER
@@ -252,10 +255,6 @@ An array of
 structures containing disk statistics.
 .It Dv HW_DISKCOUNT
 The number of disks currently attached to the system.
-.It Dv HW_SENSORS
-An array of
-.Li struct sensor
-structures containing information from the hardware monitoring sensors.
 .El
 .Ss CTL_KERN
 The string and integer information available for the
@@ -403,7 +402,7 @@ The size of the kernel message buffer.
 A
 .Li struct nchstats
 structure is returned.
-This structure contains information about the
+This structure contains information the
 filename to
 .Xr inode 5
 mapping cache.
@@ -573,7 +572,7 @@ The maximum number of semaphores allowed in the system.
 .It Dv KERN_SEMINFO_SEMMNU
 The maximum number of semaphore undo structures allowed in the system.
 .It Dv KERN_SEMINFO_SEMMSL
-The maximum number of semaphores allowed per ID.
+The maximum number of semaphores allowed per id.
 .It Dv KERN_SEMINFO_SEMOPM
 The maximum number of operations per
 .Xr semop 2
@@ -636,7 +635,7 @@ The default value is 80.
 Return System V style IPC configuration and run-time information.
 The third level name selects the System V style IPC facility.
 .Bl -column "KERN_SYSVIPC_MSG_INFOXXX" "struct shm_sysctl_infoXXX" -offset indent
-.It Sy Third level name	Type
+.It Sy Pa Third level name	Type
 .It KERN\_SYSVIPC\_MSG\_INFO	struct msg_sysctl_info
 .It KERN\_SYSVIPC\_SEM\_INFO	struct sem_sysctl_info
 .It KERN\_SYSVIPC\_SHM\_INFO	struct shm_sysctl_info
@@ -870,6 +869,7 @@ The currently defined protocols and names are:
 .It tcp	keepintvl	integer	yes
 .It tcp	slowhz	integer	no
 .It tcp	baddynamic	array	yes
+.It tcp	reasslimit	integer yes
 .It tcp	recvspace	integer	yes
 .It tcp	sendspace	integer	yes
 .It tcp	sack	integer	yes
@@ -919,33 +919,6 @@ This value may only be changed if the kernel security
 level is less than 1.
 .It Li ip.directed-broadcast
 Returns 1 if directed broadcast behavior is enabled for the host.
-.It Li ip.portfirst
-Minimum registered port number for TCP/UDP port allocation.
-Registered ports can be used by ordinary user processes
-or programs executed by ordinary users.
-Cannot be less than 1024 or greater than 49151.
-Must be less than ip.portlast.
-.It Li ip.portlast
-Maximum registered port number for TCP/UDP port allocation.
-Registered ports can be used by ordinary user processes
-or programs executed by ordinary users.
-Cannot be less than 1024 or greater than 49151.
-Must be greater than ip.portfirst.
-.It Li ip.porthifirst
-Maximum dynamic/private port number for TCP/UDP port allocation.
-Dynamic/private ports can be used by ordinary user processes
-or programs executed by ordinary users.
-Cannot be less than 49152 or greater than 65535.
-Must be less than ip.porthilast.
-.It Li ip.porthilast
-Maximum dynamic/private port number for TCP/UDP port allocation.
-Dynamic/private ports can be used by ordinary user processes
-or programs executed by ordinary users.
-Cannot be less than 49152 or greater than 65535.
-Must be greater than ip.porthifirst.
-.It Li ip.maxqueue
-Fragment flood protection.
-Sets the maximum number of unassembled IP fragments in the fragment queue.
 .It Li ip.encdebug
 Returns 1 when error message reporting is enabled for the host.
 If the kernel has been compiled with the
@@ -1140,6 +1113,10 @@ in seconds.)
 Returns the default
 .Tn TCP
 send buffer size.
+.It Li tcp.reasslimit
+The maximum number of out-of-order
+.Tn TCP
+segments the system will store for reassembly.
 .It Li tcp.recvspace
 Returns the default
 .Tn TCP
@@ -1190,7 +1167,7 @@ The third level name is the protocol.
 The fourth level name is the variable name.
 The currently defined protocols and names are:
 .Bl -column "Protocol name" "Variable nameXX" "integer" "yes" -offset indent
-.It Sy Protocol name	Variable name	Type	Changeable
+.It Pa Protocol name	Variable name	Type	Changeable
 .It ip6	forwarding	integer	yes
 .It ip6	redirect	integer	yes
 .It ip6	hlim	integer	yes
@@ -1256,7 +1233,7 @@ and autoconfigures address prefixes and default routers.
 The node must be a host
 .Pq not a router
 for the option to be meaningful (see
-.Li ip6.forwarding ) .
+.Li ip6.forwarding Ns ).
 .It Li ip6.keepfaith
 If set to non-zero, enables the
 .Dq FAITH
@@ -1500,8 +1477,7 @@ timezone.
 .El
 .Ss CTL_DDB
 Integer information and settable variables are available for the
-.Dv CTL_DDB level ,
-as described below.
+.Dv CTL_DDB level, as described below.
 More information is also available in
 .Xr ddb 4 .
 .Bl -column "Second level nameXXXXXX" "struct loadavgXXX" -offset indent
@@ -1511,7 +1487,6 @@ More information is also available in
 .It Dv DBCTL_TABSTOP No "	integer	yes"
 .It Dv DBCTL_PANIC No "	integer	yes"
 .It Dv DBCTL_CONSOLE No "	integer	yes"
-.It Dv DBCTL_LOG No "	integer	yes"
 .El
 .Pp
 .Bl -tag -width "123456"
@@ -1542,8 +1517,6 @@ kernel debugger.
 As described in
 .Xr securelevel 7 ,
 a security level greater than 1 blocks modification of this variable.
-.It Dv DBCTL_LOG
-When set, ddb output is also logged in the kernel message buffer.
 .El
 .Ss CTL_VM
 The string and integer information available for the
@@ -1600,7 +1573,7 @@ Encryption keys are deleted when their reference counter reaches zero.
 .El
 .It Dv VM_UVMEXP
 Contains statistics about the UVM memory management system.
-.It Dv VM_METER
+.It Dv VM_METER:
 Contains statistics about the memory management system, using the old
 VM format.
 .El
@@ -1658,43 +1631,6 @@ If the call to
 is unsuccessful, \-1 is returned and
 .Va errno
 is set appropriately.
-.Sh FILES
-.Bl -tag -width <uvm/uvmXswapXencrypt.h> -compact
-.It Aq Pa sys/sysctl.h
-definitions for top level identifiers, second level kernel and hardware
-identifiers, and user level identifiers
-.It Aq Pa sys/socket.h
-definitions for second level network identifiers
-.It Aq Pa sys/gmon.h
-definitions for third level profiling identifiers
-.It Aq Pa vm/vm_param.h
-definitions for second level virtual memory identifiers
-.It Aq Pa uvm/uvm_swap_encrypt.h
-definitions for third level virtual memory identifiers
-.It Aq Pa netinet/in.h
-definitions for third level IPv4/v6 identifiers and
-fourth level
-.Tn IP
-and
-.Tn IPv6
-identifiers
-.It Aq Pa netinet/icmp_var.h
-definitions for fourth level
-.Tn ICMP
-identifiers
-.It Aq Pa netinet/icmp6.h
-definitions for fourth level
-.Tn ICMPv6
-identifiers
-.It Aq Pa netinet/tcp_var.h
-definitions for fourth level
-.Tn TCP
-identifiers
-.It Aq Pa netinet/udp_var.h
-definitions for fourth level
-.Tn UDP
-identifiers
-.El
 .Sh ERRORS
 The following errors may be reported:
 .Bl -tag -width Er
@@ -1736,6 +1672,43 @@ A process without appropriate privileges attempts to set a value.
 .It Bq Er EPERM
 An attempt to change a value protected by the current kernel security
 level is made.
+.El
+.Sh FILES
+.Bl -tag -width <uvm/uvmXswapXencrypt.h> -compact
+.It Aq Pa sys/sysctl.h
+definitions for top level identifiers, second level kernel and hardware
+identifiers, and user level identifiers
+.It Aq Pa sys/socket.h
+definitions for second level network identifiers
+.It Aq Pa sys/gmon.h
+definitions for third level profiling identifiers
+.It Aq Pa vm/vm_param.h
+definitions for second level virtual memory identifiers
+.It Aq Pa uvm/uvm_swap_encrypt.h
+definitions for third level virtual memory identifiers
+.It Aq Pa netinet/in.h
+definitions for third level IPv4/v6 identifiers and
+fourth level
+.Tn IP
+and
+.Tn IPv6
+identifiers
+.It Aq Pa netinet/icmp_var.h
+definitions for fourth level
+.Tn ICMP
+identifiers
+.It Aq Pa netinet/icmp6.h
+definitions for fourth level
+.Tn ICMPv6
+identifiers
+.It Aq Pa netinet/tcp_var.h
+definitions for fourth level
+.Tn TCP
+identifiers
+.It Aq Pa netinet/udp_var.h
+definitions for fourth level
+.Tn UDP
+identifiers
 .El
 .Sh SEE ALSO
 .Xr sysctl 8
