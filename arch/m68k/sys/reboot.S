@@ -1,9 +1,10 @@
 /*-
- * Copyright (c) 1994
- *	Andrew Cagney.  All rights reserved.
+ * Copyright (c) 1990 The Regents of the University of California.
+ * All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
- * Ralph Campbell.
+ * the Systems Programming Group of the University of Utah Computer
+ * Science Department.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -32,41 +33,15 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- *
- *	from: @(#)SYS.h	8.1 (Berkeley) 6/4/93
- *      $Id: SYS.h,v 1.1 1996/12/21 20:42:21 rahnds Exp $ 
  */
 
-#include <sys/syscall.h>
+#if defined(SYSLIBC_SCCS)
+	.text
+	.asciz "$OpenBSD: reboot.S,v 1.2 1996/08/19 08:15:39 tholo Exp $"
+#endif /* SYSLIBC_SCCS */
 
-/* r0 will be a non zero errno if there was an error, while r3/r4 will
-   contain the return value */
+#include "SYS.h"
 
-#include "machine/asm.h"
+SYSCALL(reboot)
+	stop	#0
 
-#ifdef __STDC__
-#define PSEUDO_PREFIX(x,y)	.globl _C_LABEL(x) ; \
-				.align 2; \
-				.extern cerror ; \
-			_C_LABEL(x):	li 0, SYS_##y ; \
-				/* sc */
-#else /* !__STDC__ */
-#define PSEUDO_PREFIX(x,y)	.globl _C_LABEL(x) ; \
-				.align 2; \
-				.extern cerror ; \
-			_C_LABEL(x):	li 0, SYS_/**/y ; \
-				/* sc */
-#endif /* !__STDC__ */
-#define PSEUDO_SUFFIX		cmpwi 0, 0 ; \
-				beqlr+ ; \
-				b cerror
-
-#define PREFIX(x)		PSEUDO_PREFIX(x,x)
-
-#define SUFFIX			PSEUDO_SUFFIX
-
-#define	PSEUDO(x,y)		PSEUDO_PREFIX(x,y) ; \
-				sc ; \
-				PSEUDO_SUFFIX
-
-#define RSYSCALL(x)		PSEUDO(x,x)

@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: __strerror.c,v 1.6 1996/09/25 08:17:30 deraadt Exp $";
+static char *rcsid = "$OpenBSD: __strerror.c,v 1.4 1996/09/15 09:31:53 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef NLS
@@ -46,24 +46,8 @@ static char *rcsid = "$OpenBSD: __strerror.c,v 1.6 1996/09/25 08:17:30 deraadt E
 #define sys_nerr	_sys_nerr
 
 #include <errno.h>
-#include <limits.h>
 #include <stdio.h>
 #include <string.h>
-
-static char *itoa(num)
-	int num;
-{
-	static char buffer[11];
-	char *p;
-
-	p = buffer + 4;
-	while (num >= 10) {
-		*--p = (num % 10) + '0';
-		num /= 10;
-	}
-	*p = (num % 10) + '0';
-	return p;
-}
 
 /*
  * Since perror() is not allowed to change the contents of strerror()'s
@@ -76,7 +60,7 @@ __strerror(num, buf)
 	int num;
 	char *buf;
 {
-#define	UPREFIX	"Unknown error: "
+#define	UPREFIX	"Unknown error: %u"
 	register unsigned int errnum;
 
 #ifdef NLS
@@ -87,20 +71,17 @@ __strerror(num, buf)
 	errnum = num;				/* convert to unsigned */
 	if (errnum < sys_nerr) {
 #ifdef NLS
-		strncpy(buf, catgets(catd, 1, errnum,
-		    (char *)sys_errlist[errnum]), NL_TEXTMAX-1);
-		buf[NL_TEXTMAX - 1] = '\0';
+		strcpy(buf, catgets(catd, 1, errnum,
+		    (char *)sys_errlist[errnum])); 
 #else
 		return(sys_errlist[errnum]);
 #endif
 	} else {
 #ifdef NLS
-		strncpy(buf, catgets(catd, 1, 0xffff, UPREFIX), NL_TEXTMAX-1);
-		buf[NL_TEXTMAX - 1] = '\0';
+		sprintf(buf, catgets(catd, 1, 0xffff, UPREFIX), errnum);
 #else
-		strcpy(buf, UPREFIX);
+		sprintf(buf, UPREFIX, errnum);
 #endif
-		strncat(buf, itoa(errnum), NL_TEXTMAX-strlen(buf)-1);
 	}
 
 #ifdef NLS
