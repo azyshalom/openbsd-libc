@@ -1,4 +1,4 @@
-.\"	$OpenBSD: sysctl.3,v 1.117 2003/12/19 09:11:20 jmc Exp $
+.\"	$OpenBSD: sysctl.3,v 1.109.2.1 2004/03/03 08:37:05 brad Exp $
 .\"
 .\" Copyright (c) 1993
 .\"	The Regents of the University of California.  All rights reserved.
@@ -270,7 +270,6 @@ privileges may change the value.
 .Bl -column "Second level nameXXXXXX" integerXXX -offset indent
 .It Sy Second level name	Type	Changeable
 .It Dv HW_BYTEORDER No "	integer	no"
-.It Dv HW_CPUSPEED No "	integer	no"
 .It Dv HW_DISKCOUNT No "	integer	no"
 .It Dv HW_DISKNAMES No "	string	no"
 .It Dv HW_DISKSTATS No "	struct	no"
@@ -280,15 +279,11 @@ privileges may change the value.
 .It Dv HW_PAGESIZE No "	integer	no"
 .It Dv HW_PHYSMEM No "	integer	no"
 .It Dv HW_SENSORS No "	struct	no"
-.It Dv HW_SETPERF No "	integer	yes"
 .It Dv HW_USERMEM No "	integer	no"
 .El
 .Bl -tag -width "123456"
 .It Dv HW_BYTEORDER
 The byteorder (4321 or 1234).
-.It Dv HW_CPUSPEED
-The CPU frequency
-.Pq in MHz .
 .It Dv HW_DISKCOUNT
 The number of disks currently attached to the system.
 .It Dv HW_DISKNAMES
@@ -311,9 +306,6 @@ The bytes of physical memory.
 An array of
 .Li struct sensor
 structures containing information from the hardware monitoring sensors.
-.It Dv HW_SETPERF
-Current CPU performance
-.Pq percentage .
 .It Dv HW_USERMEM
 The bytes of non-kernel memory.
 .El
@@ -949,13 +941,7 @@ The currently defined protocols and names are:
 .Bl -column "Protocol name" "ipsec-soft-bytes " "integer" -offset indent
 .It Sy Protocol name	Variable name	Type	Changeable
 .It ah	enable	integer	yes
-.It carp	allow	integer	yes
-.It carp	arpbalance	integer	yes
-.It carp	log	integer	yes
-.It carp	preempt	integer	yes
 .It esp	enable	integer	yes
-.It esp	udpencap	integer	yes
-.It esp	udpencap_port	integer	yes
 .It etherip	allow	integer	yes
 .It gre	allow	integer	yes
 .It gre	wccp	integer	yes
@@ -1003,6 +989,7 @@ The currently defined protocols and names are:
 .It tcp	keepinittime	integer	yes
 .It tcp	keepintvl	integer	yes
 .It tcp	mssdflt	integer	yes
+.It tcp	reasslimit	integer yes
 .It tcp	recvspace	integer	yes
 .It tcp	rfc1323	integer	yes
 .It tcp	rstppslimit	integer	yes
@@ -1025,33 +1012,6 @@ Enabled by default.
 See
 .Xr ipsec 4
 for more information.
-.It Li carp.allow
-If set to 0, incoming
-.Tn CARP
-packets will not be processed.
-If set to any other value, processing will occur.
-Enabled by default.
-.It Li carp.arpbalance
-If set to any value other than 0, the ARP balancing functionality in carp is
-enabled.
-When ARP requests are received for an IP address which is part of any virtual
-host, carp will hash the source IP in the ARP request to select one of the
-virtual hosts from the set of all the virtual hosts which have that IP address.
-The master of that host will respond with the correct virtual MAC address.
-Disabled by default.
-.It Li carp.log
-If set to any value other than 0,
-.Xr carp 4
-will log errors.
-Enabled by default.
-.It Li carp.preempt
-If set to 0,
-.Xr carp 4
-will not attempt to become master if it is receiving advertisements from
-another active master.
-If set to any other value, carp will become master of the virtual host if it
-believes it can send advertisements more frequently than the current master.
-Enabled by default.
 .It Li esp.enable
 If set to 1, enable Encapsulating Security Payload
 .Pq ESP
@@ -1060,13 +1020,6 @@ Enabled by default.
 See
 .Xr ipsec 4
 for more information.
-.It Li esp.udpencap
-If set to 1, enable processing of UDP encapsulated ESP packets.
-Disabled by default.
-.It Li esp.udpencap_port
-Contains the value of the UDP port that triggers
-decapsulation for incoming UDP encapsulated ESP packets.
-The default port is 4500.
 .It Li etherip.allow
 If set to 0, incoming Ethernet-in-IPv4 packets will not be processed.
 If set to any other value, processing will occur.
@@ -1136,7 +1089,7 @@ or as a result of dynamic
 entries.
 Supported values are hmac-md5, hmac-sha1, and hmac-ripemd160.
 If set to any other value, it is left to the key management daemons to
-select an authentication algorithm for the security association.
+select an authentiction algorithm for the security association.
 The default value is hmac-sha1.
 .It Li ip.ipsec-bytes
 The number of bytes that will be processed by a security association
@@ -1248,7 +1201,7 @@ or programs executed by ordinary users.
 Cannot be less than 1024 or greater than 49151.
 Must be less than ip.portlast.
 .It Li ip.porthifirst
-Minimum dynamic/private port number for TCP/UDP port allocation.
+Maximum dynamic/private port number for TCP/UDP port allocation.
 Dynamic/private ports can be used by ordinary user processes
 or programs executed by ordinary users.
 Cannot be less than 49152 or greater than 65535.
@@ -1335,6 +1288,10 @@ See also tcp.slowhz.
 .It Li tcp.mssdflt
 The maximum segment size that is used as default for non-local connections.
 The default value is 512.
+.It Li tcp.reasslimit
+The maximum number of out-of-order
+.Tn TCP
+segments the system will store for reassembly.
 .It Li tcp.recvspace
 Returns the default
 .Tn TCP
@@ -1465,8 +1422,8 @@ IPv6 neighbor discovery permits upper layer protocols to supply reachability
 hints, to avoid unnecessary neighbor discovery exchanges.
 This variable defines the number of consecutive hints the neighbor discovery
 layer will take.
-For example, by setting the variable to 3, neighbor discovery will take
-a maximum of 3 consecutive hints.
+For example, by setting the variable to 3, neighbor discovery can take
+take a maximum of 3 consecutive hints.
 After receiving 3 hints, the neighbor discovery layer will instead perform
 the normal neighbor discovery process.
 .Pp
@@ -1841,7 +1798,7 @@ The number of encryption keys that have been randomly created.
 The swap partition is divided into sections of normally 512KB.
 Each section has its own encryption key.
 .It Dv SWPENC_DELETED
-The number of encryption keys that have been deleted, thus effectively
+The number of encryption keys that have been deleted, thus effectivly
 erasing the data that has been encrypted with them.
 Encryption keys are deleted when their reference counter reaches zero.
 .It Dv SWPENC_ENABLE
