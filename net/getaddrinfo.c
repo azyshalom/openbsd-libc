@@ -1,4 +1,4 @@
-/*	$OpenBSD: getaddrinfo.c,v 1.23 2000/05/15 10:49:55 itojun Exp $	*/
+/*	$OpenBSD: getaddrinfo.c,v 1.22.2.1 2000/06/15 03:34:31 jason Exp $	*/
 /*	$KAME: getaddrinfo.c,v 1.21 2000/05/05 07:40:51 itojun Exp $	*/
 
 /*
