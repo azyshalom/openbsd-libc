@@ -30,7 +30,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: ypmatch_cache.c,v 1.4 1996/08/19 08:35:12 tholo Exp $";
+static char *rcsid = "$OpenBSD: ypmatch_cache.c,v 1.6 1996/12/03 08:20:06 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -47,6 +47,7 @@ static char *rcsid = "$OpenBSD: ypmatch_cache.c,v 1.4 1996/08/19 08:35:12 tholo 
 #include <rpc/xdr.h>
 #include <rpcsvc/yp.h>
 #include <rpcsvc/ypclnt.h>
+#define YPMATCHCACHE
 #include "ypinternal.h"
 
 int _yplib_cache = 5;
@@ -161,7 +162,7 @@ yp_match(indomain, inmap, inkey, inkeylen, outval, outvallen)
 	struct ypresp_val yprv;
 	struct timeval  tv;
 	struct ypreq_key yprk;
-	int             r;
+	int tries = 0, r;
 
 	if (indomain == NULL || *indomain == '\0' || 
 	    strlen(indomain) > YPMAXDOMAIN || inmap == NULL ||
@@ -204,7 +205,8 @@ again:
 	r = clnt_call(ysd->dom_client, YPPROC_MATCH,
 	    xdr_ypreq_key, &yprk, xdr_ypresp_val, &yprv, tv);
 	if (r != RPC_SUCCESS) {
-		clnt_perror(ysd->dom_client, "yp_match: clnt_call");
+		if (tries++)
+			clnt_perror(ysd->dom_client, "yp_match: clnt_call");
 		ysd->dom_vers = -1;
 		goto again;
 	}
@@ -244,7 +246,7 @@ yp_next(indomain, inmap, inkey, inkeylen, outkey, outkeylen, outval, outvallen)
 	struct ypreq_key yprk;
 	struct dom_binding *ysd;
 	struct timeval  tv;
-	int             r;
+	int tries = 0, r;
 
 	if (indomain == NULL || *indomain == '\0' ||
 	    strlen(indomain) > YPMAXDOMAIN || inmap == NULL ||
@@ -270,7 +272,8 @@ again:
 	r = clnt_call(ysd->dom_client, YPPROC_NEXT,
 	    xdr_ypreq_key, &yprk, xdr_ypresp_key_val, &yprkv, tv);
 	if (r != RPC_SUCCESS) {
-		clnt_perror(ysd->dom_client, "yp_next: clnt_call");
+		if (tries++)
+			clnt_perror(ysd->dom_client, "yp_next: clnt_call");
 		ysd->dom_vers = -1;
 		goto again;
 	}

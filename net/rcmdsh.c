@@ -1,4 +1,4 @@
-/*	$OpenBSD: rcmdsh.c,v 1.1 1996/08/22 20:11:20 millert Exp $	*/ 
+/*	$OpenBSD: rcmdsh.c,v 1.3 1996/09/15 09:31:17 tholo Exp $	*/ 
 
 /*
  * This is an rcmd() replacement originally by 
@@ -6,7 +6,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: rcmdsh.c,v 1.1 1996/08/22 20:11:20 millert Exp $";
+static char *rcsid = "$OpenBSD: rcmdsh.c,v 1.3 1996/09/15 09:31:17 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include      <sys/types.h>
@@ -19,17 +19,19 @@ static char *rcsid = "$OpenBSD: rcmdsh.c,v 1.1 1996/08/22 20:11:20 millert Exp $
 #include      <string.h>
 #include      <pwd.h>
 #include      <paths.h>
+#include      <unistd.h>
 
 /*
  * This is a replacement rcmd() function that uses the rsh(1)
  * program in place of a direct rcmd(3) function call so as to
  * avoid having to be root.  Note that rport is ignored.
  */
+/* ARGSUSED */
 int
 rcmdsh(ahost, rport, locuser, remuser, cmd, rshprog)
 	char **ahost;
-	u_short	rport;
-	char *locuser, *remuser, *cmd;
+	int rport;
+	const char *locuser, *remuser, *cmd;
 	char *rshprog;
 {
 	struct hostent *hp;
@@ -69,7 +71,7 @@ rcmdsh(ahost, rport, locuser, remuser, cmd, rshprog)
 		 * Child.  We use sp[1] to be stdin/stdout, and close sp[0].
 		 */
 		(void) close(sp[0]);
-		if (dup2(sp[1], 0) < 0 || dup2(0, 1) < 0 || dup2(0, 2) < 0) {
+		if (dup2(sp[1], 0) < 0 || dup2(0, 1) < 0) {
 			perror("rcmdsh: dup2 failed");
 			_exit(255);
 		}
@@ -109,12 +111,12 @@ rcmdsh(ahost, rport, locuser, remuser, cmd, rshprog)
 		(void) fprintf(stderr, "rcmdsh: execlp %s failed: %s\n",
 			       rshprog, strerror(errno));
 		_exit(255);
-	} else if (cpid > 0) {
+	} else {
 		/* Parent. close sp[1], return sp[0]. */
 		(void) close(sp[1]);
 		/* Reap child. */
 		(void) wait(NULL);
 		return(sp[0]);
 	}
-	/*NOTREACHED*/
+	/* NOTREACHED */
 }
