@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: getcwd.c,v 1.10 2005/01/05 19:48:08 otto Exp $";
+static char rcsid[] = "$OpenBSD: getcwd.c,v 1.9.6.1 2005/01/06 01:28:13 brad Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
