@@ -1,4 +1,4 @@
-/* $OpenBSD: brk.S,v 1.7 2003/07/10 17:51:21 tdeval Exp $ */
+/* $OpenBSD: brk.S,v 1.6.2.1 2004/01/16 01:02:38 brad Exp $ */
 
 /*
  * Copyright (c) 1996 Dale Rahn
