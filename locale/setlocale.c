@@ -35,7 +35,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: setlocale.c,v 1.5 1996/10/29 03:22:27 millert Exp $";
+static char rcsid[] = "$OpenBSD: setlocale.c,v 1.2 1996/08/19 08:28:24 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/localedef.h>
@@ -91,9 +91,7 @@ setlocale(category, locale)
 	int found, i, len;
 	char *env, *r;
 
-	if (issetugid() != 0 ||
-	    ((!PathLocale && !(PathLocale = getenv("PATH_LOCALE"))) ||
-	     !*PathLocale))
+	if (!PathLocale && !(PathLocale = getenv("PATH_LOCALE")))
 		PathLocale = _PATH_LOCALE;
 
 	if (category < 0 || category >= _LC_LAST)
@@ -115,20 +113,20 @@ setlocale(category, locale)
 	if (!*locale) {
 		env = getenv(categories[category]);
 
-		if (!env || !*env)
+		if (!env)
 			env = getenv(categories[0]);
 
-		if (!env || !*env)
+		if (!env)
 			env = getenv("LANG");
 
-		if (!env || !*env)
+		if (!env)
 			env = "C";
 
 		(void) strncpy(new_categories[category], env, 31);
 		new_categories[category][31] = 0;
 		if (!category) {
 			for (i = 1; i < _LC_LAST; ++i) {
-				if (!(env = getenv(categories[i])) || !*env)
+				if (!(env = getenv(categories[i])))
 					env = new_categories[0];
 				(void)strncpy(new_categories[i], env, 31);
 				new_categories[i][31] = 0;
@@ -165,16 +163,13 @@ setlocale(category, locale)
 	if (category)
 		return (loadlocale(category));
 
-	for (found = 0, i = 1; i < _LC_LAST; ++i) {
+	found = 0;
+	for (i = 1; i < _LC_LAST; ++i)
 		if (loadlocale(i) != NULL)
 			found = 1;
-		else if (!category) {
-			found = 0;
-			break;
-		}
-	}
-
-	return (found ? currentlocale() : NULL);
+	if (found)
+	    return (currentlocale());
+	return (NULL);
 }
 
 static char *
@@ -234,5 +229,4 @@ loadlocale(category)
 		case LC_TIME:
 			return (NULL);
 	}
-	return (NULL);
 }
