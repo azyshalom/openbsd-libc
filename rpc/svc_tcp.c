@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: svc_tcp.c,v 1.11 1997/02/13 22:33:13 deraadt Exp $";
+static char *rcsid = "$OpenBSD: svc_tcp.c,v 1.7 1996/08/20 23:47:46 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -48,11 +48,6 @@ static char *rcsid = "$OpenBSD: svc_tcp.c,v 1.11 1997/02/13 22:33:13 deraadt Exp
 #include <rpc/rpc.h>
 #include <sys/socket.h>
 #include <errno.h>
-
-#include <netinet/in_systm.h>
-#include <netinet/in.h>
-#include <netinet/ip.h>
-#include <netinet/ip_var.h>
 
 /*
  * Ops vector for TCP/IP based rpc service handle
@@ -246,30 +241,6 @@ rendezvous_request(xprt)
 			goto again;
 	       return (FALSE);
 	}
-
-#ifdef IP_OPTIONS
-	{
-		struct ipoption opts;
-		int optsize = sizeof(opts), i;
-
-		if (!getsockopt(sock, IPPROTO_IP, IP_OPTIONS, (char *)&opts,
-		    &optsize) && optsize != 0) {
-			for (i = 0; (void *)&opts.ipopt_list[i] - (void *)&opts <
-			    optsize; ) {	
-				u_char c = (u_char)opts.ipopt_list[i];
-				if (c == IPOPT_LSRR || c == IPOPT_SSRR) {
-					close(sock);
-					goto again;
-				}
-				if (c == IPOPT_EOL)
-					break;
-				i += (c == IPOPT_NOP) ? 1 :
-				    (u_char)opts.ipopt_list[i+1];
-			}
-		}
-	}
-#endif
-
 	/*
 	 * XXX careful for ftp bounce attacks. If discovered, close the
 	 * socket and look for another connection.
@@ -278,7 +249,6 @@ rendezvous_request(xprt)
 		close(sock);
 		goto again;
 	}
-
 	/*
 	 * make a new transporter (re-uses xprt)
 	 */

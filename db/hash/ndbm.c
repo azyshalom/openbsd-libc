@@ -35,7 +35,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: ndbm.c,v 1.5 1997/02/16 11:08:16 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: ndbm.c,v 1.3 1996/08/19 08:20:42 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -47,7 +47,6 @@ static char rcsid[] = "$OpenBSD: ndbm.c,v 1.5 1997/02/16 11:08:16 deraadt Exp $"
 
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 #include <ndbm.h>
 #include "hash.h"
@@ -65,10 +64,6 @@ dbm_open(file, flags, mode)
 	HASHINFO info;
 	char path[MAXPATHLEN];
 
-	if (strlen(file) + strlen(DBM_SUFFIX) > sizeof(path)-1) {
-		errno = ENAMETOOLONG;
-		return (NULL);
-	}
 	info.bsize = 4096;
 	info.ffactor = 40;
 	info.nelem = 1;

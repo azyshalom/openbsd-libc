@@ -1,5 +1,5 @@
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: sha1.c,v 1.4 1996/09/30 23:27:05 millert Exp $";
+static char rcsid[] = "$OpenBSD: sha1.c,v 1.1 1996/09/29 16:15:05 millert Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -30,10 +30,6 @@ static char rcsid[] = "$OpenBSD: sha1.c,v 1.4 1996/09/30 23:27:05 millert Exp $"
 #include <time.h>
 #endif
 
-/* Useful defines/typedefs */
-  
-typedef unsigned char   BYTE;
-typedef u_int32_t       LONG;
 
 /* The SHA1 f()-functions */
 
@@ -206,7 +202,7 @@ void sha1Transform(sha1Info)
    makes for very slow code, so we rely on the user to sort out endianness
    at compile time */
 
-void sha1ByteReverse(buffer, byteCount)
+static void byteReverse(buffer, byteCount)
     LONG *buffer;
     int byteCount;
     {
@@ -243,7 +239,7 @@ void sha1Update(sha1Info, buffer, count)
 	{
 	memcpy( (void *) sha1Info->data, (void *) buffer, SHA1_BLOCKSIZE );
 #if BYTE_ORDER == LITTLE_ENDIAN
-	sha1ByteReverse( sha1Info->data, SHA1_BLOCKSIZE );
+	byteReverse( sha1Info->data, SHA1_BLOCKSIZE );
 #endif /* LITTLE_ENDIAN */
 	sha1Transform( sha1Info );
 	buffer += SHA1_BLOCKSIZE;
@@ -272,9 +268,9 @@ void sha1Final(sha1Info)
     if( count > 56 )
 	{
 	/* Two lots of padding:  Pad the first block to 64 bytes */
-	memset( ( char * ) sha1Info->data + count, 0, 64 - count );
+	memset( ( void * ) sha1Info->data + count, 0, 64 - count );
 #if BYTE_ORDER == LITTLE_ENDIAN
-	sha1ByteReverse( sha1Info->data, SHA1_BLOCKSIZE );
+	byteReverse( sha1Info->data, SHA1_BLOCKSIZE );
 #endif /* LITTLE_ENDIAN */
 	sha1Transform( sha1Info );
 
@@ -283,9 +279,9 @@ void sha1Final(sha1Info)
 	}
     else
 	/* Pad block to 56 bytes */
-	memset( ( char * ) sha1Info->data + count, 0, 56 - count );
+	memset( ( void * ) sha1Info->data + count, 0, 56 - count );
 #if BYTE_ORDER == LITTLE_ENDIAN
-    sha1ByteReverse( sha1Info->data, SHA1_BLOCKSIZE );
+    byteReverse( sha1Info->data, SHA1_BLOCKSIZE );
 #endif /* LITTLE_ENDIAN */
 
     /* Append length in bits and transform */
@@ -294,7 +290,7 @@ void sha1Final(sha1Info)
 
     sha1Transform( sha1Info );
 #if BYTE_ORDER == LITTLE_ENDIAN
-    sha1ByteReverse( sha1Info->data, SHA1_DIGESTSIZE );
+    byteReverse( sha1Info->data, SHA1_DIGESTSIZE );
 #endif /* LITTLE_ENDIAN */
     }
 
@@ -324,19 +320,11 @@ void main()
     sha1Init( &sha1Info );
     sha1Update( &sha1Info, ( BYTE * ) "abc", 3 );
     sha1Final( &sha1Info );
-#ifdef NEW_SHA1
-    if(	sha1Info.digest[ 0 ] != 0xA9993E36L ||
-	sha1Info.digest[ 1 ] != 0x4706816AL ||
-	sha1Info.digest[ 2 ] != 0xBA3E2571L ||
-	sha1Info.digest[ 3 ] != 0x7850C26CL ||
-	sha1Info.digest[ 4 ] != 0x9CD0D89DL )
-#else
     if( sha1Info.digest[ 0 ] != 0x0164B8A9L ||
 	sha1Info.digest[ 1 ] != 0x14CD2A5EL ||
 	sha1Info.digest[ 2 ] != 0x74C4F7FFL ||
 	sha1Info.digest[ 3 ] != 0x082C4D97L ||
 	sha1Info.digest[ 4 ] != 0xF1EDF880L )
-#endif
 	{
 	puts( "Error in SHA1 implementation" );
 	exit( -1 );
@@ -344,7 +332,7 @@ void main()
 
     /* Now perform time trial, generating MD for 10MB of data.  First,
        initialize the test data */
-    memset( ( void * ) data, 0, TEST_BLOCK_SIZE );
+    memset( data, 0, TEST_BLOCK_SIZE );
 
     /* Get start time */
     printf( "SHA1 time trial.  Processing %ld characters...\n", TEST_BYTES );
