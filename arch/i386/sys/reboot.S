@@ -1,9 +1,9 @@
 /*-
- * Copyright (c) 1990, 1993
- *	The Regents of the University of California.  All rights reserved.
+ * Copyright (c) 1990 The Regents of the University of California.
+ * All rights reserved.
  *
  * This code is derived from software contributed to Berkeley by
- * Chris Torek.
+ * William Jolitz.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -34,15 +34,12 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: remove.c,v 1.2 1996/08/19 08:33:01 tholo Exp $";
-#endif /* LIBC_SCCS and not lint */
+#include "SYS.h"
 
-#include <unistd.h>
-#include <stdio.h>
+#if defined(SYSLIBC_SCCS) 
+	.text
+	.asciz "$OpenBSD: reboot.S,v 1.2 1996/08/19 08:13:36 tholo Exp $"
+#endif /* SYSLIBC_SCCS */
 
-remove(file)
-	const char *file;
-{
-	return (unlink(file));
-}
+SYSCALL(reboot)
+	iret
