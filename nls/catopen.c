@@ -35,7 +35,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: catopen.c,v 1.5 1996/08/19 08:30:09 tholo Exp $";
+static char rcsid[] = "$OpenBSD: catopen.c,v 1.8 1996/09/15 09:31:23 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #define _NLS_PRIVATE
@@ -54,8 +54,9 @@ static char rcsid[] = "$OpenBSD: catopen.c,v 1.5 1996/08/19 08:30:09 tholo Exp $
 #define NLS_DEFAULT_PATH "/usr/share/nls/%L/%N.cat:/usr/share/nls/%N/%L"
 #define NLS_DEFAULT_LANG "C"
 
-static nl_catd load_msgcat();
+static nl_catd load_msgcat __P((const char *));
 
+/* ARGSUSED */
 nl_catd
 _catopen(name, oflag)
 	const char *name;
@@ -72,15 +73,13 @@ _catopen(name, oflag)
 		return (nl_catd) -1;
 
 	/* absolute or relative path? */
-	if (strchr (name, '/'))
+	if (strchr(name, '/'))
 		return load_msgcat(name);
 
-	if ((nlspath = getenv ("NLSPATH")) == NULL) {
+	if (issetugid() != 0 || (nlspath = getenv("NLSPATH")) == NULL)
 		nlspath = NLS_DEFAULT_PATH;
-	}
-	if ((lang = getenv ("LANG")) == NULL) {
+	if ((lang = getenv("LANG")) == NULL)
 		lang = NLS_DEFAULT_LANG;
-	}
 
 	s = nlspath;
 	t = tmppath;	
@@ -90,12 +89,12 @@ _catopen(name, oflag)
 				switch (*(++s)) {
 				case 'L':	/* locale */
 					u = lang;
-					while (*u && t < tmppath + PATH_MAX)
+					while (*u && t < tmppath + PATH_MAX-1)
 						*t++ = *u++;
 					break;
 				case 'N':	/* name */
 					u = name;
-					while (*u && t < tmppath + PATH_MAX)
+					while (*u && t < tmppath + PATH_MAX-1)
 						*t++ = *u++;
 					break;
 				case 'l':	/* lang */
@@ -103,11 +102,11 @@ _catopen(name, oflag)
 				case 'c':	/* codeset */
 					break;
 				default:
-					if (t < tmppath + PATH_MAX)
+					if (t < tmppath + PATH_MAX-1)
 						*t++ = *s;
 				}
 			} else {
-				if (t < tmppath + PATH_MAX)
+				if (t < tmppath + PATH_MAX-1)
 					*t++ = *s;
 			}
 			s++;
@@ -135,7 +134,7 @@ load_msgcat(path)
 	void *data;
 	int fd;
 
-	if ((fd = open (path, O_RDONLY)) == -1)
+	if ((fd = open(path, O_RDONLY)) == -1)
 		return (nl_catd) -1;
 
 	if (fstat(fd, &st) != 0) {
@@ -143,7 +142,7 @@ load_msgcat(path)
 		return (nl_catd) -1;
 	}
 
-	data = mmap(0, (size_t) st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	data = mmap(0, (size_t) st.st_size, PROT_READ, MAP_SHARED, fd, (off_t)0);
 	close (fd);
 
 	if (data == (void *) -1) {
@@ -156,7 +155,7 @@ load_msgcat(path)
 		return (nl_catd) -1;
 	}
 
-	if ((catd = malloc (sizeof (*catd))) == 0) {
+	if ((catd = malloc(sizeof (*catd))) == 0) {
 		munmap(data, (size_t) st.st_size);
 		return (nl_catd) -1;
 	}

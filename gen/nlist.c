@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: nlist.c,v 1.14 1996/08/19 08:25:09 tholo Exp $";
+static char rcsid[] = "$OpenBSD: nlist.c,v 1.16 1996/10/27 20:34:37 etheisen Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
@@ -49,6 +49,7 @@ static char rcsid[] = "$OpenBSD: nlist.c,v 1.14 1996/08/19 08:25:09 tholo Exp $"
 
 #ifdef DO_ELF
 #include <elf_abi.h>
+#include <olf_abi.h>
 #endif
 
 #ifdef DO_ECOFF
@@ -266,7 +267,7 @@ __elf_is_okay__(ehdr)
 	 * Elf32_Ehdr structure.  These few elements are
 	 * represented in a machine independant fashion.
 	 */
-	if (IS_ELF(*ehdr) &&
+	if ((IS_ELF(*ehdr) || IS_OLF(*ehdr)) &&
 	    ehdr->e_ident[EI_CLASS] == ELF_TARG_CLASS &&
 	    ehdr->e_ident[EI_DATA] == ELF_TARG_DATA &&
 	    ehdr->e_ident[EI_VERSION] == ELF_TARG_VER) {
@@ -314,7 +315,7 @@ __elf_fdnlist(fd, list)
 
         /* mmap section header table */
 	shdr = (Elf32_Shdr *)mmap(NULL, (size_t)shdr_size,
-                                  PROT_READ, 0, fd, ehdr.e_shoff);
+                                  PROT_READ, 0, fd, (off_t) ehdr.e_shoff);
 	if (shdr == (Elf32_Shdr *)-1)
 		return (-1);
 
@@ -349,7 +350,7 @@ __elf_fdnlist(fd, list)
 	 * making the memory allocation permanent as with malloc/free
 	 * (i.e., munmap will return it to the system).
 	 */
-	strtab = mmap(NULL, (size_t)symstrsize, PROT_READ, 0, fd, symstroff);
+	strtab = mmap(NULL, (size_t)symstrsize, PROT_READ, 0, fd, (off_t) symstroff);
 	if (strtab == (char *)-1)
 		return (-1);
 	/*
@@ -376,7 +377,7 @@ __elf_fdnlist(fd, list)
         if (symoff == 0)
                 goto done;
                 
-	if (lseek(fd, symoff, SEEK_SET) == -1) {
+	if (lseek(fd, (off_t) symoff, SEEK_SET) == -1) {
                 nent = -1;
                 goto done;
         }
@@ -473,7 +474,6 @@ nlist(name, list)
 	struct nlist *list;
 {
 	int fd, n;
-	int i;
 
 	fd = open(name, O_RDONLY, 0);
 	if (fd < 0)
