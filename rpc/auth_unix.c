@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: auth_unix.c,v 1.7 1996/12/14 06:49:40 tholo Exp $";
+static char *rcsid = "$OpenBSD: auth_unix.c,v 1.4 1996/08/19 08:31:21 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -46,7 +46,6 @@ static char *rcsid = "$OpenBSD: auth_unix.c,v 1.7 1996/12/14 06:49:40 tholo Exp 
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
 
 #include <rpc/types.h>
 #include <rpc/xdr.h>
@@ -170,12 +169,11 @@ authunix_create(machname, uid, gid, len, aup_gids)
 AUTH *
 authunix_create_default()
 {
-	register int len, i;
+	register int len;
 	char machname[MAX_MACHINE_NAME + 1];
 	register uid_t uid;
 	register gid_t gid;
 	gid_t gids[NGRPS];
-	int gids2[NGRPS];
 
 	if (gethostname(machname, MAX_MACHINE_NAME) == -1)
 		abort();
@@ -184,15 +182,13 @@ authunix_create_default()
 	gid = getegid();
 	if ((len = getgroups(NGRPS, gids)) < 0)
 		abort();
-	for (i = 0; i < len; i++)
-		gids2[i] = gids[i];
-	return (authunix_create(machname, uid, gid, len, gids2));
+	return (authunix_create(machname, uid, gid, len, gids));
 }
 
 /*
  * authunix operations
  */
-/* ARGSUSED */
+
 static void
 authunix_nextverf(auth)
 	AUTH *auth;

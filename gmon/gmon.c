@@ -32,7 +32,7 @@
  */
 
 #if !defined(lint) && defined(LIBC_SCCS)
-static char rcsid[] = "$OpenBSD: gmon.c,v 1.7 1996/09/15 09:31:12 tholo Exp $";
+static char rcsid[] = "$OpenBSD: gmon.c,v 1.6 1996/09/05 12:29:12 deraadt Exp $";
 #endif
 
 #include <sys/param.h>
@@ -42,7 +42,6 @@ static char rcsid[] = "$OpenBSD: gmon.c,v 1.7 1996/09/15 09:31:12 tholo Exp $";
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <unistd.h>
