@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: mpool.c,v 1.4 1996/09/15 09:30:51 tholo Exp $";
+static char rcsid[] = "$OpenBSD: mpool.c,v 1.3 1996/08/19 08:20:52 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -58,7 +58,6 @@ static int  mpool_write __P((MPOOL *, BKT *));
  * mpool_open --
  *	Initialize a memory pool.
  */
-/* ARGSUSED */
 MPOOL *
 mpool_open(key, fd, pagesize, maxcache)
 	void *key;
@@ -150,7 +149,6 @@ mpool_new(mp, pgnoaddr)
  * mpool_get
  *	Get a page.
  */
-/* ARGSUSED */
 void *
 mpool_get(mp, pgno, flags)
 	MPOOL *mp;
@@ -236,7 +234,6 @@ mpool_get(mp, pgno, flags)
  * mpool_put
  *	Return a page.
  */
-/* ARGSUSED */
 int
 mpool_put(mp, page, flags)
 	MPOOL *mp;
