@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: pmap_rmt.c,v 1.9 1996/09/02 05:01:14 deraadt Exp $";
+static char *rcsid = "$OpenBSD: pmap_rmt.c,v 1.13 1997/01/02 09:21:07 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -45,6 +45,7 @@ static char *rcsid = "$OpenBSD: pmap_rmt.c,v 1.9 1996/09/02 05:01:14 deraadt Exp
 #include <rpc/pmap_rmt.h>
 #include <sys/socket.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -95,7 +96,8 @@ pmap_rmtcall(addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_pt
 	} else {
 		stat = RPC_FAILED;
 	}
-	(void)close(socket);
+	if (socket != -1)
+		(void)close(socket);
 	addr->sin_port = 0;
 	return (stat);
 }
@@ -238,10 +240,6 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	struct rpc_msg msg;
 	struct timeval t; 
 	char outbuf[MAX_BROADCAST_SIZE], inbuf[UDPMSGSIZE];
-	static u_int32_t disrupt;
-
-	if (disrupt == 0)
-		disrupt = (u_int32_t)resultsp;
 
 	/*
 	 * initialization: create a socket, a broadcast address, and
@@ -280,7 +278,7 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	baddr.sin_port = htons(PMAPPORT);
 	baddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	(void)gettimeofday(&t, (struct timezone *)0);
-	msg.rm_xid = xid = (++disrupt) ^ getpid() ^ t.tv_sec ^ t.tv_usec;
+	msg.rm_xid = xid = arc4random();
 	t.tv_usec = 0;
 	msg.rm_direction = CALL;
 	msg.rm_call.cb_rpcvers = RPC_MSG_VERSION;
