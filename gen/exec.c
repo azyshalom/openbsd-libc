@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: exec.c,v 1.5 1996/12/05 05:37:10 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: exec.c,v 1.3 1996/08/19 08:22:40 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -52,40 +52,6 @@ static char rcsid[] = "$OpenBSD: exec.c,v 1.5 1996/12/05 05:37:10 deraadt Exp $"
 
 extern char **environ;
 
-static char **
-buildargv(ap, arg, envpp)
-	va_list ap;
-	const char *arg;
-	char ***envpp;
-{
-	register char **argv, **nargv;
-	register int memsize, off;
-
-	argv = NULL;
-	for (off = memsize = 0;; ++off) {
-		if (off >= memsize) {
-			memsize += 50;	/* Starts out at 0. */
-			memsize *= 2;	/* Ramp up fast. */
-			nargv = realloc(argv, memsize * sizeof(char *));
-			if (nargv == NULL) {
-				free(argv);
-				return (NULL);
-			}
-			argv = nargv;
-			if (off == 0) {
-				argv[0] = (char *)arg;
-				off = 1;
-			}
-		}
-		if (!(argv[off] = va_arg(ap, char *)))
-			break;
-	}
-	/* Get environment pointer if user supposed to provide one. */
-	if (envpp)
-		*envpp = va_arg(ap, char **);
-	return (argv);
-}
-
 int
 #if __STDC__
 execl(const char *name, const char *arg, ...)
@@ -97,21 +63,31 @@ execl(name, arg, va_alist)
 #endif
 {
 	va_list ap;
-	int sverrno;
 	char **argv;
+	int i;
 
 #if __STDC__
 	va_start(ap, arg);
 #else
 	va_start(ap);
 #endif
-	if ((argv = buildargv(ap, arg, NULL)))
-		(void)execve(name, argv, environ);
+	for (i = 1; va_arg(ap, char *) != NULL; i++)
+		;
 	va_end(ap);
-	sverrno = errno;
-	free(argv);
-	errno = sverrno;
-	return (-1);
+
+	argv = alloca (i * sizeof (char *));
+	
+#if __STDC__
+	va_start(ap, arg);
+#else
+	va_start(ap);
+#endif
+	argv[0] = (char *) arg;
+	for (i = 1; (argv[i] = (char *) va_arg(ap, char *)) != NULL; i++) 
+		;
+	va_end(ap);
+	
+	return execve(name, argv, environ);
 }
 
 int
@@ -125,21 +101,32 @@ execle(name, arg, va_alist)
 #endif
 {
 	va_list ap;
-	int sverrno;
 	char **argv, **envp;
+	int i;
 
 #if __STDC__
 	va_start(ap, arg);
 #else
 	va_start(ap);
 #endif
-	if ((argv = buildargv(ap, arg, &envp)))
-		(void)execve(name, argv, envp);
+	for (i = 1; va_arg(ap, char *) != NULL; i++)
+		;
 	va_end(ap);
-	sverrno = errno;
-	free(argv);
-	errno = sverrno;
-	return (-1);
+
+	argv = alloca (i * sizeof (char *));
+	
+#if __STDC__
+	va_start(ap, arg);
+#else
+	va_start(ap);
+#endif
+	argv[0] = (char *) arg;
+	for (i = 1; (argv[i] = (char *) va_arg(ap, char *)) != NULL; i++) 
+		;
+	envp = (char **) va_arg(ap, char **);
+	va_end(ap);
+
+	return execve(name, argv, envp);
 }
 
 int
@@ -153,21 +140,31 @@ execlp(name, arg, va_alist)
 #endif
 {
 	va_list ap;
-	int sverrno;
 	char **argv;
+	int i;
 
 #if __STDC__
 	va_start(ap, arg);
 #else
 	va_start(ap);
 #endif
-	if ((argv = buildargv(ap, arg, NULL)))
-		(void)execvp(name, argv);
+	for (i = 1; va_arg(ap, char *) != NULL; i++)
+		;
 	va_end(ap);
-	sverrno = errno;
-	free(argv);
-	errno = sverrno;
-	return (-1);
+
+	argv = alloca (i * sizeof (char *));
+	
+#if __STDC__
+	va_start(ap, arg);
+#else
+	va_start(ap);
+#endif
+	argv[0] = (char *) arg;
+	for (i = 1; (argv[i] = va_arg(ap, char *)) != NULL; i++) 
+		;
+	va_end(ap);
+	
+	return execvp(name, argv);
 }
 
 int
@@ -175,8 +172,7 @@ execv(name, argv)
 	const char *name;
 	char * const *argv;
 {
-	(void)execve(name, argv, environ);
-	return (-1);
+	return execve(name, argv, environ);
 }
 
 int
@@ -184,19 +180,12 @@ execvp(name, argv)
 	const char *name;
 	char * const *argv;
 {
-	char **memp;
+	static int memsize;
+	static char **memp;
 	register int cnt, lp, ln;
 	register char *p;
 	int eacces = 0, etxtbsy = 0;
 	char *bp, *cur, *path, buf[MAXPATHLEN];
-
-	/*
-	 * Do not allow null name
-	 */
-	if (name == NULL || *name == '\0') {
-		errno = ENOENT;
-		return (-1);
- 	}
 
 	/* If it's an absolute or relative path name, it's easy. */
 	if (strchr(name, '/')) {
@@ -211,7 +200,7 @@ execvp(name, argv)
 		path = _PATH_DEFPATH;
 	cur = path = strdup(path);
 
-	while ((p = strsep(&cur, ":"))) {
+	while (p = strsep(&cur, ":")) {
 		/*
 		 * It's a SHELL path -- double, leading and trailing colons
 		 * mean the current directory.
@@ -247,16 +236,18 @@ retry:		(void)execve(bp, argv, environ);
 		case ENOENT:
 			break;
 		case ENOEXEC:
-			for (cnt = 0; argv[cnt]; ++cnt)
-				;
-			memp = malloc((cnt + 2) * sizeof(char *));
-			if (memp == NULL)
-				goto done;
+			for (cnt = 0; argv[cnt]; ++cnt);
+			if ((cnt + 2) * sizeof(char *) > memsize) {
+				memsize = (cnt + 2) * sizeof(char *);
+				if ((memp = realloc(memp, memsize)) == NULL) {
+					memsize = 0;
+					goto done;
+				}
+			}
 			memp[0] = "sh";
 			memp[1] = bp;
 			bcopy(argv + 1, memp + 2, cnt * sizeof(char *));
 			(void)execve(_PATH_BSHELL, memp, environ);
-			free(memp);
 			goto done;
 		case ETXTBSY:
 			if (etxtbsy < 3)

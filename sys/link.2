@@ -76,7 +76,7 @@ both
 and
 .Fa name2
 must be in the same file system.
-As mandated by POSIX.1
+Unless the caller is the super-user,
 .Fa name1
 may not be a directory.
 .Sh RETURN VALUES
@@ -116,7 +116,8 @@ does exist.
 .It Bq Er EPERM
 The file named by
 .Fa name1
-is a directory.
+is a directory and the effective
+user ID is not super-user.
 .It Bq Er EXDEV
 The link named by
 .Fa name2
