@@ -38,7 +38,7 @@
 #if 0
 static char sccsid[] = "@(#)glob.c	8.3 (Berkeley) 10/13/93";
 #else
-static char rcsid[] = "$OpenBSD: glob.c,v 1.16 2001/04/05 18:36:12 deraadt Exp $";
+static char rcsid[] = "$OpenBSD: glob.c,v 1.8.10.1 2001/04/10 19:06:24 jason Exp $";
 #endif
 #endif /* LIBC_SCCS and not lint */
 
