@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: pmap_rmt.c,v 1.7 1996/08/19 08:31:42 tholo Exp $";
+static char *rcsid = "$OpenBSD: pmap_rmt.c,v 1.12 1996/12/10 07:46:43 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -45,6 +45,7 @@ static char *rcsid = "$OpenBSD: pmap_rmt.c,v 1.7 1996/08/19 08:31:42 tholo Exp $
 #include <rpc/pmap_rmt.h>
 #include <sys/socket.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
@@ -95,7 +96,8 @@ pmap_rmtcall(addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_pt
 	} else {
 		stat = RPC_FAILED;
 	}
-	(void)close(socket);
+	if (socket != -1)
+		(void)close(socket);
 	addr->sin_port = 0;
 	return (stat);
 }
@@ -238,6 +240,10 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	struct rpc_msg msg;
 	struct timeval t; 
 	char outbuf[MAX_BROADCAST_SIZE], inbuf[UDPMSGSIZE];
+	static u_int32_t disrupt;
+
+	if (disrupt == 0)
+		disrupt = (u_int32_t)(long)resultsp;
 
 	/*
 	 * initialization: create a socket, a broadcast address, and
@@ -257,12 +263,13 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 #endif /* def SO_BROADCAST */
 
 	if (sock+1 > FD_SETSIZE) {
-		fds = (fd_set *)malloc(howmany(sock+1, NBBY));
+		int bytes = howmany(sock+1, NFDBITS) * sizeof(fd_mask);
+		fds = (fd_set *)malloc(bytes);
 		if (fds == NULL) {
 			stat = RPC_CANTSEND;
 			goto done_broad;
 		}
-		memset(fds, '\0', howmany(sock+1, NBBY));
+		memset(fds, 0, bytes);
 	} else {
 		fds = &readfds;
 		FD_ZERO(fds);
@@ -275,7 +282,7 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	baddr.sin_port = htons(PMAPPORT);
 	baddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	(void)gettimeofday(&t, (struct timezone *)0);
-	msg.rm_xid = xid = getpid() ^ t.tv_sec ^ t.tv_usec;
+	msg.rm_xid = xid = (++disrupt) ^ getpid() ^ t.tv_sec ^ t.tv_usec;
 	t.tv_usec = 0;
 	msg.rm_direction = CALL;
 	msg.rm_call.cb_rpcvers = RPC_MSG_VERSION;

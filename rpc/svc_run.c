@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: svc_run.c,v 1.5 1996/08/19 08:31:55 tholo Exp $";
+static char *rcsid = "$OpenBSD: svc_run.c,v 1.9 1996/11/14 06:33:12 etheisen Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -38,6 +38,8 @@ static char *rcsid = "$OpenBSD: svc_run.c,v 1.5 1996/08/19 08:31:55 tholo Exp $"
 #include <rpc/rpc.h>
 #include <sys/errno.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
 extern int __svc_fdsetsize;
 extern fd_set *__svc_fdset;
@@ -48,19 +50,27 @@ svc_run()
 	fd_set *fds;
 
 	for (;;) {
-		fds = (fd_set *)malloc(howmany(__svc_fdsetsize, NBBY));
-		memcpy(fds, __svc_fdset, howmany(__svc_fdsetsize, NBBY));
+		if (__svc_fdset) {
+			int bytes = howmany(__svc_fdsetsize, NFDBITS) *
+			    sizeof(fd_mask);
+			fds = (fd_set *)malloc(bytes);
+			memcpy(fds, __svc_fdset, bytes);
+		} else
+			fds = NULL;
 		switch (select(svc_maxfd+1, fds, 0, 0, (struct timeval *)0)) {
 		case -1:
 			if (errno == EINTR) {
-				free(fds);
+				if (fds)
+					free(fds);
 				continue;
 			}
 			perror("svc_run: - select failed");
-			free(fds);
+			if (fds)
+				free(fds);
 			return;
 		case 0:
-			free(fds);
+			if (fds)
+				free(fds);
 			continue;
 		default:
 			svc_getreqset2(fds, svc_maxfd+1);

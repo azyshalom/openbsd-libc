@@ -23,17 +23,15 @@ documentation and/or software.
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: md5c.c,v 1.2 1996/08/19 08:28:29 tholo Exp $";
+static char rcsid[] = "$OpenBSD: md5c.c,v 1.6 1996/12/04 02:31:57 deraadt Exp $";
 #endif /* LIBC_SCCS and not lint */
 
-#include <md5.h>
 #include <string.h>
+#include <sys/types.h>
+#include <md5.h>
 
+/* POINTER defines a generic pointer type */
 typedef unsigned char *POINTER;
-typedef unsigned short int UINT2;
-typedef unsigned long int UINT4;
-
-#define PROTO_LIST(list) list
 
 /* Constants for MD5Transform routine.
  */
@@ -54,45 +52,15 @@ typedef unsigned long int UINT4;
 #define S43 15
 #define S44 21
 
-static void MD5Transform PROTO_LIST ((UINT4 [4], const unsigned char [64]));
+static void MD5Transform __P ((u_int32_t [4], const unsigned char [64]));
 
-#ifdef i386
+#if BYTE_ORDER == LITTLE_ENDIAN
 #define Encode memcpy
 #define Decode memcpy
-#else /* i386 */
-/* Encodes input (UINT4) into output (unsigned char). Assumes len is
-  a multiple of 4.
- */
-static void Encode (output, input, len)
-unsigned char *output;
-UINT4 *input;
-unsigned int len;
-{
-  unsigned int i, j;
-
-  for (i = 0, j = 0; j < len; i++, j += 4) {
-    output[j] = (unsigned char)(input[i] & 0xff);
-    output[j+1] = (unsigned char)((input[i] >> 8) & 0xff);
-    output[j+2] = (unsigned char)((input[i] >> 16) & 0xff);
-    output[j+3] = (unsigned char)((input[i] >> 24) & 0xff);
-  }
-}
-
-/* Decodes input (unsigned char) into output (UINT4). Assumes len is
-  a multiple of 4.
- */
-static void Decode (output, input, len)
-UINT4 *output;
-const unsigned char *input;
-unsigned int len;
-{
-  unsigned int i, j;
-
-  for (i = 0, j = 0; j < len; i++, j += 4)
-    output[i] = ((UINT4)input[j]) | (((UINT4)input[j+1]) << 8) |
-    (((UINT4)input[j+2]) << 16) | (((UINT4)input[j+3]) << 24);
-}
-#endif /* i386 */
+#else /* BIG_ENDIAN */
+static void Encode __P((void *, void *, size_t));
+static void Decode __P((void *, const void *, size_t));
+#endif /* LITTLE_ENDIAN */
 
 static unsigned char PADDING[64] = {
   0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -115,34 +83,72 @@ static unsigned char PADDING[64] = {
 Rotation is separate from addition to prevent recomputation.
  */
 #define FF(a, b, c, d, x, s, ac) { \
- (a) += F ((b), (c), (d)) + (x) + (UINT4)(ac); \
+ (a) += F ((b), (c), (d)) + (x) + (u_int32_t)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
  (a) += (b); \
   }
 #define GG(a, b, c, d, x, s, ac) { \
- (a) += G ((b), (c), (d)) + (x) + (UINT4)(ac); \
+ (a) += G ((b), (c), (d)) + (x) + (u_int32_t)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
  (a) += (b); \
   }
 #define HH(a, b, c, d, x, s, ac) { \
- (a) += H ((b), (c), (d)) + (x) + (UINT4)(ac); \
+ (a) += H ((b), (c), (d)) + (x) + (u_int32_t)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
  (a) += (b); \
   }
 #define II(a, b, c, d, x, s, ac) { \
- (a) += I ((b), (c), (d)) + (x) + (UINT4)(ac); \
+ (a) += I ((b), (c), (d)) + (x) + (u_int32_t)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
  (a) += (b); \
   }
+
+#if BYTE_ORDER != LITTLE_ENDIAN        
+/* Encodes input (u_int32_t) into output (unsigned char). Assumes len is
+  a multiple of 4.
+ */
+static void Encode (in, out, len)
+void *out;
+void *in;
+size_t len;
+{
+  unsigned char *output = out;
+  size_t i, j;
+  u_int32_t *input = in;
+
+  for (i = 0, j = 0; j < len; i++, j += 4) {
+    output[j] = (unsigned char)(input[i] & 0xff);
+    output[j+1] = (unsigned char)((input[i] >> 8) & 0xff);
+    output[j+2] = (unsigned char)((input[i] >> 16) & 0xff);
+    output[j+3] = (unsigned char)((input[i] >> 24) & 0xff);
+  }
+}
+
+/* Decodes input (unsigned char) into output (u_int32_t). Assumes len is
+  a multiple of 4.
+ */
+static void Decode (out, in, len)
+void *out;
+const void *in;
+size_t len;
+{
+  u_int32_t *output = out;
+  const unsigned char *input = in;
+  size_t i, j;
+
+  for (i = 0, j = 0; j < len; i++, j += 4)
+    output[i] = ((u_int32_t)input[j]) | (((u_int32_t)input[j+1]) << 8) |
+    (((u_int32_t)input[j+2]) << 16) | (((u_int32_t)input[j+3]) << 24);
+}
+#endif /* !LITTLE_ENDIAN */
 
 /* MD5 initialization. Begins an MD5 operation, writing a new context.
  */
 void MD5Init (context)
 MD5_CTX *context;                                        /* context */
 {
-  context->count[0] = context->count[1] = 0;
-  /* Load magic initialization constants.
-*/
+  context->count = 0;
+  /* Load magic initialization constants. */
   context->state[0] = 0x67452301;
   context->state[1] = 0xefcdab89;
   context->state[2] = 0x98badcfe;
@@ -156,40 +162,33 @@ MD5_CTX *context;                                        /* context */
 void MD5Update (context, input, inputLen)
 MD5_CTX *context;                                        /* context */
 const unsigned char *input;                                /* input block */
-unsigned int inputLen;                     /* length of input block */
+size_t inputLen;                     /* length of input block */
 {
   unsigned int i, index, partLen;
 
   /* Compute number of bytes mod 64 */
-  index = (unsigned int)((context->count[0] >> 3) & 0x3F);
+  index = (unsigned int)((context->count >> 3) & 0x3F);
 
   /* Update number of bits */
-  if ((context->count[0] += ((UINT4)inputLen << 3))
-   < ((UINT4)inputLen << 3))
- context->count[1]++;
-  context->count[1] += ((UINT4)inputLen >> 29);
+  context->count += (inputLen << 3);
 
   partLen = 64 - index;
 
-  /* Transform as many times as possible.
-*/
+  /* Transform as many times as possible. */
   if (inputLen >= partLen) {
- memcpy
-   ((POINTER)&context->buffer[index], (POINTER)input, partLen);
- MD5Transform (context->state, context->buffer);
+    memcpy ((POINTER)&context->buffer[index], (POINTER)input, partLen);
+    MD5Transform (context->state, context->buffer);
 
- for (i = partLen; i + 63 < inputLen; i += 64)
-   MD5Transform (context->state, &input[i]);
+    for (i = partLen; i + 63 < inputLen; i += 64)
+      MD5Transform (context->state, &input[i]);
 
- index = 0;
+    index = 0;
   }
   else
- i = 0;
+    i = 0;
 
   /* Buffer remaining input */
-  memcpy
- ((POINTER)&context->buffer[index], (POINTER)&input[i],
-  inputLen-i);
+  memcpy ((POINTER)&context->buffer[index], (POINTER)&input[i], inputLen-i);
 }
 
 /* MD5 finalization. Ends an MD5 message-digest operation, writing the
@@ -200,14 +199,14 @@ unsigned char digest[16];                         /* message digest */
 MD5_CTX *context;                                       /* context */
 {
   unsigned char bits[8];
-  unsigned int index, padLen;
+  unsigned int index;
+  size_t padLen;
 
   /* Save number of bits */
-  Encode (bits, context->count, 8);
+  Encode (bits, &context->count, 8);
 
-  /* Pad out to 56 mod 64.
-*/
-  index = (unsigned int)((context->count[0] >> 3) & 0x3f);
+  /* Pad out to 56 mod 64. */
+  index = (unsigned int)((context->count >> 3) & 0x3f);
   padLen = (index < 56) ? (56 - index) : (120 - index);
   MD5Update (context, PADDING, padLen);
 
@@ -216,18 +215,17 @@ MD5_CTX *context;                                       /* context */
   /* Store state in digest */
   Encode (digest, context->state, 16);
 
-  /* Zeroize sensitive information.
-*/
+  /* Zeroize sensitive information.  */
   memset ((POINTER)context, 0, sizeof (*context));
 }
 
 /* MD5 basic transformation. Transforms state based on block.
  */
 static void MD5Transform (state, block)
-UINT4 state[4];
+u_int32_t state[4];
 const unsigned char block[64];
 {
-  UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
+  u_int32_t a = state[0], b = state[1], c = state[2], d = state[3], x[16];
 
   Decode (x, block, 64);
 
@@ -308,8 +306,7 @@ const unsigned char block[64];
   state[2] += c;
   state[3] += d;
 
-  /* Zeroize sensitive information.
-*/
+  /* Zeroize sensitive information. */
   memset ((POINTER)x, 0, sizeof (x));
 }
 
