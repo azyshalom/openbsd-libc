@@ -1,6 +1,3 @@
-/*	$OpenBSD: bzero.S,v 1.3 1996/11/13 22:05:07 niklas Exp $	*/
-/*	$NetBSD: bzero.S,v 1.2 1996/10/17 03:08:12 cgd Exp $	*/
-
 /*
  * Copyright (c) 1995 Carnegie-Mellon University.
  * All rights reserved.
@@ -28,11 +25,11 @@
  * rights to redistribute these changes.
  */
 
-#include <machine/asm.h>
+#include "DEFS.h"
 
 #if defined(LIBC_SCCS)
 	.text
-	.asciz "$OpenBSD: bzero.S,v 1.3 1996/11/13 22:05:07 niklas Exp $"
+	.asciz "$OpenBSD: bzero.S,v 1.2 1996/08/19 08:10:59 tholo Exp $"
 #endif
 
 LEAF(bzero,2)

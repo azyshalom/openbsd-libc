@@ -28,7 +28,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: pmap_rmt.c,v 1.14 1997/01/22 18:50:41 deraadt Exp $";
+static char *rcsid = "$OpenBSD: pmap_rmt.c,v 1.10 1996/09/15 09:31:37 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -96,8 +96,7 @@ pmap_rmtcall(addr, prog, vers, proc, xdrargs, argsp, xdrres, resp, tout, port_pt
 	} else {
 		stat = RPC_FAILED;
 	}
-	if (socket != -1)
-		(void)close(socket);
+	(void)close(socket);
 	addr->sin_port = 0;
 	return (stat);
 }
@@ -162,54 +161,37 @@ xdr_rmtcallres(xdrs, crp)
  */
 
 static int
-newgetbroadcastnets(addrsp, sock)
-	struct in_addr **addrsp;
-	int sock;  /* any valid socket will do */
-{
-	char *inbuf = NULL;
-	struct ifconf ifc;
-	struct ifreq ifreq, *ifr;
-	struct sockaddr_in *sin;
-	char *cp, *cplim;
-	int inbuflen = 256;
+getbroadcastnets(addrs, sock, buf)
 	struct in_addr *addrs;
-	int i = 0;
+	int sock;  /* any valid socket will do */
+	char *buf;  /* why allocxate more when we can use existing... */
+{
+	struct ifconf ifc;
+        struct ifreq ifreq, *ifr;
+	struct sockaddr_in *sin;
+        char *cp, *cplim;
+        int i = 0;
 
-	while (1) {
-		ifc.ifc_len = inbuflen;
-		ifc.ifc_buf = inbuf = realloc(inbuf, inbuflen);
-		if (inbuf == NULL)
-			return (0);
-		if (ioctl(sock, SIOCGIFCONF, (char *)&ifc) < 0) {
-			perror("broadcast: ioctl (get interface configuration)");
-			free(inbuf);
-			return (0);
-		}
-		if (ifc.ifc_len + sizeof(ifreq) < inbuflen)
-			break;
-		inbuflen *= 2;
-	}
-	addrs = (struct in_addr *)malloc((inbuflen / sizeof *sin) * sizeof sin);
-	if (addrs == NULL) {
-		*addrsp = NULL;
-		free(inbuf);
-		return (0);
-	}
-
+        ifc.ifc_len = UDPMSGSIZE;
+        ifc.ifc_buf = buf;
+        if (ioctl(sock, SIOCGIFCONF, (char *)&ifc) < 0) {
+                perror("broadcast: ioctl (get interface configuration)");
+                return (0);
+        }
 #define max(a, b) (a > b ? a : b)
 #define size(p)	max((p).sa_len, sizeof(p))
-	cplim = inbuf + ifc.ifc_len; /*skip over if's with big ifr_addr's */
-	for (cp = inbuf; cp < cplim;
+	cplim = buf + ifc.ifc_len; /*skip over if's with big ifr_addr's */
+	for (cp = buf; cp < cplim;
 	    cp += sizeof (ifr->ifr_name) + size(ifr->ifr_addr)) {
 		ifr = (struct ifreq *)cp;
 		if (ifr->ifr_addr.sa_family != AF_INET)
 			continue;
 		ifreq = *ifr;
-		if (ioctl(sock, SIOCGIFFLAGS, (char *)&ifreq) < 0) {
-			perror("broadcast: ioctl (get interface flags)");
-			continue;
-		}
-		if ((ifreq.ifr_flags & IFF_BROADCAST) &&
+                if (ioctl(sock, SIOCGIFFLAGS, (char *)&ifreq) < 0) {
+                        perror("broadcast: ioctl (get interface flags)");
+                        continue;
+                }
+                if ((ifreq.ifr_flags & IFF_BROADCAST) &&
 		    (ifreq.ifr_flags & IFF_UP)) {
 			sin = (struct sockaddr_in *)&ifr->ifr_addr;
 			if (ioctl(sock, SIOCGIFBRDADDR, (char *)&ifreq) < 0) {
@@ -222,8 +204,6 @@ newgetbroadcastnets(addrsp, sock)
 			}
 		}
 	}
-	free(inbuf);
-	*addrsp = addrs;
 	return (i);
 }
 
@@ -252,13 +232,17 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	bool_t done = FALSE;
 	register u_long xid;
 	u_long port;
-	struct in_addr *addrs;
+	struct in_addr addrs[20];
 	struct sockaddr_in baddr, raddr; /* broadcast and response addresses */
 	struct rmtcallargs a;
 	struct rmtcallres r;
 	struct rpc_msg msg;
 	struct timeval t; 
 	char outbuf[MAX_BROADCAST_SIZE], inbuf[UDPMSGSIZE];
+	static u_int32_t disrupt;
+
+	if (disrupt == 0)
+		disrupt = (u_int32_t)resultsp;
 
 	/*
 	 * initialization: create a socket, a broadcast address, and
@@ -290,14 +274,14 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 		FD_ZERO(fds);
 	}
 
-	nets = newgetbroadcastnets(&addrs, sock);
+	nets = getbroadcastnets(addrs, sock, inbuf);
 	memset(&baddr, 0, sizeof (baddr));
 	baddr.sin_len = sizeof(struct sockaddr_in);
 	baddr.sin_family = AF_INET;
 	baddr.sin_port = htons(PMAPPORT);
 	baddr.sin_addr.s_addr = htonl(INADDR_ANY);
 	(void)gettimeofday(&t, (struct timezone *)0);
-	msg.rm_xid = xid = arc4random();
+	msg.rm_xid = xid = (++disrupt) ^ getpid() ^ t.tv_sec ^ t.tv_usec;
 	t.tv_usec = 0;
 	msg.rm_direction = CALL;
 	msg.rm_call.cb_rpcvers = RPC_MSG_VERSION;
@@ -350,7 +334,7 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 	recv_again:
 		msg.acpted_rply.ar_verf = _null_auth;
 		msg.acpted_rply.ar_results.where = (caddr_t)&r;
-		msg.acpted_rply.ar_results.proc = xdr_rmtcallres;
+                msg.acpted_rply.ar_results.proc = xdr_rmtcallres;
 
 		/* XXX we know the other bits are still clear */
 		FD_SET(sock, fds);
@@ -405,8 +389,6 @@ clnt_broadcast(prog, vers, proc, xargs, argsp, xresults, resultsp, eachresult)
 		}
 	}
 done_broad:
-	if (addrs)
-		free(addrs);
 	if (fds != &readfds)
 		free(fds);
 	if (sock >= 0)
