@@ -1,4 +1,4 @@
-/*	$OpenBSD: rcmdsh.c,v 1.3 1996/09/15 09:31:17 tholo Exp $	*/ 
+/*	$OpenBSD: rcmdsh.c,v 1.2 1996/09/01 20:28:22 millert Exp $	*/ 
 
 /*
  * This is an rcmd() replacement originally by 
@@ -6,7 +6,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: rcmdsh.c,v 1.3 1996/09/15 09:31:17 tholo Exp $";
+static char *rcsid = "$OpenBSD: rcmdsh.c,v 1.2 1996/09/01 20:28:22 millert Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include      <sys/types.h>
@@ -19,19 +19,17 @@ static char *rcsid = "$OpenBSD: rcmdsh.c,v 1.3 1996/09/15 09:31:17 tholo Exp $";
 #include      <string.h>
 #include      <pwd.h>
 #include      <paths.h>
-#include      <unistd.h>
 
 /*
  * This is a replacement rcmd() function that uses the rsh(1)
  * program in place of a direct rcmd(3) function call so as to
  * avoid having to be root.  Note that rport is ignored.
  */
-/* ARGSUSED */
 int
 rcmdsh(ahost, rport, locuser, remuser, cmd, rshprog)
 	char **ahost;
-	int rport;
-	const char *locuser, *remuser, *cmd;
+	u_short	rport;
+	char *locuser, *remuser, *cmd;
 	char *rshprog;
 {
 	struct hostent *hp;
@@ -111,12 +109,12 @@ rcmdsh(ahost, rport, locuser, remuser, cmd, rshprog)
 		(void) fprintf(stderr, "rcmdsh: execlp %s failed: %s\n",
 			       rshprog, strerror(errno));
 		_exit(255);
-	} else {
+	} else if (cpid > 0) {
 		/* Parent. close sp[1], return sp[0]. */
 		(void) close(sp[1]);
 		/* Reap child. */
 		(void) wait(NULL);
 		return(sp[0]);
 	}
-	/* NOTREACHED */
+	/*NOTREACHED*/
 }

@@ -1,6 +1,6 @@
-/*-
- * Copyright (c) 1991 The Regents of the University of California.
- * All rights reserved.
+/*
+ * Copyright (c) 1983, 1993
+ *	The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,35 +31,12 @@
  * SUCH DAMAGE.
  */
 
-#if defined(LIBC_SCCS) && !defined(lint)
-/*static char sccsid[] = "from: @(#)isinf.c	5.1 (Berkeley) 3/18/91";*/
-static char rcsid[] = "$Id: isinf.c,v 1.1 1996/12/21 20:42:22 rahnds Exp $";
-#endif /* LIBC_SCCS and not lint */
+#include "SYS.h"
 
-#include <sys/types.h>
+#if defined(SYSLIBC_SCCS)
+	.text
+	.asciz "$OpenBSD: reboot.S,v 1.2 1996/08/19 08:19:03 tholo Exp $"
+#endif /* SYSLIBC_SCCS */
 
-isnan(d)
-	double d;
-{
-	register struct IEEEdp {
-		u_int manl : 32;
-		u_int manh : 20;
-		u_int  exp : 11;
-		u_int sign :  1;
-	} *p = (struct IEEEdp *)&d;
-
-	return(p->exp == 2047 && (p->manh || p->manl));
-}
-
-isinf(d)
-	double d;
-{
-	register struct IEEEdp {
-		u_int manl : 32;
-		u_int manh : 20;
-		u_int  exp : 11;
-		u_int sign :  1;
-	} *p = (struct IEEEdp *)&d;
-
-	return(p->exp == 2047 && !p->manh && !p->manl);
-}
+SYSCALL(reboot)
+	halt

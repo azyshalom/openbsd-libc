@@ -32,7 +32,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: nlist.c,v 1.19 1997/01/10 18:29:48 etheisen Exp $";
+static char rcsid[] = "$OpenBSD: nlist.c,v 1.14 1996/08/19 08:25:09 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
@@ -47,18 +47,17 @@ static char rcsid[] = "$OpenBSD: nlist.c,v 1.19 1997/01/10 18:29:48 etheisen Exp
 #include <unistd.h>
 #include <a.out.h>		/* pulls in nlist.h */
 
-#ifdef _NLIST_DO_ELF
+#ifdef DO_ELF
 #include <elf_abi.h>
-#include <olf_abi.h>
 #endif
 
-#ifdef _NLIST_DO_ECOFF
+#ifdef DO_ECOFF
 #include <sys/exec_ecoff.h>
 #endif
 
 #define	ISLAST(p)	(p->n_un.n_name == 0 || p->n_un.n_name[0] == 0)
 
-#ifdef _NLIST_DO_AOUT
+#ifdef DO_AOUT
 int
 __aout_fdnlist(fd, list)
 	register int fd;
@@ -143,9 +142,9 @@ __aout_fdnlist(fd, list)
 	munmap(strtab, strsize);
 	return (nent);
 }
-#endif /* _NLIST_DO_AOUT */
+#endif /* DO_AOUT */
 
-#ifdef _NLIST_DO_ECOFF
+#ifdef DO_ECOFF
 #define check(off, size)	((off < 0) || (off + size > mappedsize))
 #define	BAD			do { rv = -1; goto out; } while (0)
 #define	BADUNMAP		do { rv = -1; goto unmap; } while (0)
@@ -246,9 +245,9 @@ unmap:
 out:
 	return (rv);
 }
-#endif /* _NLIST_DO_ECOFF */
+#endif /* DO_ECOFF */
 
-#ifdef _NLIST_DO_ELF
+#ifdef DO_ELF
 /*
  * __elf_is_okay__ - Determine if ehdr really
  * is ELF and valid for the target platform.
@@ -267,7 +266,7 @@ __elf_is_okay__(ehdr)
 	 * Elf32_Ehdr structure.  These few elements are
 	 * represented in a machine independant fashion.
 	 */
-	if ((IS_ELF(*ehdr) || IS_OLF(*ehdr)) &&
+	if (IS_ELF(*ehdr) &&
 	    ehdr->e_ident[EI_CLASS] == ELF_TARG_CLASS &&
 	    ehdr->e_ident[EI_DATA] == ELF_TARG_DATA &&
 	    ehdr->e_ident[EI_VERSION] == ELF_TARG_VER) {
@@ -315,7 +314,7 @@ __elf_fdnlist(fd, list)
 
         /* mmap section header table */
 	shdr = (Elf32_Shdr *)mmap(NULL, (size_t)shdr_size,
-                                  PROT_READ, 0, fd, (off_t) ehdr.e_shoff);
+                                  PROT_READ, 0, fd, ehdr.e_shoff);
 	if (shdr == (Elf32_Shdr *)-1)
 		return (-1);
 
@@ -350,7 +349,7 @@ __elf_fdnlist(fd, list)
 	 * making the memory allocation permanent as with malloc/free
 	 * (i.e., munmap will return it to the system).
 	 */
-	strtab = mmap(NULL, (size_t)symstrsize, PROT_READ, 0, fd, (off_t) symstroff);
+	strtab = mmap(NULL, (size_t)symstrsize, PROT_READ, 0, fd, symstroff);
 	if (strtab == (char *)-1)
 		return (-1);
 	/*
@@ -377,7 +376,7 @@ __elf_fdnlist(fd, list)
         if (symoff == 0)
                 goto done;
                 
-	if (lseek(fd, (off_t) symoff, SEEK_SET) == -1) {
+	if (lseek(fd, symoff, SEEK_SET) == -1) {
                 nent = -1;
                 goto done;
         }
@@ -399,8 +398,7 @@ __elf_fdnlist(fd, list)
                                  * for MIPS and PowerPC
                                  */
 				if (!strcmp(&strtab[soff],
-				    ((ehdr.e_machine == EM_MIPS) ||
-				     (ehdr.e_machine == EM_PPC)) ? 
+				    ehdr.e_machine == EM_MIPS ? 
 				    p->n_un.n_name+1 :
 				    p->n_un.n_name)) {
 					p->n_value = s->st_value;
@@ -437,19 +435,19 @@ __elf_fdnlist(fd, list)
 
 	return (nent);
 }
-#endif /* _NLIST_DO_ELF */
+#endif /* DO_ELF */
 
 
 static struct nlist_handlers {
 	int	(*fn) __P((int fd, struct nlist *list));
 } nlist_fn[] = {
-#ifdef _NLIST_DO_AOUT
+#ifdef DO_AOUT
 	{ __aout_fdnlist },
 #endif
-#ifdef _NLIST_DO_ELF
+#ifdef DO_ELF
 	{ __elf_fdnlist },
 #endif
-#ifdef _NLIST_DO_ECOFF
+#ifdef DO_ECOFF
 	{ __ecoff_fdnlist },
 #endif
 };
@@ -475,6 +473,7 @@ nlist(name, list)
 	struct nlist *list;
 {
 	int fd, n;
+	int i;
 
 	fd = open(name, O_RDONLY, 0);
 	if (fd < 0)
