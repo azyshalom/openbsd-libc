@@ -4,7 +4,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char *rcsid = "$OpenBSD: htons.c,v 1.5 1996/12/12 03:19:55 tholo Exp $";
+static char *rcsid = "$OpenBSD: htons.c,v 1.4 1996/08/19 08:29:05 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/types.h>
@@ -12,12 +12,12 @@ static char *rcsid = "$OpenBSD: htons.c,v 1.5 1996/12/12 03:19:55 tholo Exp $";
 
 #undef htons
 
-u_int16_t
+unsigned short
 #if __STDC__
-htons(u_int16_t x)
+htons(unsigned short x)
 #else
 htons(x)
-	u_int16_t x;
+	unsigned short x;
 #endif
 {
 #if BYTE_ORDER == LITTLE_ENDIAN
