@@ -1,4 +1,4 @@
-/*	$OpenBSD: getnetnamadr.c,v 1.16 2002/06/26 06:00:54 itojun Exp $	*/
+/*	$OpenBSD: getnetnamadr.c,v 1.15.2.1 2002/06/26 06:03:49 millert Exp $	*/
 
 /*
  * Copyright (c) 1997, Jason Downs.  All rights reserved.
@@ -77,7 +77,7 @@ static char sccsid[] = "@(#)getnetbyaddr.c	8.1 (Berkeley) 6/4/93";
 static char sccsid_[] = "from getnetnamadr.c	1.4 (Coimbra) 93/06/03";
 static char rcsid[] = "$From: getnetnamadr.c,v 8.7 1996/08/05 08:31:35 vixie Exp $";
 #else
-static char rcsid[] = "$OpenBSD: getnetnamadr.c,v 1.16 2002/06/26 06:00:54 itojun Exp $";
+static char rcsid[] = "$OpenBSD: getnetnamadr.c,v 1.15.2.1 2002/06/26 06:03:49 millert Exp $";
 #endif
 #endif /* LIBC_SCCS and not lint */
 
