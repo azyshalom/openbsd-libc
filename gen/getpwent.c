@@ -33,7 +33,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: getpwent.c,v 1.8 1996/10/16 09:24:21 downsj Exp $";
+static char rcsid[] = "$OpenBSD: getpwent.c,v 1.7 1996/10/15 18:27:58 downsj Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #include <sys/param.h>
@@ -64,6 +64,8 @@ static int _pw_stayopen;		/* keep fd's open */
 static int _pw_flags;			/* password flags */
 static int __hashpw __P((DBT *));
 static int __initdb __P((void));
+
+const char __yp_token[] = "__YP!";	/* Let pwd_mkdb pull this in. */
 
 #ifdef YP
 enum _ypmode { YPMODE_NONE, YPMODE_FULL, YPMODE_USER, YPMODE_NETGRP };
@@ -325,7 +327,7 @@ again:
 		switch(__ypmode) {
 		case YPMODE_FULL:
 			if(__ypcurrent) {
-				r = yp_next(__ypdomain, (PASSWD_BYNAME),
+				r = yp_next(__ypdomain, PASSWD_BYNAME,
 					__ypcurrent, __ypcurrentlen,
 					&key, &keylen, &data, &datalen);
 				free(__ypcurrent);
@@ -343,7 +345,7 @@ again:
 				free(data);
 				data = NULL;
 			} else {
-				r = yp_first(__ypdomain, (PASSWD_BYNAME),
+				r = yp_first(__ypdomain, PASSWD_BYNAME,
 					&__ypcurrent, &__ypcurrentlen,
 					&data, &datalen);
 				if(r != 0) {
@@ -365,7 +367,7 @@ again:
 				goto again;
 			}
 			if(user && *user) {
-				r = yp_match(__ypdomain, (PASSWD_BYNAME),
+				r = yp_match(__ypdomain, PASSWD_BYNAME,
 					user, strlen(user),
 					&data, &datalen);
 			} else
@@ -385,7 +387,7 @@ again:
 			break;
 		case YPMODE_USER:
 			if(name != (char *)NULL) {
-				r = yp_match(__ypdomain, (PASSWD_BYNAME),
+				r = yp_match(__ypdomain, PASSWD_BYNAME,
 					name, strlen(name),
 					&data, &datalen);
 				__ypmode = YPMODE_NONE;
@@ -481,8 +483,8 @@ __has_yppw()
 	int len;
 	char bf[UT_NAMESIZE];
 
-	key.data = (u_char *)_PW_YPTOKEN;
-	key.size = strlen(_PW_YPTOKEN);
+	key.data = (u_char *)__yp_token;
+	key.size = strlen(__yp_token);
 
 	/* Pre-token database support. */
 	bf[0] = _PW_KEYBYNAME;
@@ -511,16 +513,12 @@ __has_ypmaster()
 	if (checked != -1)
 		return(checked);
 
-	if(geteuid() != 0) {
-		checked = 0;
-		return(checked);
-	}
+	if(geteuid() != 0)
+		return(0);
 
 	if(!__ypdomain) {
-		if(_yp_check(&__ypdomain) == 0) {
-			checked = 0;
-			return(checked);	/* No domain. */
-		}
+		if(_yp_check(&__ypdomain) == 0)
+			return(0);	/* No domain. */
 	}
 
 	if (yp_first(__ypdomain, "master.passwd.byname",
@@ -580,7 +578,7 @@ getpwnam(name)
 						__ypcurrent = NULL;
 					}
 					r = yp_match(__ypdomain,
-						(PASSWD_BYNAME),
+						PASSWD_BYNAME,
 						name, strlen(name),
 						&__ypcurrent, &__ypcurrentlen);
 					if(r != 0) {
@@ -606,7 +604,7 @@ pwnam_netgrp:
 					} else {
 						if(user && *user) {
 							r = yp_match(__ypdomain,
-							    (PASSWD_BYNAME),
+							    PASSWD_BYNAME,
 							    user, strlen(user),
 							    &__ypcurrent,
 							    &__ypcurrentlen);
@@ -632,7 +630,7 @@ pwnam_netgrp:
 					}
 					user = _pw_passwd.pw_name + 1;
 					r = yp_match(__ypdomain,
-						(PASSWD_BYNAME),
+						PASSWD_BYNAME,
 						user, strlen(user),
 						&__ypcurrent,
 						&__ypcurrentlen);
@@ -760,7 +758,7 @@ getpwuid(uid)
 						free(__ypcurrent);
 						__ypcurrent = NULL;
 					}
-					r = yp_match(__ypdomain, (PASSWD_BYUID),
+					r = yp_match(__ypdomain, PASSWD_BYUID,
 						uidbuf, strlen(uidbuf),
 						&__ypcurrent, &__ypcurrentlen);
 					if(r != 0) {
@@ -786,7 +784,7 @@ pwuid_netgrp:
 					} else {
 						if(user && *user) {
 							r = yp_match(__ypdomain,
-							    (PASSWD_BYNAME),
+							    PASSWD_BYNAME,
 							    user, strlen(user),
 							    &__ypcurrent,
 							    &__ypcurrentlen);
@@ -812,7 +810,7 @@ pwuid_netgrp:
 					}
 					user = _pw_passwd.pw_name + 1;
 					r = yp_match(__ypdomain,
-						(PASSWD_BYNAME),
+						PASSWD_BYNAME,
 						user, strlen(user),
 						&__ypcurrent,
 						&__ypcurrentlen);

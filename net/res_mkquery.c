@@ -1,11 +1,7 @@
-/*	$OpenBSD: res_mkquery.c,v 1.6 1997/03/13 19:07:39 downsj Exp $	*/
-
-/*
- * ++Copyright++ 1985, 1993
- * -
+/*-
  * Copyright (c) 1985, 1993
- *    The Regents of the University of California.  All rights reserved.
- * 
+ *	The Regents of the University of California.  All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -16,12 +12,12 @@
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- * 	This product includes software developed by the University of
- * 	California, Berkeley and its contributors.
+ *	This product includes software developed by the University of
+ *	California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -56,22 +52,14 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-#if 0
-static char sccsid[] = "@(#)res_mkquery.c	8.1 (Berkeley) 6/4/93";
-static char rcsid[] = "$From: res_mkquery.c,v 8.5 1996/08/27 08:33:28 vixie Exp $";
-#else
-static char rcsid[] = "$OpenBSD: res_mkquery.c,v 1.6 1997/03/13 19:07:39 downsj Exp $";
-#endif
+static char rcsid[] = "$OpenBSD: res_mkquery.c,v 1.4 1996/09/15 09:31:20 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
-#include <sys/types.h>
 #include <sys/param.h>
 #include <netinet/in.h>
 #include <arpa/nameser.h>
-
-#include <stdio.h>
-#include <netdb.h>
 #include <resolv.h>
+#include <stdio.h>
 #include <string.h>
 
 /*
@@ -82,9 +70,9 @@ static char rcsid[] = "$OpenBSD: res_mkquery.c,v 1.6 1997/03/13 19:07:39 downsj 
 int
 res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
 	int op;			/* opcode of query */
-	const char *dname;	/* domain name */
+	const char *dname;		/* domain name */
 	int class, type;	/* class and type of query */
-	const u_char *data;	/* resource record data */
+	const u_char *data;		/* resource record data */
 	int datalen;		/* length of data */
 	const u_char *newrr_in;	/* new rr for modify or append */
 	u_char *buf;		/* buffer to put query */
@@ -93,12 +81,11 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
 	register HEADER *hp;
 	register u_char *cp;
 	register int n;
-	u_char *dnptrs[20], **dpp, **lastdnptr;
+#ifdef ALLOW_UPDATES
+	struct rrec *newrr = (struct rrec *) newrr_in;
+#endif /* ALLOW_UPDATES */
+	u_char *dnptrs[10], **dpp, **lastdnptr;
 
-	if ((_res.options & RES_INIT) == 0 && res_init() == -1) {
-		h_errno = NETDB_INTERNAL;
-		return (-1);
-	}
 #ifdef DEBUG
 	if (_res.options & RES_DEBUG)
 		printf(";; res_mkquery(%d, %s, %d, %d)\n",
@@ -107,36 +94,37 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
 	/*
 	 * Initialize header fields.
 	 */
-	if ((buf == NULL) || (buflen < HFIXEDSZ))
-		return (-1);
-	bzero(buf, HFIXEDSZ);
+	if ((buf == NULL) || (buflen < sizeof(HEADER)))
+		return(-1);
+	bzero(buf, sizeof(HEADER));
 	hp = (HEADER *) buf;
 	hp->id = htons(++_res.id);
 	hp->opcode = op;
+	hp->pr = (_res.options & RES_PRIMARY) != 0;
 	hp->rd = (_res.options & RES_RECURSE) != 0;
 	hp->rcode = NOERROR;
-	cp = buf + HFIXEDSZ;
-	buflen -= HFIXEDSZ;
+	cp = buf + sizeof(HEADER);
+	buflen -= sizeof(HEADER);
 	dpp = dnptrs;
 	*dpp++ = buf;
 	*dpp++ = NULL;
-	lastdnptr = dnptrs + sizeof dnptrs / sizeof dnptrs[0];
+	lastdnptr = dnptrs + sizeof(dnptrs)/sizeof(dnptrs[0]);
 	/*
 	 * perform opcode specific processing
 	 */
 	switch (op) {
-	case QUERY:	/*FALLTHROUGH*/
+	case QUERY:
 	case NS_NOTIFY_OP:
 		if ((buflen -= QFIXEDSZ) < 0)
-			return (-1);
+			return(-1);
 		if ((n = dn_comp(dname, cp, buflen, dnptrs, lastdnptr)) < 0)
 			return (-1);
 		cp += n;
 		buflen -= n;
 		__putshort(type, cp);
-		cp += INT16SZ;
+		cp += sizeof(u_int16_t);
 		__putshort(class, cp);
-		cp += INT16SZ;
+		cp += sizeof(u_int16_t);
 		hp->qdcount = htons(1);
 		if (op == QUERY || data == NULL)
 			break;
@@ -144,19 +132,18 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
 		 * Make an additional record for completion domain.
 		 */
 		buflen -= RRFIXEDSZ;
-		n = dn_comp((char *)data, cp, buflen, dnptrs, lastdnptr);
-		if (n < 0)
+		if ((n = dn_comp(data, cp, buflen, dnptrs, lastdnptr)) < 0)
 			return (-1);
 		cp += n;
 		buflen -= n;
 		__putshort(T_NULL, cp);
-		cp += INT16SZ;
+		cp += sizeof(u_int16_t);
 		__putshort(class, cp);
-		cp += INT16SZ;
+		cp += sizeof(u_int16_t);
 		__putlong(0, cp);
-		cp += INT32SZ;
+		cp += sizeof(u_int32_t);
 		__putshort(0, cp);
-		cp += INT16SZ;
+		cp += sizeof(u_int16_t);
 		hp->arcount = htons(1);
 		break;
 
@@ -168,13 +155,13 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
 			return (-1);
 		*cp++ = '\0';	/* no domain name */
 		__putshort(type, cp);
-		cp += INT16SZ;
+		cp += sizeof(u_int16_t);
 		__putshort(class, cp);
-		cp += INT16SZ;
+		cp += sizeof(u_int16_t);
 		__putlong(0, cp);
-		cp += INT32SZ;
+		cp += sizeof(u_int32_t);
 		__putshort(datalen, cp);
-		cp += INT16SZ;
+		cp += sizeof(u_int16_t);
 		if (datalen) {
 			bcopy(data, cp, datalen);
 			cp += datalen;
@@ -182,6 +169,64 @@ res_mkquery(op, dname, class, type, data, datalen, newrr_in, buf, buflen)
 		hp->ancount = htons(1);
 		break;
 
+#ifdef ALLOW_UPDATES
+	/*
+	 * For UPDATEM/UPDATEMA, do UPDATED/UPDATEDA followed by UPDATEA
+	 * (Record to be modified is followed by its replacement in msg.)
+	 */
+	case UPDATEM:
+	case UPDATEMA:
+
+	case UPDATED:
+		/*
+		 * The res code for UPDATED and UPDATEDA is the same; user
+		 * calls them differently: specifies data for UPDATED; server
+		 * ignores data if specified for UPDATEDA.
+		 */
+	case UPDATEDA:
+		buflen -= RRFIXEDSZ + datalen;
+		if ((n = dn_comp(dname, cp, buflen, dnptrs, lastdnptr)) < 0)
+			return (-1);
+		cp += n;
+		__putshort(type, cp);
+                cp += sizeof(u_int16_t);
+                __putshort(class, cp);
+                cp += sizeof(u_int16_t);
+		__putlong(0, cp);
+		cp += sizeof(u_int32_t);
+		__putshort(datalen, cp);
+                cp += sizeof(u_int16_t);
+		if (datalen) {
+			bcopy(data, cp, datalen);
+			cp += datalen;
+		}
+		if ( (op == UPDATED) || (op == UPDATEDA) ) {
+			hp->ancount = htons(0);
+			break;
+		}
+		/* Else UPDATEM/UPDATEMA, so drop into code for UPDATEA */
+
+	case UPDATEA:	/* Add new resource record */
+		buflen -= RRFIXEDSZ + datalen;
+		if ((n = dn_comp(dname, cp, buflen, dnptrs, lastdnptr)) < 0)
+			return (-1);
+		cp += n;
+		__putshort(newrr->r_type, cp);
+                cp += sizeof(u_int16_t);
+                __putshort(newrr->r_class, cp);
+                cp += sizeof(u_int16_t);
+		__putlong(0, cp);
+		cp += sizeof(u_int32_t);
+		__putshort(newrr->r_size, cp);
+                cp += sizeof(u_int16_t);
+		if (newrr->r_size) {
+			bcopy(newrr->r_data, cp, newrr->r_size);
+			cp += newrr->r_size;
+		}
+		hp->ancount = htons(0);
+		break;
+
+#endif /* ALLOW_UPDATES */
 	default:
 		return (-1);
 	}

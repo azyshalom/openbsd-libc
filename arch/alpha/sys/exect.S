@@ -1,6 +1,3 @@
-/*	$OpenBSD: exect.S,v 1.3 1996/11/13 22:05:11 niklas Exp $	*/
-/*	$NetBSD: exect.S,v 1.2 1996/10/17 03:08:18 cgd Exp $	*/
-
 /*
  * Copyright (c) 1994, 1995 Carnegie-Mellon University.
  * All rights reserved.
@@ -32,10 +29,10 @@
 
 #if defined(SYSLIBC_SCCS)
 	.text
-	.asciz "$OpenBSD: exect.S,v 1.3 1996/11/13 22:05:11 niklas Exp $"
+	.asciz "$OpenBSD: exect.S,v 1.2 1996/08/19 08:11:07 tholo Exp $"
 #endif /* SYSLIBC_SCCS */
 
 LEAF(exect, 3)
-	CALLSYS_ERROR(execve)
+	SYSCALL_NOLABEL(execve)
 	RET
 END(exect)
