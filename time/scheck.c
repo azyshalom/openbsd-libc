@@ -1,9 +1,5 @@
 #if defined(LIBC_SCCS) && !defined(lint)
-#if 0
-static char	elsieid[] = "@(#)scheck.c	8.13";
-#else
-static char rcsid[] = "$OpenBSD: scheck.c,v 1.4 1997/01/14 03:16:49 millert Exp $";
-#endif
+static char rcsid[] = "$OpenBSD: scheck.c,v 1.3 1996/08/19 08:34:51 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*LINTLIBRARY*/
