@@ -1,6 +1,6 @@
-/*
- * Copyright (c) 1983, 1993
- *	The Regents of the University of California.  All rights reserved.
+/*-
+ * Copyright (c) 1991 The Regents of the University of California.
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -31,12 +31,35 @@
  * SUCH DAMAGE.
  */
 
-#include "SYS.h"
+#if defined(LIBC_SCCS) && !defined(lint)
+static char rcsid[] = "$OpenBSD: frexp.c,v 1.1 1997/01/17 21:39:20 rahnds Exp $";
+#endif /* LIBC_SCCS and not lint */
 
-#if defined(SYSLIBC_SCCS)
-	.text
-	.asciz "$OpenBSD: reboot.S,v 1.2 1996/08/19 08:19:03 tholo Exp $"
-#endif /* SYSLIBC_SCCS */
+#include <sys/types.h>
+#include <math.h>
 
-SYSCALL(reboot)
-	halt
+double
+frexp(value, eptr)
+	double value;
+	int *eptr;
+{
+	union {
+                double v;
+                struct {
+                        u_int  u_sign :  1;
+			u_int   u_exp : 11;
+			u_int u_mant1 : 20;
+			u_int u_mant2 : 32;
+                } s;
+        } u;
+
+	if (value) {
+		u.v = value;
+		*eptr = u.s.u_exp - 1022;
+		u.s.u_exp = 1022;
+		return(u.v);
+	} else {
+		*eptr = 0;
+		return((double)0);
+	}
+}
