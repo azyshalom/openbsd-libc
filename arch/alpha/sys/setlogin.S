@@ -1,6 +1,3 @@
-/*	$OpenBSD: setlogin.S,v 1.3 1996/11/13 22:05:14 niklas Exp $	*/
-/*	$NetBSD: setlogin.S,v 1.1 1995/02/10 17:50:39 cgd Exp $	*/
-
 /*
  * Copyright (c) 1994, 1995 Carnegie-Mellon University.
  * All rights reserved.
@@ -32,7 +29,7 @@
 
 #if defined(SYSLIBC_SCCS)
 	.text
-	.asciz "$OpenBSD: setlogin.S,v 1.3 1996/11/13 22:05:14 niklas Exp $"
+	.asciz "$OpenBSD: setlogin.S,v 1.2 1996/08/19 08:11:15 tholo Exp $"
 #endif /* SYSLIBC_SCCS */
 
 IMPORT(__logname_valid, 4)			/* in getlogin() */
