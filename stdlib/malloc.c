@@ -8,7 +8,7 @@
  */
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$OpenBSD: malloc.c,v 1.22 1997/02/11 17:46:36 niklas Exp $";
+static char rcsid[] = "$OpenBSD: malloc.c,v 1.14 1996/09/26 04:19:42 tholo Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 /*
@@ -18,17 +18,17 @@ static char rcsid[] = "$OpenBSD: malloc.c,v 1.22 1997/02/11 17:46:36 niklas Exp 
  * any good unless you fiddle with the internals of malloc or want
  * to catch random pointer corruption as early as possible.
  */
-#ifndef MALLOC_EXTRA_SANITY
-#undef MALLOC_EXTRA_SANITY
-#endif
+#undef EXTRA_SANITY
 
 /*
  * Defining MALLOC_STATS will enable you to call malloc_dump() and set
  * the [dD] options in the MALLOC_OPTIONS environment variable.
  * It has no run-time performance hit, but does pull in stdio...
  */
-#ifndef MALLOC_STATS
 #undef MALLOC_STATS
+
+#if defined(EXTRA_SANITY) && !defined(MALLOC_STATS)
+# define MALLOC_STATS	/* required for EXTRA_SANITY */
 #endif
 
 /*
@@ -51,24 +51,16 @@ static char rcsid[] = "$OpenBSD: malloc.c,v 1.22 1997/02/11 17:46:36 niklas Exp 
 #include <sys/mman.h>
 
 /*
- * The basic parameters you can tweak.
- *
- * malloc_pageshift	pagesize = 1 << malloc_pageshift
- *			It's probably best if this is the native
- *			page size, but it shouldn't have to be.
- *
- * malloc_minsize	minimum size of an allocation in bytes.
- *			If this is too small it's too much work
- *			to manage them.  This is also the smallest
- *			unit of alignment used for the storage
- *			returned by malloc/realloc.
- *
+ * If these weren't defined here, they would be calculated on the fly,
+ * at a considerable cost in performance.
  */
 #ifdef __OpenBSD__
 #   if defined(__alpha__) || defined(__m68k__) || defined(__mips__) || \
        defined(__i386__) || defined(__m88k__) || defined(__ns32k__) || \
        defined(__vax__)
+#	define	malloc_pagesize		(NBPG)
 #	define	malloc_pageshift	(PGSHIFT)
+#	define	malloc_maxsize		(malloc_pagesize >> 1)
 #	define	malloc_minsize		16U
 #   endif /* __i386__ */
 #endif /* __OpenBSD__ */
@@ -114,29 +106,67 @@ struct pgfree {
 #define MALLOC_FOLLOW	((struct pginfo*) 3)
 #define MALLOC_MAGIC	((struct pginfo*) 4)
 
-#ifndef malloc_pageshift
-#define malloc_pageshift		12U
-#endif
+/*
+ * The i386 architecture has some very convenient instructions.
+ * We might as well use them.  There are C-language backups, but
+ * they are considerably slower.
+ */
+#if defined(__i386__) && defined(__GNUC__)
+#define ffs _ffs
+static __inline int
+_ffs(input)
+	unsigned input;
+{
+	int result;
+	__asm("bsfl %1, %0" : "=r" (result) : "r" (input));
+	return result+1;
+}
 
-#ifndef malloc_minsize
-#define malloc_minsize			16U
-#endif
+#define fls _fls
+static __inline int
+_fls(input)
+	unsigned input;
+{
+	int result;
+	__asm("bsrl %1, %0" : "=r" (result) : "r" (input));
+	return result+1;
+}
 
-#ifndef malloc_pageshift
-#error	"malloc_pageshift undefined"
-#endif
+#define set_bit _set_bit
+static __inline void
+_set_bit(pi, bit)
+	struct pginfo *pi;
+	int bit;
+{
+	__asm("btsl %0, (%1)" :
+	: "r" (bit & (MALLOC_BITS-1)), "r" (pi->bits+(bit/MALLOC_BITS)));
+}
 
-#if !defined(malloc_pagesize)
-#define malloc_pagesize			(1UL<<malloc_pageshift)
-#endif
+#define clr_bit _clr_bit
+static __inline void
+_clr_bit(pi, bit)
+	struct pginfo *pi;
+	int bit;
+{
+	__asm("btcl %0, (%1)" :
+	: "r" (bit & (MALLOC_BITS-1)), "r" (pi->bits+(bit/MALLOC_BITS)));
+}
 
-#if ((1UL<<malloc_pageshift) != malloc_pagesize)
-#error	"(1UL<<malloc_pageshift) != malloc_pagesize"
-#endif
+#endif /* __i386__ && __GNUC__ */
 
-#ifndef malloc_maxsize
-#define malloc_maxsize			((malloc_pagesize)>>1)
-#endif
+/*
+ * Set to one when malloc_init has been called
+ */
+static	unsigned	initialized;
+
+/*
+ * The size of a page.
+ * Must be a integral multiplum of the granularity of mmap(2).
+ * Your toes will curl if it isn't a power of two
+ */
+#ifndef malloc_pagesize
+static	unsigned        malloc_pagesize;
+#endif /* malloc_pagesize */
 
 /* A mask for the offset inside a page.  */
 #define malloc_pagemask	((malloc_pagesize)-1)
@@ -144,26 +174,45 @@ struct pgfree {
 #define pageround(foo) (((foo) + (malloc_pagemask))&(~(malloc_pagemask)))
 #define ptr2index(foo) (((u_long)(foo) >> malloc_pageshift)-malloc_origo)
 
-/* Set when initialization has been done */
-static unsigned malloc_started;	
+/* malloc_pagesize == 1 << malloc_pageshift */
+#ifndef malloc_pageshift
+static	unsigned	malloc_pageshift;
+#endif /* malloc_pageshift */
 
-/* Number of free pages we cache */
-static unsigned malloc_cache = 16;
+/*
+ * The smallest allocation we bother about.
+ * Must be power of two
+ */
+#ifndef malloc_minsize
+static	unsigned  malloc_minsize;
+#endif /* malloc_minsize */
+
+/*
+ * The largest chunk we care about.
+ * Must be smaller than pagesize
+ * Must be power of two
+ */
+#ifndef malloc_maxsize
+static	unsigned  malloc_maxsize;
+#endif /* malloc_maxsize */
+
+/* The minimum size (in pages) of the free page cache.  */
+static	unsigned  malloc_cache = 16;
 
 /* The offset from pagenumber to index into the page directory */
-static u_long malloc_origo;
+static	u_long  malloc_origo;
 
 /* The last index in the page directory we care about */
-static u_long last_index;
+static	u_long  last_index;
 
 /* Pointer to page directory. Allocated "as if with" malloc */
-static struct	pginfo **page_dir;
+static	struct	pginfo **page_dir;
 
 /* How many slots in the page directory */
-static unsigned	malloc_ninfo;
+static	unsigned	malloc_ninfo;
 
 /* Free pages line up here */
-static struct pgfree free_list;
+static struct pgfree	free_list;
 
 /* Abort(), user doesn't handle problems.  */
 static int malloc_abort;
@@ -174,7 +223,7 @@ static int suicide;
 #ifdef MALLOC_STATS
 /* dump statistics */
 static int malloc_stats;
-#endif
+#endif /* MALLOC_STATS */
 
 /* always realloc ?  */
 static int malloc_realloc;
@@ -196,8 +245,6 @@ static int malloc_utrace;
 
 struct ut { void *p; size_t s; void *r; };
 
-void utrace __P((struct ut *, int));
-
 #define UTRACE(a, b, c) \
 	if (malloc_utrace) \
 		{struct ut u; u.p=a; u.s = b; u.r=c; utrace(&u, sizeof u);}
@@ -213,9 +260,6 @@ static struct pgfree *px;
 
 /* compile-time options */
 char *malloc_options;
-
-/* Name of the current public function */
-static char *malloc_func;
 
 /*
  * Necessary function declarations
@@ -267,7 +311,7 @@ malloc_dump(fd)
 	fprintf(fd, "Free: @%p [%p...%p[ %ld ->%p <-%p\n",
 		pf, pf->page, pf->end, pf->size, pf->prev, pf->next);
 	if (pf == pf->next) {
- 		fprintf(fd, "Free_list loops.\n");
++ 		fprintf(fd, "Free_list loops.\n");
 		break;
 	}
     }
@@ -284,17 +328,16 @@ malloc_dump(fd)
 }
 #endif /* MALLOC_STATS */
 
-extern char *__progname;
+static char *malloc_func;
 
 static void
 wrterror(p)
     char *p;
 {
-    char *q = " error: ";
+    char *q = "Malloc error: ";
     suicide = 1;
-    write(2, __progname, strlen(__progname));
-    write(2, malloc_func, strlen(malloc_func));
     write(2, q, strlen(q));
+    write(2, malloc_func, strlen(malloc_func));
     write(2, p, strlen(p));
 #ifdef MALLOC_STATS
     if (malloc_stats)
@@ -307,16 +350,15 @@ static void
 wrtwarning(p)
     char *p;
 {
-    char *q = " warning: ";
+    char *q = "Malloc warning: ";
     if (malloc_abort)
 	wrterror(p);
-    write(2, __progname, strlen(__progname));
-    write(2, malloc_func, strlen(malloc_func));
     write(2, q, strlen(q));
+    write(2, malloc_func, strlen(malloc_func));
     write(2, p, strlen(p));
 }
 
-#ifdef MALLOC_STATS
+#ifdef EXTRA_SANITY
 static void
 malloc_exit()
 {
@@ -328,7 +370,7 @@ malloc_exit()
     } else
 	write(2, q, strlen(q));
 }
-#endif /* MALLOC_STATS */
+#endif /* EXTRA_SANITY */
 
 
 /*
@@ -354,10 +396,64 @@ map_pages(pages)
     malloc_brk = tail;
 
     if ((last_index+1) >= malloc_ninfo && !extend_pgdir(last_index))
-	return 0;
+	return 0;;
 
     return result;
 }
+
+/*
+ * Set a bit in the bitmap
+ */
+#ifndef set_bit
+static __inline void
+set_bit(pi, bit)
+    struct pginfo *pi;
+    int bit;
+{
+    pi->bits[bit/MALLOC_BITS] |= 1<<(bit%MALLOC_BITS);
+}
+#endif /* set_bit */
+
+/*
+ * Clear a bit in the bitmap
+ */
+#ifndef clr_bit
+static __inline void
+clr_bit(pi, bit)
+    struct pginfo *pi;
+    int bit;
+{
+    pi->bits[bit/MALLOC_BITS] &= ~(1<<(bit%MALLOC_BITS));
+}
+#endif /* clr_bit */
+
+#ifndef tst_bit
+/*
+ * Test a bit in the bitmap
+ */
+static __inline int
+tst_bit(pi, bit)
+    struct pginfo *pi;
+    int bit;
+{
+    return pi->bits[bit/MALLOC_BITS] & (1<<(bit%MALLOC_BITS));
+}
+#endif /* tst_bit */
+
+/*
+ * Find last bit
+ */
+#ifndef fls
+static __inline int
+fls(size)
+    int size;
+{
+    int i = 1;
+    while (size >>= 1)
+	i++;
+    return i;
+}
+#endif /* fls */
 
 /*
  * Extend page directory
@@ -367,8 +463,7 @@ extend_pgdir(index)
     u_long index;
 {
     struct  pginfo **new, **old;
-    int i;
-    size_t oldlen;
+    int i, oldlen;
 
     /* Make it this many pages */
     i = index * sizeof *page_dir;
@@ -436,10 +531,7 @@ malloc_init ()
 	    b[j] = '\0';
 	    p = b;
 	} else if (i == 1) {
-	    if (issetugid() == 0)
-		p = getenv("MALLOC_OPTIONS");
-	    else
-	    	continue;
+	    p = getenv("MALLOC_OPTIONS");
 	} else if (i == 2) {
 	    p = malloc_options;
 	}
@@ -486,10 +578,53 @@ malloc_init ()
     if (malloc_zero)
 	malloc_junk=1;
 
-#ifdef MALLOC_STATS
+#ifdef EXTRA_SANITY
     if (malloc_stats)
 	atexit(malloc_exit);
-#endif /* MALLOC_STATS */
+#endif /* EXTRA_SANITY */
+
+#ifndef malloc_pagesize
+    /* determine our pagesize */
+    malloc_pagesize = getpagesize();
+#endif /* malloc_pagesize */
+
+#ifndef malloc_maxsize
+    malloc_maxsize = malloc_pagesize >> 1;
+#endif /* malloc_maxsize */
+
+#ifndef malloc_pageshift
+    {
+    int i;
+    /* determine how much we shift by to get there */
+    for (i = malloc_pagesize; i > 1; i >>= 1)
+	malloc_pageshift++;
+    }
+#endif /* malloc_pageshift */
+
+#ifndef malloc_minsize
+    {
+    int i;
+    /*
+     * find the smallest size allocation we will bother about.
+     * this is determined as the smallest allocation that can hold
+     * it's own pginfo;
+     */
+    i = 2;
+    for(;;) {
+	int j;
+
+	/* Figure out the size of the bits */
+	j = malloc_pagesize/i;
+	j /= 8;
+	if (j < sizeof(u_long))
+		j = sizeof (u_long);
+	if (sizeof(struct pginfo) + j - sizeof (u_long) <= i)
+		break;
+	i += i;
+    }
+    malloc_minsize = i;
+    }
+#endif /* malloc_minsize */
 
     /* Allocate one page for the page directory */
     page_dir = (struct pginfo **) mmap(0, malloc_pagesize, PROT_READ|PROT_WRITE,
@@ -507,14 +642,7 @@ malloc_init ()
     malloc_ninfo = malloc_pagesize / sizeof *page_dir;
 
     /* Been here, done that */
-    malloc_started++;
-
-    /* Recalculate the cache size in bytes, and make sure it's nonzero */
-
-    if (!malloc_cache)
-	malloc_cache++;
-
-    malloc_cache <<= malloc_pageshift;
+    initialized++;
 
     /*
      * This is a nice hack from Kaleb Keithly (kaleb@x.org).
@@ -522,12 +650,16 @@ malloc_init ()
      */
     px = (struct pgfree *) imalloc (sizeof *px);
 
+    if (!malloc_cache)
+	malloc_cache++;
+
+    malloc_cache <<= malloc_pageshift;
 }
 
 /*
  * Allocate a number of complete pages
  */
-static void *
+void *
 malloc_pages(size)
     size_t size;
 {
@@ -613,7 +745,7 @@ malloc_pages(size)
  * Allocate a page of fragments
  */
 
-static __inline__ int
+static __inline int
 malloc_make_chunks(bits)
     int bits;
 {
@@ -632,50 +764,44 @@ malloc_make_chunks(bits)
 	(((malloc_pagesize >> bits)+MALLOC_BITS-1) / MALLOC_BITS);
 
     /* Don't waste more than two chunks on this */
-    if ((1UL<<(bits)) <= l+l) {
+    if ((1<<(bits)) <= l+l) {
 	bp = (struct  pginfo *)pp;
     } else {
 	bp = (struct  pginfo *)imalloc(l);
-	if (!bp) {
-	    ifree(pp);
+	if (!bp)
 	    return 0;
-	}
     }
 
-    bp->size = (1UL<<bits);
+    bp->size = (1<<bits);
     bp->shift = bits;
     bp->total = bp->free = malloc_pagesize >> bits;
     bp->page = pp;
-
-    /* set all valid bits in the bitmap */
-    k = bp->total;
-    i = 0;
-
-    /* Do a bunch at a time */
-    for(;k-i >= MALLOC_BITS; i += MALLOC_BITS)
-	bp->bits[i / MALLOC_BITS] = ~0UL;
-
-    for(; i < k; i++)
-        bp->bits[i/MALLOC_BITS] |= 1UL<<(i%MALLOC_BITS);
-
-    if (bp == bp->page) {
-	/* Mark the ones we stole for ourselves */
-	for(i=0;l > 0;i++) {
-	    bp->bits[i/MALLOC_BITS] &= ~(1UL<<(i%MALLOC_BITS));
-	    bp->free--;
-	    bp->total--;
-	    l -= (1 << bits);
-	}
-    }
-
-    /* MALLOC_LOCK */
 
     page_dir[ptr2index(pp)] = bp;
 
     bp->next = page_dir[bits];
     page_dir[bits] = bp;
 
-    /* MALLOC_UNLOCK */
+    /* set all valid bits in the bits */
+    k = bp->total;
+    i = 0;
+
+    /* Do a bunch at a time */
+    for(;k-i >= MALLOC_BITS; i += MALLOC_BITS)
+	bp->bits[i / MALLOC_BITS] = (u_long)~0;
+
+    for(; i < k; i++)
+	set_bit(bp, i);
+
+    if (bp == bp->page) {
+	/* Mark the ones we stole for ourselves */
+	for(i=0;l > 0;i++) {
+	    clr_bit(bp, i);
+	    bp->free--;
+	    bp->total--;
+	    l -= (1 << bits);
+	}
+    }
 
     return 1;
 }
@@ -687,8 +813,7 @@ static void *
 malloc_bytes(size)
     size_t size;
 {
-    int i,j;
-    u_long u;
+    int j;
     struct  pginfo *bp;
     int k;
     u_long *lp;
@@ -698,10 +823,7 @@ malloc_bytes(size)
 	size = malloc_minsize;
 
     /* Find the right bucket */
-    j = 1;
-    i = size-1;
-    while (i >>= 1)
-	j++;
+    j = fls((size)-1);
 
     /* If it's empty, make a page more of that size chunks */
     if (!page_dir[j] && !malloc_make_chunks(j))
@@ -714,13 +836,8 @@ malloc_bytes(size)
 	;
 
     /* Find that bit, and tweak it */
-    u = 1;
-    k = 0;
-    while (!(*lp & u)) {
-	u += u;
-	k++;
-    }
-    *lp ^= u;
+    k = ffs((unsigned)*lp) - 1;
+    *lp ^= 1<<k;
 
     /* If there are no more free, remove from free-list */
     if (!--bp->free) {
@@ -735,7 +852,7 @@ malloc_bytes(size)
     if (malloc_junk)
 	memset((char *)bp->page + k, SOME_JUNK, bp->size);
 
-    return (u_char *)bp->page + k;
+    return (void *)((char *)bp->page + k);
 }
 
 /*
@@ -750,7 +867,7 @@ imalloc(size)
     int     status;
 #endif
 
-    if (!malloc_started)
+    if (!initialized)
 	malloc_init();
 
     if (suicide)
@@ -764,7 +881,7 @@ imalloc(size)
     if (malloc_abort && !result)
 	wrterror("allocation failed.\n");
 
-    if (malloc_zero && result)
+    if (malloc_zero)
 	memset(result, 0, size);
 
     return result;
@@ -789,7 +906,7 @@ irealloc(ptr, size)
     if (suicide)
 	return 0;
 
-    if (!malloc_started) {
+    if (!initialized) {
 	wrtwarning("malloc() has never been called.\n");
 	return 0;
     }
@@ -838,7 +955,7 @@ irealloc(ptr, size)
 	i = ((u_long)ptr & malloc_pagemask) >> (*mp)->shift;
 
 	/* Verify that it isn't a free chunk already */
-        if ((*mp)->bits[i/MALLOC_BITS] & (1UL<<(i%MALLOC_BITS))) {
+	if (tst_bit(*mp, i)) {
 	    wrtwarning("chunk is already free.\n");
 	    return 0;
 	}
@@ -874,7 +991,7 @@ irealloc(ptr, size)
  * Free a sequence of pages
  */
 
-static __inline__ void
+static __inline void
 free_pages(ptr, index, info)
     void *ptr;
     int index;
@@ -906,9 +1023,6 @@ free_pages(ptr, index, info)
 	page_dir[index + i] = MALLOC_FREE;
 
     l = i << malloc_pageshift;
-
-    if (malloc_junk)
-	memset(ptr, SOME_JUNK, l);
 
 #ifdef __FreeBSD__
     if (malloc_hint)
@@ -1010,7 +1124,7 @@ free_pages(ptr, index, info)
  */
 
 /* ARGSUSED */
-static __inline__ void
+static __inline void
 free_bytes(ptr, index, info)
     void *ptr;
     int index;
@@ -1028,15 +1142,12 @@ free_bytes(ptr, index, info)
 	return;
     }
 
-    if (info->bits[i/MALLOC_BITS] & (1UL<<(i%MALLOC_BITS))) {
+    if (tst_bit(info, i)) {
 	wrtwarning("chunk is already free.\n");
 	return;
     }
 
-    if (malloc_junk)
-	memset(ptr, SOME_JUNK, info->size);
-
-    info->bits[i/MALLOC_BITS] |= 1UL<<(i%MALLOC_BITS);
+    set_bit(info, i);
     info->free++;
 
     mp = page_dir + info->shift;
@@ -1089,7 +1200,7 @@ ifree(ptr)
     if (!ptr)
 	return;
 
-    if (!malloc_started) {
+    if (!initialized) {
 	wrtwarning("malloc() has never been called.\n");
 	return;
     }
@@ -1128,7 +1239,7 @@ ifree(ptr)
 #include "pthread_private.h"
 static int malloc_lock;
 #define THREAD_LOCK() _thread_kern_sig_block(&malloc_lock);
-#define THREAD_UNLOCK() _thread_kern_sig_unblock(malloc_lock);
+#define THREAD_UNLOCK() _thread_kern_sig_unblock(&malloc_lock);
 #else
 #define THREAD_LOCK() 
 #define THREAD_UNLOCK()
@@ -1141,7 +1252,7 @@ malloc(size_t size)
 {
     register void *r;
 
-    malloc_func = " in malloc():";
+    malloc_func = "malloc():";
     THREAD_LOCK();
     if (malloc_active++) {
 	wrtwarning("recursive call.\n");
@@ -1158,7 +1269,7 @@ malloc(size_t size)
 void
 free(void *ptr)
 {
-    malloc_func = " in free():";
+    malloc_func = "free():";
     THREAD_LOCK();
     if (malloc_active++) {
 	wrtwarning("recursive call.\n");
@@ -1177,7 +1288,7 @@ realloc(void *ptr, size_t size)
 {
     register void *r;
 
-    malloc_func = " in realloc():";
+    malloc_func = "realloc():";
     THREAD_LOCK();
     if (malloc_active++) {
 	wrtwarning("recursive call.\n");
