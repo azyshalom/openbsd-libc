@@ -1,5 +1,5 @@
-/*	$OpenBSD: fileext.h,v 1.2 2005/06/17 20:40:32 espie Exp $	*/
-/* $NetBSD: fileext.h,v 1.5 2003/07/18 21:46:41 nathanw Exp $ */
+/*	$OpenBSD: ungetwc.c,v 1.1 2005/06/17 20:40:32 espie Exp $	*/
+/* $NetBSD: ungetwc.c,v 1.2 2003/01/18 11:29:59 thorpej Exp $ */
 
 /*-
  * Copyright (c)2001 Citrus Project,
@@ -29,26 +29,42 @@
  * $Citrus$
  */
 
-/*
- * file extension
- */
-struct __sfileext {
-	struct	__sbuf _ub; /* ungetc buffer */
-	struct wchar_io_data _wcio;	/* wide char io status */
-};
+#include <errno.h>
+#include <stdio.h>
+#include <wchar.h>
+#include "local.h"
 
-#define _EXT(fp) ((struct __sfileext *)((fp)->_ext._base))
-#define _UB(fp) _EXT(fp)->_ub
+wint_t
+ungetwc(wint_t wc, FILE *fp)
+{
+	struct wchar_io_data *wcio;
 
-#define _FILEEXT_INIT(fp) \
-do { \
-	_UB(fp)._base = NULL; \
-	_UB(fp)._size = 0; \
-	WCIO_INIT(fp); \
-} while (0)
+	if (wc == WEOF)
+		return WEOF;
 
-#define _FILEEXT_SETUP(f, fext) \
-do { \
-	(f)->_ext._base = (unsigned char *)(fext); \
-	_FILEEXT_INIT(f); \
-} while (0)
+	flockfile(fp);
+	_SET_ORIENTATION(fp, 1);
+	/*
+	 * XXX since we have no way to transform a wchar string to
+	 * a char string in reverse order, we can't use ungetc.
+	 */
+	/* XXX should we flush ungetc buffer? */
+
+	wcio = WCIO_GET(fp);
+	if (wcio == 0) {
+		funlockfile(fp);
+		errno = ENOMEM; /* XXX */
+		return WEOF;
+	}
+
+	if (wcio->wcio_ungetwc_inbuf >= WCIO_UNGETWC_BUFSIZE) {
+		funlockfile(fp);
+		return WEOF;
+	}
+
+	wcio->wcio_ungetwc_buf[wcio->wcio_ungetwc_inbuf++] = wc;
+	__sclearerr(fp);
+	funlockfile(fp);
+
+	return wc;
+}

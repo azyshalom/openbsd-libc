@@ -1,5 +1,5 @@
-/*	$OpenBSD: fileext.h,v 1.2 2005/06/17 20:40:32 espie Exp $	*/
-/* $NetBSD: fileext.h,v 1.5 2003/07/18 21:46:41 nathanw Exp $ */
+/*	$OpenBSD: fwide.c,v 1.1 2005/06/17 20:40:32 espie Exp $	*/
+/* $NetBSD: fwide.c,v 1.2 2003/01/18 11:29:54 thorpej Exp $ */
 
 /*-
  * Copyright (c)2001 Citrus Project,
@@ -29,26 +29,36 @@
  * $Citrus$
  */
 
-/*
- * file extension
- */
-struct __sfileext {
-	struct	__sbuf _ub; /* ungetc buffer */
-	struct wchar_io_data _wcio;	/* wide char io status */
-};
+#include <stdio.h>
+#include <wchar.h>
+#include "local.h"
 
-#define _EXT(fp) ((struct __sfileext *)((fp)->_ext._base))
-#define _UB(fp) _EXT(fp)->_ub
+int
+fwide(FILE *fp, int mode)
+{
+	struct wchar_io_data *wcio;
 
-#define _FILEEXT_INIT(fp) \
-do { \
-	_UB(fp)._base = NULL; \
-	_UB(fp)._size = 0; \
-	WCIO_INIT(fp); \
-} while (0)
+	/*
+	 * this implementation use only -1, 0, 1
+	 * for mode value.
+	 * (we don't need to do this, but
+	 *  this can make things simpler.)
+	 */
+	if (mode > 0)
+		mode = 1;
+	else if (mode < 0)
+		mode = -1;
 
-#define _FILEEXT_SETUP(f, fext) \
-do { \
-	(f)->_ext._base = (unsigned char *)(fext); \
-	_FILEEXT_INIT(f); \
-} while (0)
+	flockfile(fp);
+	wcio = WCIO_GET(fp);
+	if (!wcio)
+		return 0; /* XXX */
+
+	if (wcio->wcio_mode == 0 && mode != 0)
+		wcio->wcio_mode = mode;
+	else
+		mode = wcio->wcio_mode;
+	funlockfile(fp);
+
+	return mode;
+}

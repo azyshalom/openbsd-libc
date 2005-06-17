@@ -1,8 +1,8 @@
-/*	$OpenBSD: fileext.h,v 1.2 2005/06/17 20:40:32 espie Exp $	*/
-/* $NetBSD: fileext.h,v 1.5 2003/07/18 21:46:41 nathanw Exp $ */
+/*	$OpenBSD: fgetws.c,v 1.1 2005/06/17 20:40:32 espie Exp $	*/
+/* $NetBSD: fgetws.c,v 1.1 2003/03/07 07:11:37 tshiozak Exp $ */
 
 /*-
- * Copyright (c)2001 Citrus Project,
+ * Copyright (c) 2002 Tim J. Robbins.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,61 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * $Citrus$
+ * Original version ID:
+ * FreeBSD: src/lib/libc/stdio/fgetws.c,v 1.4 2002/09/20 13:25:40 tjr Exp
+ *
  */
 
-/*
- * file extension
- */
-struct __sfileext {
-	struct	__sbuf _ub; /* ungetc buffer */
-	struct wchar_io_data _wcio;	/* wide char io status */
-};
+#if defined(LIBC_SCCS) && !defined(lint)
+static char rcsid[] = "$OpenBSD: fgetws.c,v 1.1 2005/06/17 20:40:32 espie Exp $";
+#endif /* LIBC_SCCS and not lint */
 
-#define _EXT(fp) ((struct __sfileext *)((fp)->_ext._base))
-#define _UB(fp) _EXT(fp)->_ub
+#include <errno.h>
+#include <stdio.h>
+#include <wchar.h>
+#include "local.h"
 
-#define _FILEEXT_INIT(fp) \
-do { \
-	_UB(fp)._base = NULL; \
-	_UB(fp)._size = 0; \
-	WCIO_INIT(fp); \
-} while (0)
+wchar_t *
+fgetws(ws, n, fp)
+	wchar_t * __restrict ws;
+	int n;
+	FILE * __restrict fp;
+{
+	wchar_t *wsp;
+	wint_t wc;
 
-#define _FILEEXT_SETUP(f, fext) \
-do { \
-	(f)->_ext._base = (unsigned char *)(fext); \
-	_FILEEXT_INIT(f); \
-} while (0)
+	flockfile(fp);
+	_SET_ORIENTATION(fp, 1);
+
+	if (n <= 0) {
+		errno = EINVAL;
+		goto error;
+	}
+
+	wsp = ws;
+	while (n-- > 1) {
+		if ((wc = __fgetwc_unlock(fp)) == WEOF && errno == EILSEQ) {
+			goto error;
+		}
+		if (wc == WEOF) {
+			if (wsp == ws) {
+				/* EOF/error, no characters read yet. */
+				goto error;
+			}
+			break;
+		}
+		*wsp++ = (wchar_t)wc;
+		if (wc == L'\n') {
+			break;
+		}
+	}
+
+	*wsp++ = L'\0';
+	funlockfile(fp);
+
+	return (ws);
+
+error:
+	funlockfile(fp);
+	return (NULL);
+}

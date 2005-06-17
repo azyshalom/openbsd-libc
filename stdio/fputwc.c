@@ -1,5 +1,5 @@
-/*	$OpenBSD: fileext.h,v 1.2 2005/06/17 20:40:32 espie Exp $	*/
-/* $NetBSD: fileext.h,v 1.5 2003/07/18 21:46:41 nathanw Exp $ */
+/*	$OpenBSD: fputwc.c,v 1.1 2005/06/17 20:40:32 espie Exp $	*/
+/* $NetBSD: fputwc.c,v 1.3 2003/03/07 07:11:37 tshiozak Exp $ */
 
 /*-
  * Copyright (c)2001 Citrus Project,
@@ -29,26 +29,60 @@
  * $Citrus$
  */
 
-/*
- * file extension
- */
-struct __sfileext {
-	struct	__sbuf _ub; /* ungetc buffer */
-	struct wchar_io_data _wcio;	/* wide char io status */
-};
+#include <errno.h>
+#include <limits.h>
+#include <stdio.h>
+#include <wchar.h>
+#include "local.h"
+#include "fvwrite.h"
 
-#define _EXT(fp) ((struct __sfileext *)((fp)->_ext._base))
-#define _UB(fp) _EXT(fp)->_ub
+wint_t
+__fputwc_unlock(wchar_t wc, FILE *fp)
+{
+	struct wchar_io_data *wcio;
+	mbstate_t *st;
+	size_t size;
+	char buf[MB_LEN_MAX];
+	struct __suio uio;
+	struct __siov iov;
 
-#define _FILEEXT_INIT(fp) \
-do { \
-	_UB(fp)._base = NULL; \
-	_UB(fp)._size = 0; \
-	WCIO_INIT(fp); \
-} while (0)
+	/* LINTED we don't play with buf */
+	iov.iov_base = (void *)buf;
+	uio.uio_iov = &iov;
+	uio.uio_iovcnt = 1;
 
-#define _FILEEXT_SETUP(f, fext) \
-do { \
-	(f)->_ext._base = (unsigned char *)(fext); \
-	_FILEEXT_INIT(f); \
-} while (0)
+	_SET_ORIENTATION(fp, 1);
+	wcio = WCIO_GET(fp);
+	if (wcio == 0) {
+		errno = ENOMEM;
+		return WEOF;
+	}
+
+	wcio->wcio_ungetwc_inbuf = 0;
+	st = &wcio->wcio_mbstate_out;
+
+	size = wcrtomb(buf, wc, st);
+	if (size == (size_t)-1) {
+		errno = EILSEQ;
+		return WEOF;
+	}
+
+	uio.uio_resid = iov.iov_len = size;
+	if (__sfvwrite(fp, &uio)) {
+		return WEOF;
+	}
+
+	return (wint_t)wc;
+}
+
+wint_t
+fputwc(wchar_t wc, FILE *fp)
+{
+	wint_t r;
+
+	flockfile(fp);
+	r = __fputwc_unlock(wc, fp);
+	funlockfile(fp);
+
+	return (r);
+}

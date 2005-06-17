@@ -1,5 +1,5 @@
-/*	$OpenBSD: fileext.h,v 1.2 2005/06/17 20:40:32 espie Exp $	*/
-/* $NetBSD: fileext.h,v 1.5 2003/07/18 21:46:41 nathanw Exp $ */
+/*	$OpenBSD: putwc.c,v 1.1 2005/06/17 20:40:32 espie Exp $	*/
+/* $NetBSD: putwc.c,v 1.3 2003/01/18 11:29:56 thorpej Exp $ */
 
 /*-
  * Copyright (c)2001 Citrus Project,
@@ -29,26 +29,17 @@
  * $Citrus$
  */
 
+#include <stdio.h>
+#include <wchar.h>
+
 /*
- * file extension
+ * A subroutine version of the macro putwc.
  */
-struct __sfileext {
-	struct	__sbuf _ub; /* ungetc buffer */
-	struct wchar_io_data _wcio;	/* wide char io status */
-};
+#undef putwc
 
-#define _EXT(fp) ((struct __sfileext *)((fp)->_ext._base))
-#define _UB(fp) _EXT(fp)->_ub
+wint_t
+putwc(wchar_t wc, FILE *fp)
+{
 
-#define _FILEEXT_INIT(fp) \
-do { \
-	_UB(fp)._base = NULL; \
-	_UB(fp)._size = 0; \
-	WCIO_INIT(fp); \
-} while (0)
-
-#define _FILEEXT_SETUP(f, fext) \
-do { \
-	(f)->_ext._base = (unsigned char *)(fext); \
-	_FILEEXT_INIT(f); \
-} while (0)
+	return fputwc(wc, fp);
+}

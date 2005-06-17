@@ -1,5 +1,5 @@
-/*	$OpenBSD: fileext.h,v 1.2 2005/06/17 20:40:32 espie Exp $	*/
-/* $NetBSD: fileext.h,v 1.5 2003/07/18 21:46:41 nathanw Exp $ */
+/*	$OpenBSD: fgetwc.c,v 1.1 2005/06/17 20:40:32 espie Exp $	*/
+/* $NetBSD: fgetwc.c,v 1.3 2003/03/07 07:11:36 tshiozak Exp $ */
 
 /*-
  * Copyright (c)2001 Citrus Project,
@@ -29,26 +29,62 @@
  * $Citrus$
  */
 
-/*
- * file extension
- */
-struct __sfileext {
-	struct	__sbuf _ub; /* ungetc buffer */
-	struct wchar_io_data _wcio;	/* wide char io status */
-};
+#include <errno.h>
+#include <stdio.h>
+#include <wchar.h>
+#include "local.h"
 
-#define _EXT(fp) ((struct __sfileext *)((fp)->_ext._base))
-#define _UB(fp) _EXT(fp)->_ub
+wint_t
+__fgetwc_unlock(FILE *fp)
+{
+	struct wchar_io_data *wcio;
+	mbstate_t *st;
+	wchar_t wc;
+	size_t size;
 
-#define _FILEEXT_INIT(fp) \
-do { \
-	_UB(fp)._base = NULL; \
-	_UB(fp)._size = 0; \
-	WCIO_INIT(fp); \
-} while (0)
+	_SET_ORIENTATION(fp, 1);
+	wcio = WCIO_GET(fp);
+	if (wcio == 0) {
+		errno = ENOMEM;
+		return WEOF;
+	}
 
-#define _FILEEXT_SETUP(f, fext) \
-do { \
-	(f)->_ext._base = (unsigned char *)(fext); \
-	_FILEEXT_INIT(f); \
-} while (0)
+	/* if there're ungetwc'ed wchars, use them */
+	if (wcio->wcio_ungetwc_inbuf) {
+		wc = wcio->wcio_ungetwc_buf[--wcio->wcio_ungetwc_inbuf];
+
+		return wc;
+	}
+
+	st = &wcio->wcio_mbstate_in;
+
+	do {
+		char c;
+		int ch = __sgetc(fp);
+
+		if (ch == EOF) {
+			return WEOF;
+		}
+
+		c = ch;
+		size = mbrtowc(&wc, &c, 1, st);
+		if (size == (size_t)-1) {
+			errno = EILSEQ;
+			return WEOF;
+		}
+	} while (size == (size_t)-2);
+
+	return wc;
+}
+
+wint_t
+fgetwc(FILE *fp)
+{
+	wint_t r;
+
+	flockfile(fp);
+	r = __fgetwc_unlock(fp);
+	funlockfile(fp);
+
+	return (r);
+}
