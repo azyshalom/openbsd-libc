@@ -1,4 +1,4 @@
-/*	$OpenBSD: authenticate.c,v 1.17 2008/04/04 17:42:39 millert Exp $	*/
+/*	$OpenBSD: authenticate.c,v 1.16 2007/09/17 07:07:23 moritz Exp $	*/
 
 /*-
  * Copyright (c) 1997 Berkeley Software Design, Inc. All rights reserved.
@@ -348,7 +348,6 @@ auth_usercheck(char *name, char *style, char *type, char *password)
 		auth_setitem(as, AUTHV_SERVICE, "response");
 		auth_setdata(as, "", 1);
 		auth_setdata(as, password, strlen(password) + 1);
-		memset(password, 0, strlen(password));
 	} else
 		as = NULL;
 	as = auth_verify(as, style, name, lc->lc_class, (char *)NULL);
@@ -452,10 +451,9 @@ auth_userresponse(auth_session_t *as, char *response, int more)
 		auth_setdata(as, challenge, strlen(challenge) + 1);
 	else
 		auth_setdata(as, "", 1);
-	if (response) {
+	if (response)
 		auth_setdata(as, response, strlen(response) + 1);
-		memset(response, 0, strlen(response));
-	} else
+	else
 		auth_setdata(as, "", 1);
 
 	auth_call(as, path, style, "-s", "response", name, class, (char *)NULL);
