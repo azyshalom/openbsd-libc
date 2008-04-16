@@ -1,4 +1,4 @@
-/*	$OpenBSD: fopen.c,v 1.7 2008/05/03 18:46:41 chl Exp $ */
+/*	$OpenBSD: fopen.c,v 1.5 2005/08/08 08:05:36 espie Exp $ */
 /*-
  * Copyright (c) 1990, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -34,10 +34,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <limits.h>
 #include <stdio.h>
 #include <errno.h>
-#include <unistd.h>
 #include "local.h"
 
 FILE *
@@ -55,15 +53,6 @@ fopen(const char *file, const char *mode)
 		fp->_flags = 0;			/* release */
 		return (NULL);
 	}
-
-	/* _file is only a short */
-	if (f > SHRT_MAX) {
-		fp->_flags = 0;			/* release */
-		close(f);
-		errno = EMFILE;
-		return (NULL);
-	}
-
 	fp->_file = f;
 	fp->_flags = flags;
 	fp->_cookie = fp;

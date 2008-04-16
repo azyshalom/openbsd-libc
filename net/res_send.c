@@ -1,4 +1,4 @@
-/*	$OpenBSD: res_send.c,v 1.20 2008/04/18 21:36:32 djm Exp $	*/
+/*	$OpenBSD: res_send.c,v 1.19 2005/08/06 20:30:04 espie Exp $	*/
 
 /*
  * ++Copyright++ 1985, 1989, 1993
@@ -75,11 +75,10 @@
 #include <arpa/nameser.h>
 #include <arpa/inet.h>
 
-#include <errno.h>
-#include <netdb.h>
-#include <poll.h>
-#include <resolv.h>
 #include <stdio.h>
+#include <netdb.h>
+#include <errno.h>
+#include <resolv.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -467,7 +466,7 @@ res_send(const u_char *buf, int buflen, u_char *ans, int anssiz)
 			/*
 			 * Receive length & response
 			 */
- read_len:
+read_len:
 			cp = ans;
 			len = INT16SZ;
 			while ((n = read(s, (char *)cp, (int)len)) > 0) {
@@ -554,8 +553,8 @@ res_send(const u_char *buf, int buflen, u_char *ans, int anssiz)
 			/*
 			 * Use datagrams.
 			 */
-			struct pollfd pfd;
-			int timeout;
+			struct timeval timeout;
+			fd_set *dsmaskp;
 			struct sockaddr_storage from;
 			socklen_t fromlen;
 
@@ -595,7 +594,7 @@ res_send(const u_char *buf, int buflen, u_char *ans, int anssiz)
 			 * ICMP port unreachable message to be returned.
 			 * If our datagram socket is "connected" to the
 			 * server, we get an ECONNREFUSED error on the next
-			 * socket operation, and poll returns if the
+			 * socket operation, and select returns if the
 			 * error message is received.  We can thus detect
 			 * the absence of a nameserver without timing out.
 			 * If we have sent queries to at least two servers,
@@ -677,19 +676,27 @@ res_send(const u_char *buf, int buflen, u_char *ans, int anssiz)
 			/*
 			 * Wait for reply
 			 */
-			timeout = 1000 * (_resp->retrans << try);
+			timeout.tv_sec = (_resp->retrans << try);
 			if (try > 0)
-				timeout /= _resp->nscount;
-			if (timeout < 1000)
-				timeout = 1000;
+				timeout.tv_sec /= _resp->nscount;
+			if ((long) timeout.tv_sec <= 0)
+				timeout.tv_sec = 1;
+			timeout.tv_usec = 0;
     wait:
-			pfd.fd = s;
-			pfd.events = POLLIN;
-			n = poll(&pfd, 1, timeout);
+			dsmaskp = (fd_set *)calloc(howmany(s+1, NFDBITS),
+						   sizeof(fd_mask));
+			if (dsmaskp == NULL) {
+				res_close();
+				goto next_ns;
+			}
+			FD_SET(s, dsmaskp);
+			n = select(s+1, dsmaskp, (fd_set *)NULL,
+				   (fd_set *)NULL, &timeout);
+			free(dsmaskp);
 			if (n < 0) {
 				if (errno == EINTR)
 					goto wait;
-				Perror(stderr, "poll", errno);
+				Perror(stderr, "select", errno);
 				res_close();
 				goto next_ns;
 			}
