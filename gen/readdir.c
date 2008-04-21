@@ -1,4 +1,4 @@
-/*	$OpenBSD: readdir.c,v 1.14 2008/05/01 19:49:18 otto Exp $ */
+/*	$OpenBSD: readdir.c,v 1.13 2008/04/04 21:26:07 okan Exp $ */
 /*
  * Copyright (c) 1983, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -38,7 +38,7 @@
  * get next entry in a directory.
  */
 int
-_readdir_unlocked(DIR *dirp, struct dirent **result, int skipdeleted)
+_readdir_unlocked(DIR *dirp, struct dirent **result)
 {
 	struct dirent *dp;
 
@@ -61,13 +61,7 @@ _readdir_unlocked(DIR *dirp, struct dirent **result, int skipdeleted)
 		    dp->d_reclen > dirp->dd_len + 1 - dirp->dd_loc)
 			return (-1);
 		dirp->dd_loc += dp->d_reclen;
-		/*
-		 * When called from seekdir(), we let it decide on
-		 * the end condition to avoid overshooting: the next
-		 * readdir call should produce the next non-deleted entry,
-		 * and we already advanced dd_loc.
-		 */
-		if (dp->d_ino == 0 && skipdeleted)
+		if (dp->d_ino == 0)
 			continue;
 		*result = dp;
 		return (0);
@@ -80,7 +74,7 @@ readdir(DIR *dirp)
 	struct dirent *dp;
 
 	_MUTEX_LOCK(&dirp->dd_lock);
-	_readdir_unlocked(dirp, &dp, 1);
+	_readdir_unlocked(dirp, &dp);
 	_MUTEX_UNLOCK(&dirp->dd_lock);
 
 	return (dp);
@@ -92,7 +86,7 @@ readdir_r(DIR *dirp, struct dirent *entry, struct dirent **result)
 	struct dirent *dp;
 
 	_MUTEX_LOCK(&dirp->dd_lock);
-	if (_readdir_unlocked(dirp, &dp, 1) != 0) {
+	if (_readdir_unlocked(dirp, &dp) != 0) {
 		_MUTEX_UNLOCK(&dirp->dd_lock);
 		return errno;
 	}
