@@ -1,4 +1,4 @@
-/*	$OpenBSD: telldir.c,v 1.12 2008/04/04 21:26:07 okan Exp $ */
+/*	$OpenBSD: telldir.c,v 1.10.2.1 2008/05/09 13:03:20 henning Exp $ */
 /*
  * Copyright (c) 1983, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -37,17 +37,16 @@
 #include "thread_private.h"
 #include "telldir.h"
 
-int _readdir_unlocked(DIR *, struct dirent **);
-
 /*
  * return a pointer into a directory
  */
 long
-_telldir_unlocked(DIR *dirp)
+telldir(DIR *dirp)
 {
 	long i;
 	struct ddloc *lp;
 
+	_MUTEX_LOCK(&dirp->dd_lock);
 	i = dirp->dd_td->td_last;
 	lp = &dirp->dd_td->td_locs[i];
 
@@ -56,6 +55,7 @@ _telldir_unlocked(DIR *dirp)
 		if (lp->loc_seek == dirp->dd_seek && 
 		    lp->loc_loc == dirp->dd_loc) {
 			dirp->dd_td->td_last = i;
+			_MUTEX_UNLOCK(&dirp->dd_lock);
 			return (i);
 		}
 	}
@@ -64,8 +64,10 @@ _telldir_unlocked(DIR *dirp)
 		size_t newsz = dirp->dd_td->td_sz * 2 + 1;
 		struct ddloc *p;
 		p = realloc(dirp->dd_td->td_locs, newsz * sizeof(*p));
-		if (p == NULL)
+		if (p == NULL) {
+			_MUTEX_UNLOCK(&dirp->dd_lock);
 			return (-1);
+		}
 		dirp->dd_td->td_sz = newsz;
 		dirp->dd_td->td_locs = p;
 		lp = &dirp->dd_td->td_locs[i];
@@ -74,18 +76,7 @@ _telldir_unlocked(DIR *dirp)
 	lp->loc_seek = dirp->dd_seek;
 	lp->loc_loc = dirp->dd_loc;
 	dirp->dd_td->td_last = i;
-	return (i);
-}
-
-long
-telldir(DIR *dirp)
-{
-	long i;
-
-	_MUTEX_LOCK(&dirp->dd_lock);
-	i = _telldir_unlocked(dirp);
 	_MUTEX_UNLOCK(&dirp->dd_lock);
-
 	return (i);
 }
 
@@ -109,7 +100,7 @@ __seekdir(DIR *dirp, long loc)
 	dirp->dd_seek = lp->loc_seek;
 	dirp->dd_loc = 0;
 	while (dirp->dd_loc < lp->loc_loc) {
-		_readdir_unlocked(dirp, &dp);
+		dp = readdir(dirp);
 		if (dp == NULL)
 			break;
 	}
