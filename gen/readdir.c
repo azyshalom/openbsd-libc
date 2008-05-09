@@ -1,4 +1,4 @@
-/*	$OpenBSD: readdir.c,v 1.14 2008/05/01 19:49:18 otto Exp $ */
+/*	$OpenBSD: readdir.c,v 1.12.4.1 2008/05/09 13:02:48 henning Exp $ */
 /*
  * Copyright (c) 1983, 1993
  *	The Regents of the University of California.  All rights reserved.
