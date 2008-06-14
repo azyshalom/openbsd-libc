@@ -1,4 +1,4 @@
-/*	$OpenBSD: getgrent.c,v 1.25 2008/06/24 14:29:45 deraadt Exp $ */
+/*	$OpenBSD: getgrent.c,v 1.24 2007/05/16 04:14:23 ray Exp $ */
 /*
  * Copyright (c) 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -59,8 +59,7 @@ _THREAD_PRIVATE_KEY(gr);
 static FILE *_gr_fp;
 static struct group _gr_group;
 static int _gr_stayopen;
-static int grscan(int, gid_t, const char *, struct group *, struct group_storage *,
-	int *);
+static int grscan(int, gid_t, const char *, struct group *, struct group_storage *);
 static int start_gr(void);
 static void endgrent_basic(void);
 
@@ -77,23 +76,17 @@ static int	__ypcurrentlen;
 #endif
 
 struct group *
-_getgrent_yp(int *foundyp)
+getgrent(void)
 {
 	struct group *p_gr = (struct group*)_THREAD_PRIVATE(gr, _gr_group, NULL);
 	struct group_storage *gs = (struct group_storage *)_THREAD_PRIVATE(gr_storage,
 	    gr_storage, NULL);
 
 	_THREAD_PRIVATE_MUTEX_LOCK(gr);
-	if ((!_gr_fp && !start_gr()) || !grscan(0, 0, NULL, p_gr, gs, foundyp))
+	if ((!_gr_fp && !start_gr()) || !grscan(0, 0, NULL, p_gr, gs))
 		p_gr = NULL;
 	_THREAD_PRIVATE_MUTEX_UNLOCK(gr);
 	return (p_gr);
-}
-
-struct group *
-getgrent(void)
-{
-	return (_getgrent_yp(NULL));
 }
 
 static struct group *
@@ -105,7 +98,7 @@ getgrnam_gs(const char *name, struct group *p_gr, struct group_storage *gs)
 	if (!start_gr())
 		rval = 0;
 	else {
-		rval = grscan(1, 0, name, p_gr, gs, NULL);
+		rval = grscan(1, 0, name, p_gr, gs);
 		if (!_gr_stayopen)
 			endgrent_basic();
 	}
@@ -151,7 +144,7 @@ getgrgid_gs(gid_t gid, struct group *p_gr, struct group_storage *gs)
 	if (!start_gr())
 		rval = 0;
 	else {
-		rval = grscan(1, gid, NULL, p_gr, gs, NULL);
+		rval = grscan(1, gid, NULL, p_gr, gs);
 		if (!_gr_stayopen)
 			endgrent_basic();
 	}
@@ -252,7 +245,7 @@ endgrent(void)
 
 static int
 grscan(int search, gid_t gid, const char *name, struct group *p_gr,
-    struct group_storage *gs, int *foundyp)
+    struct group_storage *gs)
 {
 	char *cp, **m;
 	char *bp, *endp;
@@ -356,10 +349,6 @@ grscan(int search, gid_t gid, const char *name, struct group *p_gr,
 		}
 #ifdef YP
 		if (line[0] == '+') {
-			if (foundyp) {
-				*foundyp = 1;
-				return (NULL);
-			}
 			switch (line[1]) {
 			case ':':
 			case '\0':
