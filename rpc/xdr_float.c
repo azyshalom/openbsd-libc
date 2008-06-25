@@ -1,4 +1,4 @@
-/*	$OpenBSD: xdr_float.c,v 1.17 2008/06/25 15:54:12 deraadt Exp $ */
+/*	$OpenBSD: xdr_float.c,v 1.16 2006/10/10 22:03:21 miod Exp $ */
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
  * unrestricted use provided that this legend is included on all tape
@@ -49,6 +49,14 @@
  * This routine works on machines with IEEE754 FP and Vaxen.
  */
 
+#if defined(__m68k__) || defined(__sparc__) || defined(__i386__) || \
+    defined(__mips__) || defined(__ns32k__) || defined(__alpha__) || \
+    defined(__arm__) || defined(__powerpc__) || defined(__m88k__) || \
+    defined(__hppa__) || defined(__x86_64__) || defined(__sh__)
+#include <machine/endian.h>
+#define IEEEFP
+#endif
+
 #ifdef __vax__
 
 /* What IEEE single precision floating point looks like on a Vax */
@@ -78,11 +86,7 @@ static struct sgl_limits {
 	{{ 0x0, 0x0, 0x0, 0x0 },	/* Min Vax */
 	{ 0x0, 0x0, 0x0 }}		/* Min IEEE */
 };
-
-#else
-#include <machine/endian.h>
-#define IEEEFP
-#endif
+#endif /* __vax__ */
 
 bool_t
 xdr_float(XDR *xdrs, float *fp)
