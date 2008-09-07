@@ -1,8 +1,6 @@
-/*	$OpenBSD: strtof.c,v 1.1 2008/06/13 21:04:24 landry Exp $ */
-
+/*	$OpenBSD: fpclassifyl.c,v 1.1 2008/09/07 20:36:07 martynas Exp $	*/
 /*
- * Copyright (c) 2008 Landry Breuil
- * All rights reserved.
+ * Copyright (c) 2008 Martynas Venckus <martynas@openbsd.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -17,23 +15,30 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <errno.h>
-#include <limits.h>
-#include <stdlib.h>
+#include <sys/types.h>
+#include <machine/ieee.h>
 #include <math.h>
 
-float
-strtof(const char *s00, char **se)
+int
+__fpclassifyl(long double e)
 {
-	double	d;
+	struct ieee_ext *p = (struct ieee_ext *)&e;
 
-	d = strtod(s00, se);
-	if (d > FLT_MAX) {
-		errno = ERANGE;
-		return (FLT_MAX);
-	} else if (d < -FLT_MAX) {
-		errno = ERANGE;
-		return (-FLT_MAX);
+	if (p->ext_exp == 0) {
+		if (p->ext_frach == 0 && p->ext_frachm == 0 &&
+		    p->ext_fraclm == 0 && p->ext_fracl == 0)
+			return FP_ZERO;
+		else
+			return FP_SUBNORMAL;
 	}
-	return ((float) d);
+
+	if (p->ext_exp == EXT_EXP_INFNAN) {
+		if (p->ext_frach == 0 && p->ext_frachm == 0 &&
+		    p->ext_fraclm == 0 && p->ext_fracl == 0)
+			return FP_INFINITE;
+		else
+			return FP_NAN;
+	}
+
+	return FP_NORMAL;
 }
