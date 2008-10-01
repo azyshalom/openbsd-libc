@@ -1,4 +1,4 @@
-/*	$OpenBSD: login_cap.c,v 1.29 2008/10/02 16:01:58 millert Exp $	*/
+/*	$OpenBSD: login_cap.c,v 1.28 2007/09/17 07:07:23 moritz Exp $	*/
 
 /*
  * Copyright (c) 2000-2004 Todd C. Miller <Todd.Miller@courtesan.com>
@@ -156,8 +156,11 @@ login_getstyle(login_cap_t *lc, char *style, char *atype)
 {
     	char **authtypes = _authtypes;
 	char *auths, *ta;
-    	char *f1 = NULL, **f2 = NULL;
+    	char *f1, **f2;
 	int i;
+
+	f1 = 0;
+	f2 = 0;
 
 	/* Silently convert 's/key' -> 'skey' */
 	if (style && strcmp(style, "s/key") == 0)
@@ -165,7 +168,7 @@ login_getstyle(login_cap_t *lc, char *style, char *atype)
 
 	if (lc->lc_style) {
 		free(lc->lc_style);
-		lc->lc_style = NULL;
+		lc->lc_style = 0;
 	}
 
     	if (!atype || !(auths = login_getcapstr(lc, atype, NULL, NULL)))
@@ -203,16 +206,20 @@ login_getstyle(login_cap_t *lc, char *style, char *atype)
 	while (*authtypes && strcmp(style, *authtypes))
 		++authtypes;
 
-	if (*authtypes) {
-		lc->lc_style = strdup(*authtypes);
-		if (lc->lc_style == NULL)
+	if (*authtypes == NULL || (auths = strdup(*authtypes)) == NULL) {
+		if (f1)
+			free(f1);
+		if (f2)
+			free(f2);
+		if (*authtypes)
 			syslog(LOG_ERR, "strdup: %m");
+		return (0);
 	}
 	if (f1)
 		free(f1);
 	if (f2)
 		free(f2);
-	return (lc->lc_style);
+	return (lc->lc_style = auths);
 }
 
 char *
