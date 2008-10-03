@@ -1,4 +1,4 @@
-/*	$OpenBSD: malloc.c,v 1.98 2008/08/25 17:56:17 otto Exp $	*/
+/*	$OpenBSD: malloc.c,v 1.101 2008/10/03 19:01:12 otto Exp $	*/
 /*
  * Copyright (c) 2008 Otto Moerbeek <otto@drijf.net>
  *
@@ -76,6 +76,9 @@
 #define SOME_FREEJUNK		0xdf
 
 #define MMAP(sz)	mmap(NULL, (size_t)(sz), PROT_READ | PROT_WRITE, \
+    MAP_ANON | MAP_PRIVATE, -1, (off_t) 0)
+
+#define MMAPA(a,sz)	mmap((a), (size_t)(sz), PROT_READ | PROT_WRITE, \
     MAP_ANON | MAP_PRIVATE, -1, (off_t) 0)
 
 struct region_info {
@@ -402,28 +405,21 @@ unmap(struct dir_info *d, void *p, size_t sz)
 	rsz = malloc_cache - d->free_regions_size;
 	if (psz > rsz)
 		tounmap = psz - rsz;
-	d->free_regions_size -= tounmap;
 	offset = getrbyte();
 	for (i = 0; tounmap > 0 && i < malloc_cache; i++) {
 		r = &d->free_regions[(i + offset) & (malloc_cache - 1)];
 		if (r->p != NULL) {
-			if (r->size <= tounmap) {
-				rsz = r->size << MALLOC_PAGESHIFT;
-				if (munmap(r->p, rsz))
-					wrterror("munmap");
+			rsz = r->size << MALLOC_PAGESHIFT;
+			if (munmap(r->p, rsz))
+				wrterror("munmap");
+			r->p = NULL;
+			if (tounmap > r->size)
 				tounmap -= r->size;
-				r->p = NULL;
-				r->size = 0;
-				malloc_used -= rsz;
-			} else {
-				rsz = tounmap << MALLOC_PAGESHIFT;
-				if (munmap((char *)r->p + ((r->size - tounmap)
-				    << MALLOC_PAGESHIFT), rsz))
-					wrterror("munmap");
-				r->size -= tounmap ;
+			else
 				tounmap = 0;
-				malloc_used -= rsz;
-			}
+			d->free_regions_size -= r->size;
+			r->size = 0;
+			malloc_used -= rsz;
 		}
 	}
 	if (tounmap > 0)
@@ -445,6 +441,27 @@ unmap(struct dir_info *d, void *p, size_t sz)
 		wrtwarning("malloc free slot lost");
 	if (d->free_regions_size > malloc_cache)
 		wrtwarning("malloc cache overflow");
+}
+
+static void
+zapcacheregion(struct dir_info *d, void *p)
+{
+	u_int i;
+	struct region_info *r;
+	size_t rsz;
+
+	for (i = 0; i < malloc_cache; i++) {
+		r = &d->free_regions[i];
+		if (r->p == p) {
+			rsz = r->size << MALLOC_PAGESHIFT;
+			if (munmap(r->p, rsz))
+				wrterror("munmap");
+			r->p = NULL;
+			d->free_regions_size -= r->size;
+			r->size = 0;
+			malloc_used -= rsz;
+		}
+	}
 }
 
 static void *
@@ -530,7 +547,7 @@ static int
 omalloc_init(struct dir_info *d)
 {
 	char *p, b[64];
-	int i, j, save_errno = errno;
+	int i, j;
 	size_t regioninfo_size;
 
 	rbytes_init();
@@ -657,8 +674,6 @@ omalloc_init(struct dir_info *d)
 		wrtwarning("atexit(2) failed."
 		    "  Will not be able to dump malloc stats on exit");
 #endif /* MALLOC_STATS */
-
-	errno = save_errno;
 
 	d->regions_bits = 9;
 	d->regions_free = d->regions_total = 1 << d->regions_bits;
@@ -1140,6 +1155,7 @@ void *
 malloc(size_t size)
 {
 	void *r;
+	int saved_errno = errno;
 
 	_MALLOC_LOCK();
 	malloc_func = " in malloc():";
@@ -1163,6 +1179,8 @@ malloc(size_t size)
 		wrterror("out of memory");
 		errno = ENOMEM;
 	}
+	if (r != NULL)
+		saved_errno = errno;
 	return r;
 }
 
@@ -1231,6 +1249,8 @@ ofree(void *p)
 void
 free(void *ptr)
 {
+	int saved_errno = errno;
+
 	/* This is legal. */
 	if (ptr == NULL)
 		return;
@@ -1244,6 +1264,7 @@ free(void *ptr)
 	ofree(ptr);
 	malloc_active--;
 	_MALLOC_UNLOCK();
+	errno = saved_errno;
 }
 
 
@@ -1284,7 +1305,21 @@ orealloc(void *p, size_t newsz)
 		size_t roldsz = PAGEROUND(goldsz);
 		size_t rnewsz = PAGEROUND(gnewsz);
 
-		if (rnewsz < roldsz) {
+		if (rnewsz > roldsz) {
+			if (!malloc_guard) {
+				zapcacheregion(&g_pool, p + roldsz);
+				q = MMAPA(p + roldsz, rnewsz - roldsz);
+				if (q == p + roldsz) {
+					malloc_used += rnewsz - roldsz;
+					if (malloc_junk)
+						memset(q, SOME_JUNK,
+						    rnewsz - roldsz);
+					r->size = newsz;
+					return p;
+				} else if (q != MAP_FAILED)
+					munmap(q, rnewsz - roldsz);
+			}
+		} else if (rnewsz < roldsz) {
 			if (malloc_guard) {
 				if (mprotect((char *)p + roldsz - malloc_guard,
 				    malloc_guard, PROT_READ | PROT_WRITE))
@@ -1296,7 +1331,7 @@ orealloc(void *p, size_t newsz)
 			unmap(&g_pool, (char *)p + rnewsz, roldsz - rnewsz);
 			r->size = gnewsz;
 			return p;
-		} else if (rnewsz == roldsz) {
+		} else {
 			if (newsz > oldsz && malloc_junk)
 				memset((char *)p + newsz, SOME_JUNK,
 				    rnewsz - malloc_guard - newsz);
@@ -1324,6 +1359,7 @@ void *
 realloc(void *ptr, size_t size)
 {
 	void *r;
+	int saved_errno = errno;
   
 	_MALLOC_LOCK();
 	malloc_func = " in realloc():";  
@@ -1349,6 +1385,8 @@ realloc(void *ptr, size_t size)
 		wrterror("out of memory");
 		errno = ENOMEM;
 	}
+	if (r != NULL)
+		errno = saved_errno;
 	return r;
 }
 
@@ -1359,6 +1397,7 @@ void *
 calloc(size_t nmemb, size_t size)
 {
 	void *r;
+	int saved_errno = errno;
 
 	_MALLOC_LOCK();
 	malloc_func = " in calloc():";  
@@ -1394,5 +1433,7 @@ calloc(size_t nmemb, size_t size)
 		wrterror("out of memory");
 		errno = ENOMEM;
 	}
+	if (r != NULL)
+		errno = saved_errno;
 	return r;
 }
