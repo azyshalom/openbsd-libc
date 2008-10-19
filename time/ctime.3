@@ -1,7 +1,7 @@
-.\"	$OpenBSD: ctime.3,v 1.36 2008/10/23 20:33:06 guenther Exp $
+.\"	$OpenBSD: ctime.3,v 1.35 2008/01/07 01:09:37 millert Exp $
 .\"
 .\"
-.Dd $Mdocdate: October 23 2008 $
+.Dd $Mdocdate: January 7 2008 $
 .Dt CTIME 3
 .Os
 .Sh NAME
@@ -240,15 +240,11 @@ The
 .Fa tm_zone
 and
 .Fa tm_gmtoff
-fields exist, and are filled in by
-.Fn mktime ,
-.Fn localtime ,
-.Fn timegm ,
-and
-.Fn gmtime ,
-but are not standardized.
+fields exist, and are filled in, only if arrangements to do
+so were made when the library containing these functions was
+created.
 There is no guarantee that these fields will continue to exist
-in this form and they may be altered or removed in a future release.
+in this form in future releases of this code.
 .Pp
 .Fa tm_isdst
 is non-zero if summer time is in effect.
