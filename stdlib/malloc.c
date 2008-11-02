@@ -1,4 +1,4 @@
-/*	$OpenBSD: malloc.c,v 1.109 2008/11/20 09:01:24 otto Exp $	*/
+/*	$OpenBSD: malloc.c,v 1.105 2008/11/02 08:50:41 otto Exp $	*/
 /*
  * Copyright (c) 2008 Otto Moerbeek <otto@drijf.net>
  *
@@ -64,13 +64,6 @@
 #define MALLOC_MAXCHUNK		(1 << (MALLOC_PAGESHIFT-1))
 #define MALLOC_MAXCACHE		256
 #define MALLOC_DELAYED_CHUNKS	16	/* should be power of 2 */
-/*
- * When the P option is active, we move allocations between half a page
- * and a whole page towards the end, subject to alignment constraints.
- * This is the extra headroom we allow. Set to zero to be the most
- * strict.
- */
-#define MALLOC_LEEWAY		0
 
 #define PAGEROUND(x)  (((x) + (MALLOC_PAGEMASK)) & ~MALLOC_PAGEMASK)
 
@@ -319,7 +312,7 @@ malloc_dump(int fd)
 static void
 malloc_exit(void)
 {
-	const char q[] = "malloc() warning: Couldn't dump stats\n";
+	char *q = "malloc() warning: Couldn't dump stats\n";
 	int save_errno = errno, fd;
 
 	fd = open("malloc.out", O_RDWR|O_APPEND);
@@ -327,7 +320,7 @@ malloc_exit(void)
 		malloc_dump(fd);
 		close(fd);
 	} else
-		write(STDERR_FILENO, q, sizeof(q) - 1);
+		write(STDERR_FILENO, q, strlen(q));
 	errno = save_errno;
 }
 #endif /* MALLOC_STATS */
@@ -484,8 +477,6 @@ map(struct dir_info *d, size_t sz, int zero_fill)
 				d->free_regions_size -= psz;
 				if (zero_fill)
 					memset(p, 0, sz);
-				else if (malloc_junk && malloc_freeprot)
-					memset(p, SOME_FREEJUNK, sz);
 				return p;
 			} else if (r->size > psz)
 				big = r;
@@ -637,12 +628,12 @@ omalloc_init(struct dir_info *d)
 			case 'Z':
 				malloc_zero = 1;
 				break;
-			default: {
-				const char q[] = "malloc() warning: "
-				    "unknown char in MALLOC_OPTIONS\n";
-				write(STDERR_FILENO, q, sizeof(q) - 1);
+			default:
+				j = malloc_abort;
+				malloc_abort = 0;
+				wrterror("unknown char in MALLOC_OPTIONS");
+				malloc_abort = j;
 				break;
-			}
 			}
 		}
 	}
@@ -656,9 +647,9 @@ omalloc_init(struct dir_info *d)
 
 #ifdef MALLOC_STATS
 	if (malloc_stats && (atexit(malloc_exit) == -1)) {
-		const char q[] = "malloc() warning: atexit(2) failed."
+		char *q = "malloc() warning: atexit(2) failed."
 		    " Will not be able to dump stats on exit\n";
-		write(STDERR_FILENO, q, sizeof(q) - 1);
+		write(STDERR_FILENO, q, strlen(q));
 	}
 #endif /* MALLOC_STATS */
 
@@ -1088,12 +1079,12 @@ omalloc(size_t sz, int zero_fill)
 		}
 
 		if (malloc_move &&
-		    sz - malloc_guard < MALLOC_PAGESIZE - MALLOC_LEEWAY) {
+		    sz - malloc_guard < MALLOC_PAGESIZE - MALLOC_MINSIZE) {
 			/* fill whole allocation */
 			if (malloc_junk)
 				memset(p, SOME_JUNK, psz - malloc_guard);
 			/* shift towards the end */
-			p = ((char *)p) + ((MALLOC_PAGESIZE - MALLOC_LEEWAY -
+			p = ((char *)p) + ((MALLOC_PAGESIZE - MALLOC_MINSIZE -
 			    (sz - malloc_guard)) & ~(MALLOC_MINSIZE-1));
 			/* fill zeros if needed and overwritten above */
 			if (zero_fill && malloc_junk)
@@ -1184,11 +1175,9 @@ ofree(void *p)
 	}
 	REALSIZE(sz, r);
 	if (sz > MALLOC_MAXCHUNK) {
-		if (sz - malloc_guard >= MALLOC_PAGESIZE - MALLOC_LEEWAY) {
-			if (r->p != p) {
+		if (sz - malloc_guard >= MALLOC_PAGESIZE - MALLOC_MINSIZE) {
+			if (r->p != p)
 				wrterror("bogus pointer");
-				return;
-			}
 		} else {
 #if notyetbecause_of_realloc
 			/* shifted towards the end */
@@ -1210,7 +1199,7 @@ ofree(void *p)
 			}
 			malloc_guarded -= malloc_guard;
 		}
-		if (malloc_junk && !malloc_freeprot)
+		if (malloc_junk)
 			memset(p, SOME_FREEJUNK, PAGEROUND(sz) - malloc_guard);
 		unmap(&g_pool, p, PAGEROUND(sz));
 		delete(&g_pool, r);
@@ -1220,12 +1209,10 @@ ofree(void *p)
 
 		if (malloc_junk && sz > 0)
 			memset(p, SOME_FREEJUNK, sz);
-		if (!malloc_freeprot) {
-			i = getrbyte() & (MALLOC_DELAYED_CHUNKS - 1);
-			tmp = p;
-			p = g_pool.delayed_chunks[i];
-			g_pool.delayed_chunks[i] = tmp;
-		}
+		i = getrbyte() & (MALLOC_DELAYED_CHUNKS - 1);
+		tmp = p;
+		p = g_pool.delayed_chunks[i];
+		g_pool.delayed_chunks[i] = tmp;
 		if (p != NULL) {
 			r = find(&g_pool, p);
 			if (r == NULL) {
