@@ -1,4 +1,4 @@
-/*	$OpenBSD: malloc.c,v 1.107 2008/11/12 09:41:49 otto Exp $	*/
+/*	$OpenBSD: malloc.c,v 1.110 2008/11/20 09:05:15 otto Exp $	*/
 /*
  * Copyright (c) 2008 Otto Moerbeek <otto@drijf.net>
  *
@@ -64,6 +64,13 @@
 #define MALLOC_MAXCHUNK		(1 << (MALLOC_PAGESHIFT-1))
 #define MALLOC_MAXCACHE		256
 #define MALLOC_DELAYED_CHUNKS	16	/* should be power of 2 */
+/*
+ * When the P option is active, we move allocations between half a page
+ * and a whole page towards the end, subject to alignment constraints.
+ * This is the extra headroom we allow. Set to zero to be the most
+ * strict.
+ */
+#define MALLOC_LEEWAY		0
 
 #define PAGEROUND(x)  (((x) + (MALLOC_PAGEMASK)) & ~MALLOC_PAGEMASK)
 
@@ -147,7 +154,7 @@ static int	malloc_active;		/* status of malloc */
 static int	malloc_freeprot;	/* mprotect free pages PROT_NONE? */
 static int	malloc_hint;		/* call madvice on free pages?  */
 static int	malloc_junk;		/* junk fill? */
-static int	malloc_move;		/* move allocations to end of page? */
+static int	malloc_move = 1;	/* move allocations to end of page? */
 static int	malloc_realloc;		/* always realloc? */
 static int	malloc_xmalloc;		/* xmalloc behaviour? */
 static int	malloc_zero;		/* zero fill? */
@@ -1081,12 +1088,12 @@ omalloc(size_t sz, int zero_fill)
 		}
 
 		if (malloc_move &&
-		    sz - malloc_guard < MALLOC_PAGESIZE - MALLOC_MINSIZE) {
+		    sz - malloc_guard < MALLOC_PAGESIZE - MALLOC_LEEWAY) {
 			/* fill whole allocation */
 			if (malloc_junk)
 				memset(p, SOME_JUNK, psz - malloc_guard);
 			/* shift towards the end */
-			p = ((char *)p) + ((MALLOC_PAGESIZE - MALLOC_MINSIZE -
+			p = ((char *)p) + ((MALLOC_PAGESIZE - MALLOC_LEEWAY -
 			    (sz - malloc_guard)) & ~(MALLOC_MINSIZE-1));
 			/* fill zeros if needed and overwritten above */
 			if (zero_fill && malloc_junk)
@@ -1177,9 +1184,11 @@ ofree(void *p)
 	}
 	REALSIZE(sz, r);
 	if (sz > MALLOC_MAXCHUNK) {
-		if (sz - malloc_guard >= MALLOC_PAGESIZE - MALLOC_MINSIZE) {
-			if (r->p != p)
+		if (sz - malloc_guard >= MALLOC_PAGESIZE - MALLOC_LEEWAY) {
+			if (r->p != p) {
 				wrterror("bogus pointer");
+				return;
+			}
 		} else {
 #if notyetbecause_of_realloc
 			/* shifted towards the end */
