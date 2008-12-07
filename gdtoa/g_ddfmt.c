@@ -33,9 +33,9 @@ THIS SOFTWARE.
 
  char *
 #ifdef KR_headers
-g_ddfmt(buf, dd, ndig, bufsize) char *buf; double *dd; int ndig; size_t bufsize;
+g_ddfmt(buf, dd, ndig, bufsize) char *buf; double *dd; int ndig; unsigned bufsize;
 #else
-g_ddfmt(char *buf, double *dd, int ndig, size_t bufsize)
+g_ddfmt(char *buf, double *dd, int ndig, unsigned bufsize)
 #endif
 {
 	FPI fpi;
@@ -44,21 +44,6 @@ g_ddfmt(char *buf, double *dd, int ndig, size_t bufsize)
 	int bx, by, decpt, ex, ey, i, j, mode;
 	Bigint *x, *y, *z;
 	double ddx[2];
-#ifdef Honor_FLT_ROUNDS /*{{*/
-	int Rounding;
-#ifdef Trust_FLT_ROUNDS /*{{ only define this if FLT_ROUNDS really works! */
-	Rounding = Flt_Rounds;
-#else /*}{*/
-	Rounding = 1;
-	switch(fegetround()) {
-	  case FE_TOWARDZERO:	Rounding = 0; break;
-	  case FE_UPWARD:	Rounding = 2; break;
-	  case FE_DOWNWARD:	Rounding = 3;
-	  }
-#endif /*}}*/
-#else /*}{*/
-#define Rounding FPI_Round_near
-#endif /*}}*/
 
 	if (bufsize < 10 || bufsize < ndig + 8)
 		return 0;
@@ -159,11 +144,11 @@ g_ddfmt(char *buf, double *dd, int ndig, size_t bufsize)
 		}
 	fpi.emin = 1-1023-53+1;
 	fpi.emax = 2046-1023-106+1;
-	fpi.rounding = Rounding;
+	fpi.rounding = FPI_Round_near;
 	fpi.sudden_underflow = 0;
 	i = STRTOG_Normal;
 	s = gdtoa(&fpi, ex, bits, &i, mode, ndig, &decpt, &se);
-	b = g__fmt(buf, s, se, decpt, z->sign, bufsize);
+	b = g__fmt(buf, s, se, decpt, z->sign);
 	Bfree(z);
 	return b;
 	}

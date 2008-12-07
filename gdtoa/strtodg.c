@@ -89,7 +89,7 @@ increment(Bigint *b)
 	return b;
 	}
 
- void
+ int
 #ifdef KR_headers
 decrement(b) Bigint *b;
 #else
@@ -119,6 +119,7 @@ decrement(Bigint *b)
 		*x++ = y & 0xffff;
 		} while(borrow && x < xe);
 #endif
+	return STRTOG_Inexlo;
 	}
 
  static int
@@ -205,9 +206,9 @@ rvOK
 		goto ret;
 		}
 	switch(rd) {
-	  case 1: /* round down (toward -Infinity) */
+	  case 1:
 		goto trunc;
-	  case 2: /* round up (toward +Infinity) */
+	  case 2:
 		break;
 	  default: /* round near */
 		k = bdif - 1;
@@ -329,24 +330,8 @@ strtodg
 	CONST char *s, *s0, *s1;
 	double adj, adj0, rv, tol;
 	Long L;
-	ULong *b, *be, y, z;
+	ULong y, z;
 	Bigint *ab, *bb, *bb1, *bd, *bd0, *bs, *delta, *rvb, *rvb0;
-#ifdef USE_LOCALE
-#ifdef NO_LOCALE_CACHE
-	char *decimalpoint = localeconv()->decimal_point;
-#else
-	char *decimalpoint;
-	static char *decimalpoint_cache;
-	if (!(s0 = decimalpoint_cache)) {
-		s0 = localeconv()->decimal_point;
-		if ((decimalpoint_cache = (char*)malloc(strlen(s0) + 1))) {
-			strcpy(decimalpoint_cache, s0);
-			s0 = decimalpoint_cache;
-			}
-		}
-	decimalpoint = (char*)s0;
-#endif
-#endif
 
 	irv = STRTOG_Zero;
 	denorm = sign = nz0 = nz = 0;
@@ -405,17 +390,13 @@ strtodg
 			z = 10*z + c - '0';
 	nd0 = nd;
 #ifdef USE_LOCALE
-	if (c == *decimalpoint) {
-		for(i = 1; decimalpoint[i]; ++i)
-			if (s[i] != decimalpoint[i])
-				goto dig_done;
-		s += i;
-		c = *s;
+	if (c == *localeconv()->decimal_point)
 #else
-	if (c == '.') {
-		c = *++s;
+	if (c == '.')
 #endif
+		{
 		decpt = 1;
+		c = *++s;
 		if (!nd) {
 			for(; c == '0'; c = *++s)
 				nz++;
@@ -444,7 +425,7 @@ strtodg
 				nz = 0;
 				}
 			}
-		}/*}*/
+		}
  dig_done:
 	e = 0;
 	if (c == 'e' || c == 'E') {
@@ -995,29 +976,6 @@ strtodg
 	Bfree(bd0);
 	Bfree(delta);
 	if (rve > fpi->emax) {
-		switch(fpi->rounding & 3) {
-		  case FPI_Round_near:
-			goto huge;
-		  case FPI_Round_up:
-			if (!sign)
-				goto huge;
-			break;
-		  case FPI_Round_down:
-			if (sign)
-				goto huge;
-		  }
-		/* Round to largest representable magnitude */
-		Bfree(rvb);
-		rvb = 0;
-		irv = STRTOG_Normal | STRTOG_Inexlo;
-		*exp = fpi->emax;
-		b = bits;
-		be = b + ((fpi->nbits + 31) >> 5);
-		while(b < be)
-			*b++ = -1;
-		if ((j = fpi->nbits & 0x1f))
-			*--be >>= (32 - j);
-		goto ret;
  huge:
 		rvb->wds = 0;
 		irv = STRTOG_Infinite | STRTOG_Overflow | STRTOG_Inexhi;
@@ -1032,19 +990,12 @@ strtodg
 		if (sudden_underflow) {
 			rvb->wds = 0;
 			irv = STRTOG_Underflow | STRTOG_Inexlo;
-#ifndef NO_ERRNO
-			errno = ERANGE;
-#endif
 			}
 		else  {
 			irv = (irv & ~STRTOG_Retmask) |
 				(rvb->wds > 0 ? STRTOG_Denormal : STRTOG_Zero);
-			if (irv & STRTOG_Inexact) {
+			if (irv & STRTOG_Inexact)
 				irv |= STRTOG_Underflow;
-#ifndef NO_ERRNO
-				errno = ERANGE;
-#endif
-				}
 			}
 		}
 	if (se)

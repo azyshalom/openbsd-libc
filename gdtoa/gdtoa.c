@@ -417,9 +417,11 @@ gdtoa
 					if (dval(d) > ds + dval(eps))
 						goto bump_up;
 					else if (dval(d) < ds - dval(eps)) {
+						while(*--s == '0'){}
+						s++;
 						if (dval(d))
 							inex = STRTOG_Inexlo;
-						goto clear_trailing0;
+						goto ret1;
 						}
 					break;
 					}
@@ -477,12 +479,8 @@ gdtoa
 							}
 					++*s++;
 					}
-				else {
+				else
 					inex = STRTOG_Inexlo;
- clear_trailing0:
-					while(*--s == '0'){}
-					++s;
-					}
 				break;
 				}
 			}
@@ -740,7 +738,7 @@ gdtoa
 		if (b->wds > 1 || b->x[0])
 			inex = STRTOG_Inexlo;
 		while(*--s == '0'){}
-		++s;
+		s++;
 		}
  ret:
 	Bfree(S);

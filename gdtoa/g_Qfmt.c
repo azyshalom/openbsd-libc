@@ -51,20 +51,15 @@ THIS SOFTWARE.
 
  char*
 #ifdef KR_headers
-g_Qfmt(buf, V, ndig, bufsize) char *buf; char *V; int ndig; size_t bufsize;
+g_Qfmt(buf, V, ndig, bufsize) char *buf; char *V; int ndig; unsigned bufsize;
 #else
-g_Qfmt(char *buf, void *V, int ndig, size_t bufsize)
+g_Qfmt(char *buf, void *V, int ndig, unsigned bufsize)
 #endif
 {
-	static FPI fpi0 = { 113, 1-16383-113+1, 32766 - 16383 - 113 + 1, 1, 0 };
+	static FPI fpi = { 113, 1-16383-113+1, 32766 - 16383 - 113 + 1, 1, 0 };
 	char *b, *s, *se;
 	ULong bits[4], *L, sign;
 	int decpt, ex, i, mode;
-#ifdef Honor_FLT_ROUNDS
-#include "gdtoa_fltrnds.h"
-#else
-#define fpi &fpi0
-#endif
 
 	if (ndig < 0)
 		ndig = 0;
@@ -114,6 +109,6 @@ g_Qfmt(char *buf, void *V, int ndig, size_t bufsize)
 			return 0;
 		mode = 0;
 		}
-	s = gdtoa(fpi, ex, bits, &i, mode, ndig, &decpt, &se);
-	return g__fmt(buf, s, se, decpt, sign, bufsize);
+	s = gdtoa(&fpi, ex, bits, &i, mode, ndig, &decpt, &se);
+	return g__fmt(buf, s, se, decpt, sign);
 	}
