@@ -1,4 +1,4 @@
-/*	$OpenBSD: fabs.c,v 1.3 2008/07/23 18:11:13 martynas Exp $	*/
+/*	$OpenBSD: isinfl.c,v 1.1 2008/09/07 20:36:08 martynas Exp $	*/
 /*
  * Copyright (c) 2008 Martynas Venckus <martynas@openbsd.org>
  *
@@ -18,15 +18,12 @@
 #include <sys/types.h>
 #include <machine/ieee.h>
 
-/*
- * fabs(d) returns the absolute value of d.
- */
-double
-fabs(double d)
+int
+__isinfl(long double e)
 {
-	struct ieee_double *p = (struct ieee_double *)&d;
+	struct ieee_ext *p = (struct ieee_ext *)&e;
 
-	p->dbl_sign = 0;
-
-	return(d);
+	return (p->ext_exp == EXT_EXP_INFNAN &&
+	    p->ext_frach == 0 && p->ext_frachm == 0 &&
+	    p->ext_fraclm == 0 && p->ext_fracl == 0);
 }

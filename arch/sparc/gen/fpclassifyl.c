@@ -1,4 +1,4 @@
-/*	$OpenBSD: fabs.c,v 1.3 2008/07/23 18:11:13 martynas Exp $	*/
+/*	$OpenBSD: fpclassifyl.c,v 1.1 2008/09/07 20:36:08 martynas Exp $	*/
 /*
  * Copyright (c) 2008 Martynas Venckus <martynas@openbsd.org>
  *
@@ -17,16 +17,28 @@
 
 #include <sys/types.h>
 #include <machine/ieee.h>
+#include <math.h>
 
-/*
- * fabs(d) returns the absolute value of d.
- */
-double
-fabs(double d)
+int
+__fpclassifyl(long double e)
 {
-	struct ieee_double *p = (struct ieee_double *)&d;
+	struct ieee_ext *p = (struct ieee_ext *)&e;
 
-	p->dbl_sign = 0;
+	if (p->ext_exp == 0) {
+		if (p->ext_frach == 0 && p->ext_frachm == 0 &&
+		    p->ext_fraclm == 0 && p->ext_fracl == 0)
+			return FP_ZERO;
+		else
+			return FP_SUBNORMAL;
+	}
 
-	return(d);
+	if (p->ext_exp == EXT_EXP_INFNAN) {
+		if (p->ext_frach == 0 && p->ext_frachm == 0 &&
+		    p->ext_fraclm == 0 && p->ext_fracl == 0)
+			return FP_INFINITE;
+		else
+			return FP_NAN;
+	}
+
+	return FP_NORMAL;
 }

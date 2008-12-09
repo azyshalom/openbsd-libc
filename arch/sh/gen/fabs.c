@@ -1,4 +1,4 @@
-/*	$OpenBSD: fabs.c,v 1.5 2008/12/09 20:21:06 martynas Exp $	*/
+/*	$OpenBSD: fabs.c,v 1.4 2008/07/23 18:11:14 martynas Exp $	*/
 /*
  * Copyright (c) 2006 Miodrag Vallat.
  *
@@ -16,7 +16,6 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <machine/cdefs.h>
 #if !defined(__SH4__) || defined(__SH4_NOFPU__)
 #include <sys/types.h>
 #include <machine/ieee.h>
@@ -36,5 +35,3 @@ fabs(double d)
 #endif
 	return (d);
 }
-
-__weak_alias(fabsl, fabs);

@@ -1,7 +1,7 @@
-/*	$OpenBSD: frexp.c,v 1.5 2005/08/07 16:40:15 espie Exp $ */
+/*	$OpenBSD: strtold.c,v 1.1 2008/09/07 20:36:07 martynas Exp $	*/
 /*-
- * Copyright (c) 1991, 1993
- *	The Regents of the University of California.  All rights reserved.
+ * Copyright (c) 2003 David Schultz <das@FreeBSD.ORG>
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -11,14 +11,11 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the University nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
@@ -28,32 +25,21 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <math.h>
+/*
+ * Machine-dependent glue to integrate David Gay's gdtoa
+ * package into libc for architectures where a long double
+ * uses quad precision, such as sparc64.
+ */
 
-double
-frexp(value, eptr)
-	double value;
-	int *eptr;
+#include <float.h>
+
+#include "gdtoaimp.h"
+
+long double
+strtold(const char * __restrict s, char ** __restrict sp)
 {
-	union {
-		double v;
-		struct {
-			u_int u_mant1 :  7;
-			u_int   u_exp :  8;
-			u_int  u_sign :  1;
-			u_int u_mant2 : 16;
-			u_int u_mant3 : 32;
-		} s;
-	} u;
+	long double result;
 
-	if (value) {
-		u.v = value;
-		*eptr = u.s.u_exp - 128;
-		u.s.u_exp = 128;
-		return(u.v);
-	} else {
-		*eptr = 0;
-		return((double)0);
-	}
+	strtorQ(s, sp, FLT_ROUNDS, &result);
+	return result;
 }

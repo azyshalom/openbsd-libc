@@ -1,4 +1,4 @@
-/*	$OpenBSD: fabs.c,v 1.3 2008/12/09 20:21:06 martynas Exp $	*/
+/*	$OpenBSD: fabs.c,v 1.2 2002/06/17 19:15:46 deraadt Exp $	*/
 
 /*
  * Copyright (c) 2002 Theo de Raadt
@@ -25,7 +25,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <machine/cdefs.h>
 #include <math.h>
 
 double
@@ -34,5 +33,3 @@ fabs(double x)
 	__asm__ __volatile("fabs %0,%1" : "=f"(x) : "f"(x));
 	return (x);
 }
-
-__weak_alias(fabsl, fabs);
