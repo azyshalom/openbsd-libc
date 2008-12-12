@@ -1,4 +1,4 @@
-/*	$OpenBSD: isnan.c,v 1.5 2008/12/12 23:44:37 martynas Exp $	*/
+/*	$OpenBSD: isnan.c,v 1.4 2008/12/12 18:53:06 martynas Exp $	*/
 /*
  * Copyright (c) Martynas Venckus <martynas@openbsd.org>
  *
@@ -26,7 +26,7 @@ __isnan(double d)
 
 /* ARGSUSED */
 int
-__isnanf(float f)
+isnanf(float f)
 {
 	return(0);
 }
