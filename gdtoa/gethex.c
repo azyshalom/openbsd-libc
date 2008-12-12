@@ -56,11 +56,9 @@ gethex( CONST char **sp, FPI *fpi, Long *exp, Bigint **bp, int sign)
 	const unsigned char *decimalpoint;
 	static unsigned char *decimalpoint_cache;
 	if (!(s0 = decimalpoint_cache)) {
-		size_t len;
 		s0 = (unsigned char*)localeconv()->decimal_point;
-		len = strlen(s0) + 1;
-		if ((decimalpoint_cache = (char*)malloc(len))) {
-			strlcpy(decimalpoint_cache, s0, len);
+		if ((decimalpoint_cache = (char*)malloc(strlen(s0) + 1))) {
+			strcpy(decimalpoint_cache, s0);
 			s0 = decimalpoint_cache;
 			}
 		}

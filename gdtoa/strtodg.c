@@ -338,11 +338,9 @@ strtodg
 	char *decimalpoint;
 	static char *decimalpoint_cache;
 	if (!(s0 = decimalpoint_cache)) {
-		size_t len;
 		s0 = localeconv()->decimal_point;
-		len = strlen(s0) + 1;
-		if ((decimalpoint_cache = (char*)malloc(len))) {
-			strlcpy(decimalpoint_cache, s0, len);
+		if ((decimalpoint_cache = (char*)malloc(strlen(s0) + 1))) {
+			strcpy(decimalpoint_cache, s0);
 			s0 = decimalpoint_cache;
 			}
 		}
