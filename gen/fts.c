@@ -1,4 +1,4 @@
-/*	$OpenBSD: fts.c,v 1.41 2008/12/27 12:30:13 pedro Exp $	*/
+/*	$OpenBSD: fts.c,v 1.40 2007/11/06 10:14:53 chl Exp $	*/
 
 /*-
  * Copyright (c) 1990, 1993, 1994
@@ -515,10 +515,8 @@ fts_children(FTS *sp, int instr)
 	if ((fd = open(".", O_RDONLY, 0)) < 0)
 		return (NULL);
 	sp->fts_child = fts_build(sp, instr);
-	if (fchdir(fd)) {
-		(void)close(fd);
+	if (fchdir(fd))
 		return (NULL);
-	}
 	(void)close(fd);
 	return (sp->fts_child);
 }
