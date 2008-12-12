@@ -1,4 +1,4 @@
-/*	$OpenBSD: isinf.c,v 1.8 2008/12/09 19:52:34 martynas Exp $	*/
+/*	$OpenBSD: isinf.c,v 1.10 2008/12/12 18:53:06 martynas Exp $	*/
 
 /*-
  * Copyright (c) 1991, 1993
@@ -29,8 +29,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/cdefs.h>
-#include <math.h>
+#include <sys/cdefs.h>
 
 /* ARGSUSED */
 int
