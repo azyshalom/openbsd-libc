@@ -1,4 +1,4 @@
-/*	$OpenBSD: isinf.c,v 1.9 2008/12/10 01:15:02 martynas Exp $	*/
+/*	$OpenBSD: isinf.c,v 1.11 2008/12/12 23:44:37 martynas Exp $	*/
 
 /*-
  * Copyright (c) 1991, 1993
@@ -30,7 +30,6 @@
  */
 
 #include <sys/cdefs.h>
-#include <math.h>
 
 /* ARGSUSED */
 int
@@ -41,7 +40,7 @@ __isinf(double d)
 
 /* ARGSUSED */
 int
-isinff(float f)
+__isinff(float f)
 {
 	return(0);
 }
