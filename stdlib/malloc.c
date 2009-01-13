@@ -1,4 +1,4 @@
-/*	$OpenBSD: malloc.c,v 1.112 2008/12/29 22:25:50 djm Exp $	*/
+/*	$OpenBSD: malloc.c,v 1.115 2009/01/03 12:58:28 djm Exp $	*/
 /*
  * Copyright (c) 2008 Otto Moerbeek <otto@drijf.net>
  *
@@ -88,23 +88,6 @@
 #define MMAPA(a,sz)	mmap((a), (size_t)(sz), PROT_READ | PROT_WRITE, \
     MAP_ANON | MAP_PRIVATE, -1, (off_t) 0)
 
-/* Protect and unprotect g_pool structure as we enter/exit the allocator */
-#define DIR_INFO_RSZ	((sizeof(struct dir_info) + PAGE_MASK) & ~PAGE_MASK)
-#define PROTECT_G_POOL() \
-	do { \
-		if (g_pool != NULL && mopts.malloc_poolprot) { \
-			mprotect((void *)((uintptr_t)g_pool & ~PAGE_MASK), \
-			    DIR_INFO_RSZ, PROT_NONE); \
-		} \
-	} while (0)
-#define UNPROTECT_G_POOL() \
-	do { \
-		if (g_pool != NULL && mopts.malloc_poolprot) { \
-			mprotect((void *)((uintptr_t)g_pool & ~PAGE_MASK), \
-			    DIR_INFO_RSZ, PROT_READ | PROT_WRITE); \
-		} \
-	} while (0)
-
 struct region_info {
 	void *p;		/* page; low bits used to mark chunks */
 	uintptr_t size;		/* size for pages, or chunk_info pointer */
@@ -142,7 +125,8 @@ struct dir_info {
 #endif /* MALLOC_STATS */
 	u_int32_t canary2;
 };
-
+#define DIR_INFO_RSZ	((sizeof(struct dir_info) + MALLOC_PAGEMASK) & \
+			~MALLOC_PAGEMASK)
 
 /*
  * This structure describes a page worth of chunks.
@@ -165,7 +149,6 @@ struct chunk_info {
 struct malloc_readonly {
 	struct dir_info *g_pool;	/* Main bookkeeping information */
 	int	malloc_abort;		/* abort() on error */
-	int	malloc_poolprot;	/* mprotect heap PROT_NONE? */
 	int	malloc_freeprot;	/* mprotect free pages PROT_NONE? */
 	int	malloc_hint;		/* call madvice on free pages?  */
 	int	malloc_junk;		/* junk fill? */
@@ -184,8 +167,8 @@ struct malloc_readonly {
 /* This object is mapped PROT_READ after initialisation to prevent tampering */
 static union {
 	struct malloc_readonly mopts;
-	u_char _pad[PAGE_SIZE];
-} malloc_readonly __attribute__((aligned(PAGE_SIZE)));
+	u_char _pad[MALLOC_PAGESIZE];
+} malloc_readonly __attribute__((aligned(MALLOC_PAGESIZE)));
 #define mopts	malloc_readonly.mopts
 #define g_pool	mopts.g_pool
 
@@ -653,12 +636,6 @@ omalloc_init(struct dir_info **dp)
 			case 'J':
 				mopts.malloc_junk = 1;
 				break;
-			case 'l':
-				mopts.malloc_poolprot = 0;
-				break;
-			case 'L':
-				mopts.malloc_poolprot = 1;
-				break;
 			case 'n':
 			case 'N':
 				break;
@@ -719,12 +696,13 @@ omalloc_init(struct dir_info **dp)
 	 * randomise offset inside the page at which the dir_info
 	 * lies (subject to alignment by 1 << MALLOC_MINSHIFT)
 	 */
-	if ((p = MMAP(PAGE_SIZE + DIR_INFO_RSZ + PAGE_SIZE)) == NULL)
+	if ((p = MMAP(DIR_INFO_RSZ + (MALLOC_PAGESIZE * 2))) == NULL)
 		return -1;
-	mprotect(p, PAGE_SIZE, PROT_NONE);
-	mprotect(p + PAGE_SIZE + DIR_INFO_RSZ, PAGE_SIZE, PROT_NONE);
+	mprotect(p, MALLOC_PAGESIZE, PROT_NONE);
+	mprotect(p + MALLOC_PAGESIZE + DIR_INFO_RSZ,
+	    MALLOC_PAGESIZE, PROT_NONE);
 	d_avail = (DIR_INFO_RSZ - sizeof(*d)) >> MALLOC_MINSHIFT;
-	d = (struct dir_info *)(p + PAGE_SIZE +
+	d = (struct dir_info *)(p + MALLOC_PAGESIZE +
 	    (arc4random_uniform(d_avail) << MALLOC_MINSHIFT));
 
 	d->regions_bits = 9;
@@ -747,7 +725,7 @@ omalloc_init(struct dir_info **dp)
 	 * Options have been set and will never be reset.
 	 * Prevent further tampering with them.
 	 */
-	if (((uintptr_t)&malloc_readonly & PAGE_MASK) == 0)
+	if (((uintptr_t)&malloc_readonly & MALLOC_PAGEMASK) == 0)
 		mprotect(&malloc_readonly, sizeof(malloc_readonly), PROT_READ);
 
 	return 0;
@@ -1214,18 +1192,8 @@ malloc_recurse(void)
 		wrterror("recursive call");
 	}
 	malloc_active--;
-	PROTECT_G_POOL();
 	_MALLOC_UNLOCK();
 	errno = EDEADLK;
-}
-
-static void
-malloc_global_corrupt(void)
-{
-	wrterror("global malloc data corrupt");
-	PROTECT_G_POOL();
-	_MALLOC_UNLOCK();
-	errno = EINVAL;
 }
 
 static int
@@ -1248,7 +1216,6 @@ malloc(size_t size)
 	int saved_errno = errno;
 
 	_MALLOC_LOCK();
-	UNPROTECT_G_POOL();
 	malloc_func = " in malloc():";
 	if (g_pool == NULL) {
 		if (malloc_init() != 0)
@@ -1260,7 +1227,6 @@ malloc(size_t size)
 	}
 	r = omalloc(size, mopts.malloc_zero);
 	malloc_active--;
-	PROTECT_G_POOL();
 	_MALLOC_UNLOCK();
 	if (r == NULL && mopts.malloc_xmalloc) {
 		wrterror("out of memory");
@@ -1349,7 +1315,6 @@ free(void *ptr)
 		return;
 
 	_MALLOC_LOCK();
-	UNPROTECT_G_POOL();
 	malloc_func = " in free():";  
 	if (g_pool == NULL) {
 		_MALLOC_UNLOCK();
@@ -1362,7 +1327,6 @@ free(void *ptr)
 	}
 	ofree(ptr);
 	malloc_active--;
-	PROTECT_G_POOL();
 	_MALLOC_UNLOCK();
 	errno = saved_errno;
 }
@@ -1466,7 +1430,6 @@ realloc(void *ptr, size_t size)
 	int saved_errno = errno;
   
 	_MALLOC_LOCK();
-	UNPROTECT_G_POOL();
 	malloc_func = " in realloc():";  
 	if (g_pool == NULL) {
 		if (malloc_init() != 0)
@@ -1479,7 +1442,6 @@ realloc(void *ptr, size_t size)
 	r = orealloc(ptr, size);
   
 	malloc_active--;
-	PROTECT_G_POOL();
 	_MALLOC_UNLOCK();
 	if (r == NULL && mopts.malloc_xmalloc) {
 		wrterror("out of memory");
@@ -1500,7 +1462,6 @@ calloc(size_t nmemb, size_t size)
 	int saved_errno = errno;
 
 	_MALLOC_LOCK();
-	UNPROTECT_G_POOL();
 	malloc_func = " in calloc():";  
 	if (g_pool == NULL) {
 		if (malloc_init() != 0)
@@ -1508,7 +1469,6 @@ calloc(size_t nmemb, size_t size)
 	}
 	if ((nmemb >= MUL_NO_OVERFLOW || size >= MUL_NO_OVERFLOW) &&
 	    nmemb > 0 && SIZE_MAX / nmemb < size) {
-		PROTECT_G_POOL();
 		_MALLOC_UNLOCK();
 		if (mopts.malloc_xmalloc)
 			wrterror("out of memory");
@@ -1525,7 +1485,6 @@ calloc(size_t nmemb, size_t size)
 	r = omalloc(size, 1);
   
 	malloc_active--;
-	PROTECT_G_POOL();
 	_MALLOC_UNLOCK();
 	if (r == NULL && mopts.malloc_xmalloc) {
 		wrterror("out of memory");
