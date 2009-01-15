@@ -1,4 +1,4 @@
-/*	$OpenBSD: malloc.c,v 1.113 2008/12/30 07:44:51 djm Exp $	*/
+/*	$OpenBSD: malloc.c,v 1.115 2009/01/03 12:58:28 djm Exp $	*/
 /*
  * Copyright (c) 2008 Otto Moerbeek <otto@drijf.net>
  *
@@ -125,7 +125,8 @@ struct dir_info {
 #endif /* MALLOC_STATS */
 	u_int32_t canary2;
 };
-#define DIR_INFO_RSZ	((sizeof(struct dir_info) + PAGE_MASK) & ~PAGE_MASK)
+#define DIR_INFO_RSZ	((sizeof(struct dir_info) + MALLOC_PAGEMASK) & \
+			~MALLOC_PAGEMASK)
 
 /*
  * This structure describes a page worth of chunks.
@@ -166,8 +167,8 @@ struct malloc_readonly {
 /* This object is mapped PROT_READ after initialisation to prevent tampering */
 static union {
 	struct malloc_readonly mopts;
-	u_char _pad[PAGE_SIZE];
-} malloc_readonly __attribute__((aligned(PAGE_SIZE)));
+	u_char _pad[MALLOC_PAGESIZE];
+} malloc_readonly __attribute__((aligned(MALLOC_PAGESIZE)));
 #define mopts	malloc_readonly.mopts
 #define g_pool	mopts.g_pool
 
@@ -695,12 +696,13 @@ omalloc_init(struct dir_info **dp)
 	 * randomise offset inside the page at which the dir_info
 	 * lies (subject to alignment by 1 << MALLOC_MINSHIFT)
 	 */
-	if ((p = MMAP(PAGE_SIZE + DIR_INFO_RSZ + PAGE_SIZE)) == NULL)
+	if ((p = MMAP(DIR_INFO_RSZ + (MALLOC_PAGESIZE * 2))) == NULL)
 		return -1;
-	mprotect(p, PAGE_SIZE, PROT_NONE);
-	mprotect(p + PAGE_SIZE + DIR_INFO_RSZ, PAGE_SIZE, PROT_NONE);
+	mprotect(p, MALLOC_PAGESIZE, PROT_NONE);
+	mprotect(p + MALLOC_PAGESIZE + DIR_INFO_RSZ,
+	    MALLOC_PAGESIZE, PROT_NONE);
 	d_avail = (DIR_INFO_RSZ - sizeof(*d)) >> MALLOC_MINSHIFT;
-	d = (struct dir_info *)(p + PAGE_SIZE +
+	d = (struct dir_info *)(p + MALLOC_PAGESIZE +
 	    (arc4random_uniform(d_avail) << MALLOC_MINSHIFT));
 
 	d->regions_bits = 9;
@@ -723,7 +725,7 @@ omalloc_init(struct dir_info **dp)
 	 * Options have been set and will never be reset.
 	 * Prevent further tampering with them.
 	 */
-	if (((uintptr_t)&malloc_readonly & PAGE_MASK) == 0)
+	if (((uintptr_t)&malloc_readonly & MALLOC_PAGEMASK) == 0)
 		mprotect(&malloc_readonly, sizeof(malloc_readonly), PROT_READ);
 
 	return 0;
@@ -1192,14 +1194,6 @@ malloc_recurse(void)
 	malloc_active--;
 	_MALLOC_UNLOCK();
 	errno = EDEADLK;
-}
-
-static void
-malloc_global_corrupt(void)
-{
-	wrterror("global malloc data corrupt");
-	_MALLOC_UNLOCK();
-	errno = EINVAL;
 }
 
 static int
