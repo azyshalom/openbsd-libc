@@ -1,4 +1,4 @@
-/*	$OpenBSD: modf.c,v 1.1 2009/04/19 16:42:06 martynas Exp $	*/
+/*	$OpenBSD: modf.c,v 1.5 2005/08/07 16:40:13 espie Exp $	*/
 /*	$NetBSD: modf.c,v 1.1 1995/02/10 17:50:25 cgd Exp $	*/
 
 /*
@@ -41,7 +41,8 @@
  * Beware signedness when doing subtraction, and also operand size!
  */
 double
-modf(double val, double *iptr)
+modf(val, iptr)
+	double val, *iptr;
 {
 	union doub {
 		double v;
