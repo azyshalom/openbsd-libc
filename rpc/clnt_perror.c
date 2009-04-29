@@ -1,4 +1,4 @@
-/*	$OpenBSD: clnt_perror.c,v 1.21 2009/06/01 23:18:29 schwarze Exp $ */
+/*	$OpenBSD: clnt_perror.c,v 1.20 2007/09/12 08:16:02 moritz Exp $ */
 /*
  * Sun RPC is a product of Sun Microsystems, Inc. and is provided for
  * unrestricted use provided that this legend is included on all tape
@@ -239,9 +239,7 @@ clnt_spcreateerror(char *s)
 void
 clnt_pcreateerror(char *s)
 {
-	char *msg = clnt_spcreateerror(s);
-	if (msg)
-		(void) fprintf(stderr, "%s", msg);
+	(void) fprintf(stderr, "%s", clnt_spcreateerror(s));
 }
 
 static const char *const auth_errlist[] = {
