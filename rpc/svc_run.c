@@ -45,13 +45,14 @@
 void
 svc_run(void)
 {
-	struct pollfd *pfd = NULL;
+	struct pollfd *pfd = NULL, *newp;
 	int nready, saved_max_pollfd = 0;
 
 	for (;;) {
 		if (svc_max_pollfd > saved_max_pollfd) {
-			pfd = reallocarray(pfd, svc_max_pollfd, sizeof(*pfd));
-			if (pfd == NULL) {
+			newp = reallocarray(pfd, svc_max_pollfd, sizeof(*pfd));
+			if (newp == NULL) {
+				free(pfd);
 				perror("svc_run");	/* XXX */
 				return;			/* XXX */
 			}
@@ -68,6 +69,7 @@ svc_run(void)
 			free(pfd);
 			return;					/* XXX */
 		case 0:
+			/* should not happen */
 			continue;
 		default:
 			svc_getreq_poll(pfd, nready);
