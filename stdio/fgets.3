@@ -51,7 +51,9 @@ characters from the given
 and stores them in the string
 .Fa str .
 Reading stops when a newline character is found,
-at end-of-file, or on error.
+at end-of-file, on error, or after
+.Ar size Ns \-1
+bytes are read.
 The newline, if any, is retained.
 The string will be NUL-terminated if
 .Fn fgets
