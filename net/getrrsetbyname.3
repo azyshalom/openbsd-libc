@@ -114,11 +114,11 @@ is a pointer to a
 .Li struct rrsetinfo
 created by a call to
 .Fn getrrsetbyname .
-.Pp
-If the EDNS0 option is activated in
-.Xr resolv.conf 5 ,
-.Fn getrrsetbyname
-will request DNSSEC authentication using the EDNS0 DNSSEC OK (DO) bit.
+.\" .Pp
+.\" If the EDNS0 option is activated in
+.\" .Xr resolv.conf 5 ,
+.\" .Fn getrrsetbyname
+.\" will request DNSSEC authentication using the EDNS0 DNSSEC OK (DO) bit.
 .Sh RETURN VALUES
 .Fn getrrsetbyname
 returns zero on success, and one of the following error
