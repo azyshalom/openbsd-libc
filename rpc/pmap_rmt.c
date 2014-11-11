@@ -91,8 +91,6 @@ pmap_rmtcall(struct sockaddr_in *addr, u_long prog, u_long vers, u_long proc,
 	} else {
 		stat = RPC_FAILED;
 	}
-	if (sock != -1)
-		(void)close(sock);
 	addr->sin_port = 0;
 	return (stat);
 }

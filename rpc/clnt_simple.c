@@ -84,13 +84,15 @@ callrpc(char *host, int prognum, int versnum, int procnum, xdrproc_t inproc,
 		/* reuse old client */		
 	} else {
 		crp->valid = 0;
-		if (crp->socket != -1)
+		if (crp->socket != -1) {
 			(void)close(crp->socket);
-		crp->socket = RPC_ANYSOCK;
+			crp->socket = -1;
+		}
 		if (crp->client) {
-			clnt_destroy(crp->client);
+			CLNT_DESTROY(crp->client);
 			crp->client = NULL;
 		}
+		crp->socket = RPC_ANYSOCK;
 		if ((hp = gethostbyname(host)) == NULL)
 			return ((int) RPC_UNKNOWNHOST);
 		timeout.tv_usec = 0;

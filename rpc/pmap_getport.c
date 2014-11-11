@@ -77,8 +77,6 @@ pmap_getport(struct sockaddr_in *address, u_long program, u_long version,
 		}
 		CLNT_DESTROY(client);
 	}
-	if (sock != -1)
-		(void)close(sock);
 	address->sin_port = 0;
 	return (port);
 }
