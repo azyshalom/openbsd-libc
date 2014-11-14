@@ -124,7 +124,7 @@ process_spawnattr(const posix_spawnattr_t sa)
 	}
 
 	if (sa->sa_flags & POSIX_SPAWN_SETSIGDEF) {
-		for (i = 1; i <= _NSIG; i++) {
+		for (i = 1; i < _NSIG; i++) {
 			if (sigismember(&sa->sa_sigdefault, i))
 				if (sigaction(i, &sigact, NULL) != 0)
 					return (errno);
