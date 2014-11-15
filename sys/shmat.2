@@ -38,9 +38,7 @@
 .Nm shmdt
 .Nd map/unmap shared memory
 .Sh SYNOPSIS
-.Fd #include <sys/types.h>
-.Fd #include <sys/ipc.h>
-.Fd #include <sys/shm.h>
+.In sys/shm.h
 .Ft void *
 .Fn shmat "int shmid" "const void *shmaddr" "int shmflg"
 .Ft int
