@@ -94,8 +94,9 @@ limited in how much they can lock down.
 A single process can
 .Fn mlock
 the minimum of
-a system-wide ``wired pages'' limit and
-the per-process
+a system-wide
+.Dq wired pages
+limit and the per-process
 .Li RLIMIT_MEMLOCK
 resource limit.
 .Sh RETURN VALUES

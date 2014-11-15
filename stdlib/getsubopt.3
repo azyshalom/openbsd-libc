@@ -107,17 +107,17 @@ char *options, *value;
 while ((ch = getopt(argc, argv, "ab:")) != -1) {
 	switch (ch) {
 	case 'a':
-		/* process ``a'' option */
+		/* process "a" option */
 		break;
 	case 'b':
 		options = optarg;
 		while (*options) {
 			switch (getsubopt(&options, tokens, &value)) {
 			case ONE:
-				/* process ``one'' sub option */
+				/* process "one" sub option */
 				break;
 			case TWO:
-				/* process ``two'' sub option */
+				/* process "two" sub option */
 				if (!value)
 					error("no value for two");
 				i = atoi(value);

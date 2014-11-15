@@ -550,7 +550,8 @@ does not result in the loss of the original (real) group ID.
 .Pp
 The group access list is a set of group IDs
 used only in determining resource accessibility.
-Access checks are performed as described below in ``File Access Permissions''.
+Access checks are performed as described below in
+.Dq File Access Permissions .
 .It Saved Set User ID and Saved Set Group ID
 When a process executes a new file, the effective user ID is set
 to the owner of the file if the file is set-user-ID, and the effective
@@ -708,7 +709,9 @@ and the group permissions allow the access.
 Neither the effective user ID nor effective group ID
 and group access list of the process
 match the corresponding user ID and group ID of the file,
-but the permissions for ``other users'' allow access.
+but the permissions for
+.Dq other users
+allow access.
 .Pp
 Otherwise, permission is denied.
 .It Sockets and Address Families
