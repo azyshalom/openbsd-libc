@@ -30,8 +30,6 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <sys/ipc.h>
 #include <sys/sem.h>
 #include <stdarg.h>
 #include <stdlib.h>
