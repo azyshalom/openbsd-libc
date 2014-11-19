@@ -141,7 +141,7 @@ found:
 }
 
 /*
- * exit() and abort() call _cleanup() through the callback registered
+ * exit() calls _cleanup() through the callback registered
  * with __atexit_register_cleanup(), set whenever we open or buffer a
  * file. This chicanery is done so that programs that do not use stdio
  * need not link it all in.
