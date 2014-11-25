@@ -37,13 +37,15 @@
 .Nm close
 .Nd delete a descriptor
 .Sh SYNOPSIS
-.Fd #include <unistd.h>
+.In unistd.h
 .Ft int
 .Fn close "int d"
 .Sh DESCRIPTION
 The
 .Fn close
-call deletes a descriptor from the per-process object
+call deletes a descriptor
+.Fa d
+from the per-process object
 reference table.
 If this is the last reference to the underlying object, the
 object will be deactivated.
