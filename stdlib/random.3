@@ -36,7 +36,7 @@
 .Nm srandomdev ,
 .Nm initstate ,
 .Nm setstate
-.Nd better random number generator; routines for changing generators
+.Nd pseudo-random number generator; routines for changing generators
 .Sh SYNOPSIS
 .In stdlib.h
 .Ft long
@@ -186,5 +186,5 @@ functions appeared in
 .Sh AUTHORS
 .An Earl T. Cohen
 .Sh BUGS
-About 2/3 the speed of
-.Xr rand 3 .
+The historical implementation used to have very weak seeding.
+As a result, the random sequence did not vary much with the seed.
