@@ -33,30 +33,18 @@
 
 #include <machine/asm.h>
 
-	/*
-	 * (ov)bcopy (src,dst,cnt)
-	 *  ws@tools.de     (Wolfgang Solfrank, TooLs GmbH) +49-228-985800
-	 */
+/*
+ * bcopy(src, dst, cnt)
+ *  ws@tools.de     (Wolfgang Solfrank, TooLs GmbH) +49-228-985800
+ */
 
-#ifdef MEMCOPY
-ENTRY(memcpy)
-#else
-#ifdef MEMMOVE
-ENTRY(memmove)
-#else
 ENTRY(bcopy)
-#endif
-#endif
 	pushl	%esi
 	pushl	%edi
-#if defined(MEMCOPY) || defined(MEMMOVE)
-	movl	12(%esp),%edi
-	movl	16(%esp),%esi
-	movl	%edi, %eax
-#else
+
 	movl	12(%esp),%esi
 	movl	16(%esp),%edi
-#endif
+
 	movl	20(%esp),%ecx
 	movl	%ecx,%edx
 	cmpl	%esi,%edi	/* potentially overlapping? */

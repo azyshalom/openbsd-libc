@@ -31,11 +31,7 @@
 #include <string.h>
 
 char *
-#ifdef STRCHR
-strchr(const char *p, int ch)
-#else
 index(const char *p, int ch)
-#endif
 {
 	for (;; ++p) {
 		if (*p == ch)

@@ -32,6 +32,12 @@
 
 #include <machine/asm.h>
 
+/*
+ * XXX
+ * the _memcpy function which this calls is actually a _memmove
+ * variant which handles overlaps...  That should be fixed.
+ */
+
 ENTRY(memcpy)
 	stmfd	sp!, {r0, lr}
 	bl	PIC_SYM(_C_LABEL(_memcpy), PLT)
