@@ -68,6 +68,21 @@ fread(void *buf, size_t size, size_t count, FILE *fp)
 		fp->_r = 0;
 	total = resid;
 	p = buf;
+
+	if ((fp->_flags & __SNBF) != 0) {
+		/*
+		 * We know if we're unbuffered that our buffer is empty, so
+		 * we can just read directly. This is much faster than the
+		 * loop below which will perform a series of one byte reads.
+		 */
+		while (resid > 0 && (r = (*fp->_read)(fp->_cookie, p, resid)) > 0) {
+			p += r;
+			resid -= r;
+		}
+		FUNLOCKFILE(fp);
+		return ((total - resid) / size);
+	}
+
 	while (resid > (r = fp->_r)) {
 		(void)memcpy((void *)p, (void *)fp->_p, (size_t)r);
 		fp->_p += r;
