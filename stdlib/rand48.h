@@ -20,6 +20,7 @@
 #include <stdlib.h>
 
 void		__dorand48(unsigned short[3]);
+extern int	__rand48_deterministic;
 
 #define	RAND48_SEED_0	(0x330e)
 #define	RAND48_SEED_1	(0xabcd)

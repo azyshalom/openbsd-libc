@@ -21,6 +21,14 @@ extern unsigned short __rand48_add;
 void
 lcong48(unsigned short p[7])
 {
+	lcong48_deterministic(p);
+	__rand48_deterministic = 0;
+}
+
+void
+lcong48_deterministic(unsigned short p[7])
+{
+	__rand48_deterministic = 1;
 	__rand48_seed[0] = p[0];
 	__rand48_seed[1] = p[1];
 	__rand48_seed[2] = p[2];

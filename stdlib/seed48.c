@@ -21,8 +21,19 @@ extern unsigned short __rand48_add;
 unsigned short *
 seed48(unsigned short xseed[3])
 {
+	unsigned short *res;
+
+	res = seed48_deterministic(xseed);
+	__rand48_deterministic = 0;
+	return res;
+}
+
+unsigned short *
+seed48_deterministic(unsigned short xseed[3])
+{
 	static unsigned short sseed[3];
 
+	__rand48_deterministic = 1;
 	sseed[0] = __rand48_seed[0];
 	sseed[1] = __rand48_seed[1];
 	sseed[2] = __rand48_seed[2];
