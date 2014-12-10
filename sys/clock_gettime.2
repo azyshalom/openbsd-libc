@@ -109,10 +109,7 @@ call.
 This value is placed in a (non-null)
 .Fa *tp .
 .Sh RETURN VALUES
-A 0 return value indicates that the call succeeded.
-A \-1 return value indicates an error occurred, and in this
-case an error code is stored into the global variable
-.Va errno .
+.Rv -std
 .Sh ERRORS
 .Fn clock_gettime ,
 .Fn clock_settime ,

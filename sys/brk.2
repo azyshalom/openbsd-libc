@@ -104,11 +104,8 @@ e.g.,
 for the definition of
 .Em etext ) .
 .Sh RETURN VALUES
-.Fn brk
-returns 0 if successful;
-otherwise \-1 with
-.Va errno
-set to indicate why the allocation failed.
+.Rv -std brk
+.Pp
 The
 .Fn sbrk
 function returns a pointer to the base of the new storage if successful;

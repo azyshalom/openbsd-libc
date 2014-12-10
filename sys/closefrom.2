@@ -42,10 +42,7 @@ It is effectively the same as calling
 .Xr close 2
 on each descriptor.
 .Sh RETURN VALUES
-Upon successful completion, a value of 0 is returned.
-Otherwise, a value of \-1 is returned and the global integer variable
-.Va errno
-is set to indicate the error.
+.Rv -std
 .Sh ERRORS
 .Fn closefrom
 will fail if:

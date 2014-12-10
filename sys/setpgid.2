@@ -56,11 +56,7 @@ If
 .Ar pgrp
 is zero, the process ID of the specified process is used.
 .Sh RETURN VALUES
-.Fn setpgid
-returns 0 when the operation was successful.
-If the request failed, \-1 is returned and the global variable
-.Va errno
-indicates the reason.
+.Rv -std
 .Sh ERRORS
 .Fn setpgid
 will fail and the process group will not be altered if:
