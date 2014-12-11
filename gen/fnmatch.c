@@ -88,7 +88,6 @@
 #include <fnmatch.h>
 #include <string.h>
 #include <ctype.h>
-#include <limits.h>
 
 #include "charclass.h"
 
@@ -293,10 +292,6 @@ int fnmatch(const char *pattern, const char *string, int flags)
     const char *strstartseg = NULL;
     const char *mismatch = NULL;
     int matchlen = 0;
-
-    if (strnlen(pattern, PATH_MAX) == PATH_MAX ||
-        strnlen(string, PATH_MAX) == PATH_MAX)
-            return (FNM_NOMATCH);
 
     if (*pattern == '*')
         goto firstsegment;
