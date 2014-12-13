@@ -36,9 +36,9 @@
 .Nm swapctl
 .Nd modify swap configuration
 .Sh SYNOPSIS
-.Fd #include <sys/param.h>
-.Fd #include <sys/swap.h>
-.Fd #include <unistd.h>
+.In sys/param.h
+.In sys/swap.h
+.In unistd.h
 .Ft int
 .Fn swapctl "int cmd" "const void *arg" "int misc"
 .Sh DESCRIPTION
@@ -221,12 +221,13 @@ function call appeared in
 The
 .Fa se_path
 member was added to
-.Li struct swapent
+.Vt struct swapent
 in
 .Nx 1.4 ,
 when the header file was also moved from
-.Aq Pa vm/vm_swap.h .
+.In vm/vm_swap.h .
 .Sh AUTHORS
+.An -nosplit
 The current swap system was designed and implemented by
 .An Matthew Green Aq Mt mrg@eterna.com.au ,
 with help from
