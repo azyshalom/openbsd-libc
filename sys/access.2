@@ -38,11 +38,11 @@
 .Nm faccessat
 .Nd check access permissions of a file or pathname
 .Sh SYNOPSIS
-.Fd #include <unistd.h>
+.In unistd.h
 .Ft int
 .Fn access "const char *path" "int amode"
-.Fd #include <fcntl.h>
-.Fd #include <unistd.h>
+.In fcntl.h
+.In unistd.h
 .Ft int
 .Fn faccessat "int fd" "const char *path" "int amode" "int flag"
 .Sh DESCRIPTION
@@ -170,7 +170,7 @@ points outside the process's allocated address space.
 An I/O error occurred while reading from or writing to the file system.
 .It Bq Er EINVAL
 An invalid value was specified for
-.Ar amode .
+.Fa amode .
 .El
 .Pp
 Additionally,
