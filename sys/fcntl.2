@@ -37,7 +37,7 @@
 .Nm fcntl
 .Nd file control
 .Sh SYNOPSIS
-.Fd #include <fcntl.h>
+.In fcntl.h
 .Ft int
 .Fn fcntl "int fd" "int cmd" "..."
 .Sh DESCRIPTION
@@ -167,9 +167,7 @@ and
 commands are as follows:
 .Bl -tag -width O_NONBLOCKX
 .It Dv O_NONBLOCK
-Non-blocking
-.Tn I/O ;
-if no data is available to a
+Non-blocking I/O; if no data is available to a
 .Xr read 2
 call, or if a
 .Xr write 2
@@ -185,10 +183,7 @@ flag of
 .It Dv O_ASYNC
 Enable the
 .Dv SIGIO
-signal to be sent to the process group
-when
-.Tn I/O
-is possible, e.g.,
+signal to be sent to the process group when I/O is possible, e.g.,
 upon availability of data to be read.
 .It Dv O_SYNC
 Cause writes to be synchronous.

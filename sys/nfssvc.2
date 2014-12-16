@@ -37,8 +37,8 @@
 .Nm nfssvc
 .Nd NFS services
 .Sh SYNOPSIS
-.Fd #include <unistd.h>
-.Fd #include <nfs/nfs.h>
+.In unistd.h
+.In nfs/nfs.h
 .Ft int
 .Fn nfssvc "int flags" "void *argstructp"
 .Sh DESCRIPTION
@@ -120,8 +120,7 @@ function first appeared in
 .Sh BUGS
 The
 .Nm nfssvc
-system call is designed specifically for the
-.Tn NFS
+system call is designed specifically for the NFS
 support daemons and as such is specific to their requirements.
 Several fields of the argument structures are assumed to be valid and
 sometimes to be unchanged from a previous call, such that
