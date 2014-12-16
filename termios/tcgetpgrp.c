@@ -28,9 +28,7 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
 #include <sys/ioctl.h>
-#include <termios.h>
 #include <unistd.h>
 
 pid_t
@@ -39,7 +37,7 @@ tcgetpgrp(int fd)
 	int s;
 
 	if (ioctl(fd, TIOCGPGRP, &s) < 0)
-		return ((pid_t)-1);
+		return (-1);
 
-	return ((pid_t)s);
+	return (s);
 }

@@ -28,9 +28,7 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
 #include <sys/ioctl.h>
-#include <termios.h>
 #include <unistd.h>
 
 int
