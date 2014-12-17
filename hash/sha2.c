@@ -52,6 +52,7 @@
  *   #define SHA2_UNROLL_TRANSFORM
  *
  */
+#define SHA2_UNROLL_TRANSFORM
 
 /*** SHA-224/256/384/512 Machine Architecture Definitions *****************/
 /*
