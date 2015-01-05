@@ -38,19 +38,12 @@
 
 /*
  * Expand the line buffer.  Return -1 on error.
-#ifdef notdef
- * The `new size' does not account for a terminating '\0',
- * so we add 1 here.
-#endif
  */
 static int
 __slbexpand(FILE *fp, size_t newsize)
 {
 	void *p;
 
-#ifdef notdef
-	++newsize;
-#endif
 	if (fp->_lb._size >= newsize)
 		return (0);
 	if ((p = realloc(fp->_lb._base, newsize)) == NULL)
@@ -141,14 +134,11 @@ fgetln(FILE *fp, size_t *lenp)
 	}
 	*lenp = len;
 	ret = (char *)fp->_lb._base;
-#ifdef notdef
-	ret[len] = '\0';
-#endif
 	FUNLOCKFILE(fp);
 	return (ret);
 
 error:
-	*lenp = 0;		/* ??? */
 	FUNLOCKFILE(fp);
-	return (NULL);		/* ??? */
+	*lenp = 0;
+	return (NULL);
 }
