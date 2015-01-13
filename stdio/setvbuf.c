@@ -115,6 +115,13 @@ nbf:
 	}
 
 	/*
+	 * We're committed to buffering from here, so make sure we've
+	 * registered to flush buffers on exit.
+	 */
+	if (!__sdidinit)
+		__sinit();
+
+	/*
 	 * Kill any seek optimization if the buffer is not the
 	 * right size.
 	 *
@@ -148,7 +155,6 @@ nbf:
 		fp->_w = 0;
 	}
 	FUNLOCKFILE(fp);
-	__atexit_register_cleanup(_cleanup);
 
 	return (ret);
 }
