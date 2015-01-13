@@ -44,9 +44,7 @@ function returns a pointer to the next line from the stream referenced by
 .Fa stream .
 This line is
 .Em not
-a C string as it does not end with a terminating
-.Tn NUL
-character.
+a C string as it does not end with a terminating NUL character.
 The length of the line, including the final newline,
 is stored in the memory location to which
 .Fa len
@@ -55,9 +53,7 @@ points and is guaranteed to be greater than 0 upon successful completion.
 the returned text will not contain a newline.)
 .Sh RETURN VALUES
 Upon successful completion a pointer is returned;
-this pointer becomes invalid after the next
-.Tn I/O
-operation on
+this pointer becomes invalid after the next I/O operation on
 .Fa stream
 (whether successful or not)
 or as soon as the stream is closed.
