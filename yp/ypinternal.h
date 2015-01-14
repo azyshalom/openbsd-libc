@@ -48,7 +48,7 @@ int (*ypresp_allfn)(u_long, char *, int, char *, int, void *);
 void *ypresp_data;
 
 extern struct dom_binding *_ypbindlist;
-extern char _yp_domain[MAXHOSTNAMELEN];
+extern char _yp_domain[HOST_NAME_MAX+1];
 extern int _yplib_timeout;
 
 void _yp_unbind(struct dom_binding *);

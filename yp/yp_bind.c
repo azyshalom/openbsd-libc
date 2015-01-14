@@ -42,7 +42,7 @@
 #include "ypinternal.h"
 
 struct dom_binding *_ypbindlist;
-char _yp_domain[MAXHOSTNAMELEN];
+char _yp_domain[HOST_NAME_MAX+1];
 int _yplib_timeout = 10;
 
 int
