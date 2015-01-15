@@ -50,7 +50,7 @@ HASHEnd(HASH_CTX *ctx, char *buf)
 		buf[i + i + 1] = hex[digest[i] & 0x0f];
 	}
 	buf[i + i] = '\0';
-	memset(digest, 0, sizeof(digest));
+	explicit_bzero(digest, sizeof(digest));
 	return (buf);
 }
 
