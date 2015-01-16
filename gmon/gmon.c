@@ -28,7 +28,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
 #include <sys/time.h>
 #include <sys/gmon.h>
 #include <sys/mman.h>

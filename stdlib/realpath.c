@@ -27,13 +27,13 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
 #include <sys/stat.h>
 
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <limits.h>
 
 /* A slightly modified copy of this file exists in libexec/ld.so */
 
@@ -156,7 +156,7 @@ realpath(const char *path, char *resolved)
 			goto err;
 		}
 		if (S_ISLNK(sb.st_mode)) {
-			if (symlinks++ > MAXSYMLINKS) {
+			if (symlinks++ > SYMLOOP_MAX) {
 				errno = ELOOP;
 				goto err;
 			}

@@ -28,19 +28,18 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
-
 #include <err.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <limits.h>
 
 int
 initgroups(const char *uname, gid_t agroup)
 {
-	gid_t groups[NGROUPS];
+	gid_t groups[NGROUPS_MAX];
 	int ngroups;
 
-	ngroups = NGROUPS;
+	ngroups = NGROUPS_MAX;
 	(void) getgrouplist(uname, agroup, groups, &ngroups);
 	if (setgroups(ngroups, groups) < 0)
 		return (-1);

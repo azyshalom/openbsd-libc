@@ -25,7 +25,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
 #include <sys/types.h>
 #include <stdio.h>
 #include <rpc/rpc.h>

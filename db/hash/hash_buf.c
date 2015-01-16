@@ -48,8 +48,6 @@
  *	newbuf
  */
 
-#include <sys/param.h>
-
 #include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -64,6 +62,8 @@
 #include "hash.h"
 #include "page.h"
 #include "extern.h"
+
+#define MAXIMUM(a, b)	(((a) > (b)) ? (a) : (b))
 
 static BUFHEAD *newbuf(HTAB *, u_int32_t, BUFHEAD *);
 
@@ -300,7 +300,7 @@ __buf_init(HTAB *hashp, int nbytes)
 
 	bfp = &(hashp->bufhead);
 	npages = (nbytes + hashp->BSIZE - 1) >> hashp->BSHIFT;
-	npages = MAX(npages, MIN_BUFFERS);
+	npages = MAXIMUM(npages, MIN_BUFFERS);
 
 	hashp->nbufs = npages;
 	bfp->next = bfp;

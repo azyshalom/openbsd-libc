@@ -28,7 +28,7 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
+#include <sys/types.h>
 #include <sys/sysctl.h>
 
 int __sysctl(const int *, u_int, void *, size_t *, void *, size_t);

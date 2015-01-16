@@ -30,7 +30,7 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
+#include <sys/param.h>	/* ALIGN */
 #include <fcntl.h>
 #include <db.h>
 #include <syslog.h>
@@ -50,6 +50,8 @@
 #include "ypexclude.h"
 #endif
 #include "thread_private.h"
+
+#define MINIMUM(a, b)	(((a) < (b)) ? (a) : (b))
 
 _THREAD_PRIVATE_KEY(pw);
 
@@ -675,9 +677,9 @@ _pwhashbyname(const char *name, char *buf, size_t buflen, struct passwd *pw,
 	if (len > _PW_NAME_LEN)
 		return (NULL);
 	bf[0] = _PW_KEYBYNAME;
-	bcopy(name, &bf[1], MIN(len, _PW_NAME_LEN));
+	bcopy(name, &bf[1], MINIMUM(len, _PW_NAME_LEN));
 	key.data = (u_char *)bf;
-	key.size = 1 + MIN(len, _PW_NAME_LEN);
+	key.size = 1 + MINIMUM(len, _PW_NAME_LEN);
 	r = __hashpw(&key, buf, buflen, pw, flagsp);
 	if (r)
 		return (pw);

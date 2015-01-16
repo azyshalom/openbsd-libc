@@ -32,8 +32,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
-
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>

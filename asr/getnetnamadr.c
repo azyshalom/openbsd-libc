@@ -15,6 +15,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#include <sys/param.h>	/* ALIGN */
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

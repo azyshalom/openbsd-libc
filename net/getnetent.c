@@ -28,13 +28,13 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <stdio.h>
 #include <string.h>
+#include <limits.h>
 
 #define	MAXALIASES	35
 
@@ -86,8 +86,8 @@ again:
 	if ((cp = strchr(p, '#')) != NULL)
 		*cp = '\0';
 	net.n_name = p;
-	if (strlen(net.n_name) >= MAXHOSTNAMELEN-1)
-		net.n_name[MAXHOSTNAMELEN-1] = '\0';
+	if (strlen(net.n_name) >= HOST_NAME_MAX+1-1)
+		net.n_name[HOST_NAME_MAX+1-1] = '\0';
 	cp = strpbrk(p, " \t");
 	if (cp == NULL)
 		goto again;
@@ -108,8 +108,8 @@ again:
 		}
 		if (q < &net_aliases[MAXALIASES - 1]) {
 			*q++ = cp;
-			if (strlen(cp) >= MAXHOSTNAMELEN-1)
-				cp[MAXHOSTNAMELEN-1] = '\0';
+			if (strlen(cp) >= HOST_NAME_MAX+1-1)
+				cp[HOST_NAME_MAX+1-1] = '\0';
 		}
 		cp = strpbrk(cp, " \t");
 		if (cp != NULL)

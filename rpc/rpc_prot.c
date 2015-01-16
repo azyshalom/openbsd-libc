@@ -42,8 +42,6 @@
  * routines are also in this program.
  */
 
-#include <sys/param.h>
-
 #include <rpc/rpc.h>
 
 /* * * * * * * * * * * * * * XDR Authentication * * * * * * * * * * * */

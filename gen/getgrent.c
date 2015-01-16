@@ -30,10 +30,10 @@
  */
 
 #include <sys/types.h>
-#include <sys/param.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <grp.h>
 #include <errno.h>
 #ifdef YP

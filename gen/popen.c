@@ -31,7 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
 #include <sys/wait.h>
 
 #include <signal.h>

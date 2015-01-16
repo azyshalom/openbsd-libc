@@ -28,12 +28,13 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/param.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/sysctl.h>
 
 #include <stdlib.h>
+
+#define MINIMUM(a, b)	(((a) < (b)) ? (a) : (b))
 
 /*
  * getloadavg() -- Get system load averages.
@@ -54,7 +55,7 @@ getloadavg(double loadavg[], int nelem)
 	if (sysctl(mib, 2, &loadinfo, &size, NULL, 0) < 0)
 		return (-1);
 
-	nelem = MIN(nelem, sizeof(loadinfo.ldavg) / sizeof(fixpt_t));
+	nelem = MINIMUM(nelem, sizeof(loadinfo.ldavg) / sizeof(fixpt_t));
 	for (i = 0; i < nelem; i++)
 		loadavg[i] = (double) loadinfo.ldavg[i] / loadinfo.fscale;
 	return (nelem);
