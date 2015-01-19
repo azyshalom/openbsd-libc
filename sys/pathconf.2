@@ -172,12 +172,13 @@ will fail if:
 A component of the path prefix is not a directory.
 .It Bq Er ENAMETOOLONG
 A component of a pathname exceeded
-.Brq Dv NAME_MAX
+.Dv NAME_MAX
 characters (but see
 .Dv _PC_NO_TRUNC
-above), or an entire path name exceeded
-.Brq Dv PATH_MAX
-characters.
+above), or an entire pathname (including the terminating NUL)
+exceeded
+.Dv PATH_MAX
+bytes.
 .It Bq Er ENOENT
 The named file does not exist.
 .It Bq Er EACCES

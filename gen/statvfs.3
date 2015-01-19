@@ -93,15 +93,12 @@ A component of the path prefix of
 .Fa path
 is not a directory.
 .It Bq Er ENAMETOOLONG
-The length of a component of
-.Fa path
-exceeds
-.Dv {NAME_MAX}
-characters, or the length of
-.Fa path
-exceeds
-.Dv {PATH_MAX}
-characters.
+A component of a pathname exceeded
+.Dv NAME_MAX
+characters, or an entire pathname (including the terminating NUL)
+exceeded
+.Dv PATH_MAX
+bytes.
 .It Bq Er ENOENT
 The file referred to by
 .Fa path

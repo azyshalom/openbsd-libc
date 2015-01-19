@@ -69,10 +69,11 @@ The named file is removed unless:
 A component of the path is not a directory.
 .It Bq Er ENAMETOOLONG
 A component of a pathname exceeded
-.Dv {NAME_MAX}
-characters, or an entire path name exceeded
-.Dv {PATH_MAX}
-characters.
+.Dv NAME_MAX
+characters, or an entire pathname (including the terminating NUL)
+exceeded
+.Dv PATH_MAX
+bytes.
 .It Bq Er ENOENT
 The named directory does not exist.
 .It Bq Er ELOOP
