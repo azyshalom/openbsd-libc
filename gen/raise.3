@@ -48,10 +48,7 @@ function sends the signal
 .Fa sig
 to the current thread.
 .Sh RETURN VALUES
-Upon successful completion, a value of 0 is returned.
-Otherwise, a value of \-1 is returned and the global variable
-.Va errno
-is set to indicate the error.
+.Rv -std
 .Sh ERRORS
 .Fn raise
 will fail and no signal will be sent if:

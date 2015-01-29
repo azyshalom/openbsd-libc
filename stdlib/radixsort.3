@@ -78,8 +78,7 @@ If
 is
 .Dv NULL ,
 the contents of the array are sorted in ascending order according to the
-.Tn ASCII
-order of the byte strings they reference and
+ASCII order of the byte strings they reference and
 .Fa endbyte
 has a sorting weight of 0.
 .Pp
@@ -101,10 +100,7 @@ These functions are variants of most-significant-byte radix sorting; in
 particular, see D.E. Knuth's Algorithm R and section 5.2.5, exercise 10.
 They take linear time relative to the number of bytes in the strings.
 .Sh RETURN VALUES
-Upon successful completion 0 is returned.
-Otherwise, \-1 is returned and the global variable
-.Va errno
-is set to indicate the error.
+.Rv -std
 .Sh ERRORS
 .Bl -tag -width Er
 .It Bq Er EINVAL
