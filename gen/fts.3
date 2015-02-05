@@ -234,17 +234,17 @@ The
 .Li FTSENT
 structure representing the parent of the starting point (or root)
 of the traversal is numbered
-.Ev FTS_PARENTLEVEL
+.Dv FTS_ROOTPARENTLEVEL
 (\-1), and the
 .Li FTSENT
 structure for the root
 itself is numbered
-.Ev FTS_ROOTLEVEL
+.Dv FTS_ROOTLEVEL
 (0).
 Note that while
 .Fa fts_level
 cannot hold a number of levels greater than
-.Ev FTS_MAXLEVEL ,
+.Dv FTS_MAXLEVEL ,
 the
 .Nm
 functions themselves are not limited to a fixed number
