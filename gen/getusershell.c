@@ -33,6 +33,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <paths.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -101,7 +102,7 @@ initshells(void)
 		(void)fclose(fp);
 		return (okshells);
 	}
-	if (statb.st_size > SIZE_T_MAX) {
+	if (statb.st_size > SIZE_MAX) {
 		(void)fclose(fp);
 		return (okshells);
 	}
