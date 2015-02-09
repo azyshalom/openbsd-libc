@@ -23,7 +23,7 @@ const char * const	format;
 	result = "";
 	if (string == NULL || format == NULL)
 		return result;
-	fbuf = imalloc((int) (2 * strlen(format) + 4));
+	fbuf = malloc((int) (2 * strlen(format) + 4));
 	if (fbuf == NULL)
 		return result;
 	fp = format;
@@ -53,6 +53,6 @@ const char * const	format;
 	*tp = '\0';
 	if (sscanf(string, fbuf, &dummy) != 1)
 		result = (char *) format;
-	ifree(fbuf);
+	free(fbuf);
 	return result;
 }
