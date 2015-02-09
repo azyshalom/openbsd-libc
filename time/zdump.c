@@ -42,14 +42,6 @@
 #define FALSE		0
 #endif /* !defined FALSE */
 
-#ifndef EXIT_SUCCESS
-#define EXIT_SUCCESS	0
-#endif /* !defined EXIT_SUCCESS */
-
-#ifndef EXIT_FAILURE
-#define EXIT_FAILURE	1
-#endif /* !defined EXIT_FAILURE */
-
 #ifndef SECSPERMIN
 #define SECSPERMIN	60
 #endif /* !defined SECSPERMIN */

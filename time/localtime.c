@@ -30,17 +30,6 @@
 #define TZ_ABBR_ERR_CHAR	'_'
 #endif /* !defined TZ_ABBR_ERR_CHAR */
 
-/*
-** SunOS 4.1.1 headers lack O_BINARY.
-*/
-
-#ifdef O_BINARY
-#define OPEN_MODE	(O_RDONLY | O_BINARY)
-#endif /* defined O_BINARY */
-#ifndef O_BINARY
-#define OPEN_MODE	O_RDONLY
-#endif /* !defined O_BINARY */
-
 #ifndef WILDABBR
 /*
 ** Someone might make incorrect use of a time zone abbreviation:
@@ -390,7 +379,7 @@ register const int		doextend;
 		}
 		if (doaccess && access(name, R_OK) != 0)
 			goto oops;
-		if ((fid = open(name, OPEN_MODE)) == -1)
+		if ((fid = open(name, O_RDONLY)) == -1)
 			goto oops;
 	}
 	nread = read(fid, up->buf, sizeof up->buf);
