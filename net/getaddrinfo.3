@@ -128,6 +128,8 @@ configured on an interface, and IPv6 addresses will be returned only if an IPv6
 address is configured on an interface.
 Addresses on a loopback interface and link-local IPv6 addresses are not
 considered valid as configured addresses.
+This bit is only considered when determining whether a DNS query should
+be performed or not.
 .It Dv AI_CANONNAME
 If the
 .Dv AI_CANONNAME
