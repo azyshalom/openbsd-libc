@@ -30,10 +30,10 @@
 
 #include <sys/types.h>
 #include <sys/time.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <tzfile.h>
 
 char *_tztab(int, int);
 
@@ -45,7 +45,7 @@ char *_tztab(int, int);
  *	application code, by a call to localtime.
  */
 
-static char	czone[TZ_MAX_CHARS];		/* space for zone name */
+static char	czone[PATH_MAX];		/* space for zone name */
 
 char *
 timezone(int zone, int dst)
