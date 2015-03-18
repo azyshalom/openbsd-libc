@@ -104,7 +104,7 @@ __fdopendir(int fd)
 		return (NULL);
 
 	pageoffset = getpagesize() - 1;
-	dirp->dd_len = ((int)sb.st_blksize + pageoffset) & ~pageoffset;
+	dirp->dd_len = ((int)sb.st_blksize * 4 + pageoffset) & ~pageoffset;
 	dirp->dd_buf = malloc((size_t)dirp->dd_len);
 	if (dirp->dd_buf == NULL) {
 		free(dirp);
