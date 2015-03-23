@@ -58,7 +58,7 @@ tempnam(const char *dir, const char *pfx)
 		    f[strlen(f) - 1] == '/' ? "" : "/", pfx);
 		if (len < 0 || len >= PATH_MAX) {
 			errno = ENAMETOOLONG;
-			return(NULL);
+			goto fail;
 		}
 		if ((f = _mktemp(name)))
 			return(f);
@@ -70,7 +70,7 @@ tempnam(const char *dir, const char *pfx)
 		    f[strlen(f) - 1] == '/' ? "" : "/", pfx);
 		if (len < 0 || len >= PATH_MAX) {
 			errno = ENAMETOOLONG;
-			return(NULL);
+			goto fail;
 		}
 		if ((f = _mktemp(name)))
 			return(f);
@@ -80,7 +80,7 @@ tempnam(const char *dir, const char *pfx)
 	len = snprintf(name, PATH_MAX, "%s%sXXXXXXXXX", f, pfx);
 	if (len < 0 || len >= PATH_MAX) {
 		errno = ENAMETOOLONG;
-		return(NULL);
+		goto fail;
 	}
 	if ((f = _mktemp(name)))
 		return(f);
@@ -89,11 +89,12 @@ tempnam(const char *dir, const char *pfx)
 	len = snprintf(name, PATH_MAX, "%s%sXXXXXXXXX", f, pfx);
 	if (len < 0 || len >= PATH_MAX) {
 		errno = ENAMETOOLONG;
-		return(NULL);
+		goto fail;
 	}
 	if ((f = _mktemp(name)))
 		return(f);
 
+fail:
 	sverrno = errno;
 	free(name);
 	errno = sverrno;
