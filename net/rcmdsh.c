@@ -74,12 +74,9 @@ rcmdsh(char **ahost, int rport, const char *locuser, const char *remuser,
 
 	/* Validate remote hostname. */
 	if (strcmp(*ahost, "localhost") != 0) {
-		if (((hp = gethostbyname2(*ahost, AF_INET)) == NULL) &&
-		    ((hp = gethostbyname2(*ahost, AF_INET6)) == NULL)) {
-			herror(*ahost);
-			return(-1);
-		}
-		*ahost = hp->h_name;
+		if ((hp = gethostbyname2(*ahost, AF_INET)) ||
+		    (hp = gethostbyname2(*ahost, AF_INET6)))
+			*ahost = hp->h_name;
 	}
 
 	/* Get a socketpair we'll use for stdin and stdout. */
