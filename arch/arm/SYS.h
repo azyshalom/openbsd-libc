@@ -37,7 +37,6 @@
 
 #include <machine/asm.h>
 #include <sys/syscall.h>
-#include <arm/swi.h>
 
 #define SYSENTRY(x)					\
 	.weak _C_LABEL(x);				\
@@ -45,8 +44,8 @@
 	ENTRY(_thread_sys_ ## x)
 
 #define SYSTRAP(x) \
-			ldr	r12, =SYS_ ## x;		\
-			swi SWI_OS_NETBSD | SYS_ ## x
+	ldr	r12, =SYS_ ## x;		\
+	swi	0
 
 #define	CERROR		_C_LABEL(__cerror)
 #define	_CERROR		_C_LABEL(___cerror)
