@@ -34,7 +34,4 @@
 
 #include "SYS.h"
 
-SYSCALL(fork)
-	dec	%o1		! from 1 to 0 in child, 0 to -1 in parent
-	retl
-	and	%o0, %o1, %o0	! return 0 in child, pid in parent
+RSYSCALL(fork)

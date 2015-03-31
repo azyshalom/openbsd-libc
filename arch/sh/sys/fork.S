@@ -37,19 +37,4 @@
 
 #include "SYS.h"
 
-/*
- * pid = fork();
- *
- * r1 == 0 in parent process, r1 == 1 in child process.
- * r0 == pid of child in parent, r0 == pid of parent in child.
- *
- */
-_SYSCALL(fork,fork)
-	add	#-1, r1	/* from 1 to 0 in child, 0 to -1 in parent */
-	rts
-	 and	r1, r0		/* 0 in child, child pid in parent */
-
-err:
-	JUMP_CERROR
-
-	SET_ENTRY_SIZE(fork)
+RSYSCALL(fork)

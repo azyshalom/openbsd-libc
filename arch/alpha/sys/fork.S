@@ -30,7 +30,4 @@
 
 #include "SYS.h"
 
-SYSCALL(fork)
-	cmovne	a4, zero, v0		/* a4 (rv[1]) != 0, child */
-	RET
-SYSEND(fork)
+RSYSCALL(fork)

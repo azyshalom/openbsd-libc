@@ -39,19 +39,10 @@
 
 #include "SYS.h"
 
-/*
- * pid = vfork();
- *
- * %edx == 0 in parent process, %edx == 1 in child process.
- * %eax == pid of child in parent, %eax == pid of parent in child.
- *
- */
 SYSENTRY(vfork)
 	popq	%r9		/* my rta into r9 */
 	SYSTRAP(vfork)
 	jc	err
-	decl	%edx
-	andl	%edx,%eax
 	jmp	*%r9
 err:
 	pushq	%r9

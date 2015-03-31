@@ -34,13 +34,6 @@
 
 #include "SYS.h"
 
-/*
- * pid = vfork();
- *
- * On return from the SWI:
- * r1 == 0 in parent process, r1 == 1 in child process.
- * r0 == pid of child in parent, r0 == pid of parent in child.
- */
 	.text
 	.align	0
 
@@ -48,6 +41,4 @@ SYSENTRY(vfork)
 	mov	r2, r14
 	SYSTRAP(vfork)
 	bcs	PIC_SYM(CERROR, PLT)
-	sub	r1, r1, #1	/* r1 == 0xffffffff if parent, 0 if child */
-	and	r0, r0, r1	/* r0 == 0 if child, else unchanged */
 	mov	r15, r2

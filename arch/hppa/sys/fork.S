@@ -28,11 +28,4 @@
 
 #include "SYS.h"
 
-SYSENTRY(fork)
-	SYSCALL(fork)
-	addi	-1, ret1, ret1
-	bv	r0(rp)
-	and	ret0, ret1, ret0
-SYSEXIT(fork)
-
-	.end
+RSYSCALL(fork)

@@ -35,12 +35,4 @@
 
 #include "SYS.h"
 
-/* r2 = pid. r3 = 0 in parent, 1 in child */
-
-SYSCALL(vfork)
-	bcnd	eq0,%r3,parent
-	or	%r2,%r0,0
-	or	%r3,%r0,0
-parent:
-	jmp	%r1		/* pid = vfork() */
-END(vfork)
+RSYSCALL(vfork)

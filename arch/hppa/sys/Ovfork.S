@@ -37,9 +37,8 @@ SYSENTRY(vfork)
 	.import	__cerror, code
 	comb,<>	r0, t1, __cerror
 	copy	t4, rp
-	addi	-1, ret1, ret1
 	bv	r0(rp)
-	and	ret1, ret0, ret0
+	nop
 SYSEXIT(vfork)
 
 	.end

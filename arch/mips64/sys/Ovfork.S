@@ -33,32 +33,4 @@
 
 #include "SYS.h"
 
-/*
- * pid = vfork();
- *
- * v1 == 0 in parent process, v1 == 1 in child process.
- * v0 == pid of child in parent, v0 == pid of parent in child.
- */
-
-FRAMESZ= MKFSIZ(1,1)
-GPOFF= FRAMESZ-2*REGSZ
-
-SYSLEAF(vfork, FRAMESZ)
-	PTR_SUBU sp, FRAMESZ
-	SETUP_GP64(GPOFF, vfork)
-	.set	reorder
-	li	v0, SYS_vfork		# system call number for vfork
-	syscall
-	beq	a3, zero, 1f		# jump if no errors
-	LA	t9, CERROR
-	RESTORE_GP64
-	PTR_ADDU sp, FRAMESZ
-	jr	t9
-1:
-	beq	v1, zero, 2f		# parent process ?
-	move	v0, zero		# return zero in child
-2:
-	RESTORE_GP64
-	PTR_ADDU sp, FRAMESZ
-	j	ra
-SYSEND(vfork)
+RSYSCALL(vfork)
