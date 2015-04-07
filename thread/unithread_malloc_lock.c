@@ -15,6 +15,12 @@ WEAK_PROTOTYPE(_thread_atexit_unlock);
 WEAK_ALIAS(_thread_atexit_lock);
 WEAK_ALIAS(_thread_atexit_unlock);
 
+WEAK_PROTOTYPE(_thread_atfork_lock);
+WEAK_PROTOTYPE(_thread_atfork_unlock);
+
+WEAK_ALIAS(_thread_atfork_lock);
+WEAK_ALIAS(_thread_atfork_unlock);
+
 WEAK_PROTOTYPE(_thread_arc4_lock);
 WEAK_PROTOTYPE(_thread_arc4_unlock);
 
@@ -41,6 +47,18 @@ WEAK_NAME(_thread_atexit_lock)(void)
 
 void
 WEAK_NAME(_thread_atexit_unlock)(void)
+{
+	return;
+}
+
+void
+WEAK_NAME(_thread_atfork_lock)(void)
+{
+	return;
+}
+
+void
+WEAK_NAME(_thread_atfork_unlock)(void)
 {
 	return;
 }

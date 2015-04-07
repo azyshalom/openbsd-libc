@@ -36,6 +36,8 @@
 #define SYSENTRY(x)				!\
 LEAF_ENTRY(__CONCAT(_thread_sys_,x))		!\
 	WEAK_ALIAS(x,__CONCAT(_thread_sys_,x))
+#define SYSENTRY_HIDDEN(x)			!\
+LEAF_ENTRY(__CONCAT(_thread_sys_,x))
 #define	SYSEXIT(x)				!\
 EXIT(__CONCAT(_thread_sys_,x))
 
@@ -56,6 +58,12 @@ SYSENTRY(x)					!\
 	bv	%r0(%rp)			!\
 	nop					!\
 SYSEXIT(x)
+#define	PSEUDO_HIDDEN(x,y)			!\
+SYSENTRY_HIDDEN(x)				!\
+	SYSCALL(y)				!\
+	bv	%r0(%rp)			!\
+	nop					!\
+SYSEXIT(x)
 
 #define	PSEUDO_NOERROR(x,y)			!\
 SYSENTRY(x)					!\
@@ -69,5 +77,6 @@ SYSENTRY(x)					!\
 	nop					!\
 SYSEXIT(x)
 
-#define	RSYSCALL(x)	PSEUDO(x,x)
+#define	RSYSCALL(x)		PSEUDO(x,x)
+#define	RSYSCALL_HIDDEN(x)	PSEUDO_HIDDEN(x,x)
 

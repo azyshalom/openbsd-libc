@@ -39,7 +39,8 @@
 
 #define _CAT(x,y) x##y
 
-#define __ENTRY(p,x) ENTRY(_CAT(p,x)) ; .weak x ; x = _CAT(p,x)
+#define __ENTRY(p,x)		ENTRY(_CAT(p,x)) ; .weak x ; x = _CAT(p,x)
+#define __ENTRY_HIDDEN(p,x)	ENTRY(_CAT(p,x))
 
 /*
  * ERROR branches to cerror.
@@ -71,6 +72,8 @@
  */
 #define	__SYSCALL(p,x) \
 	__ENTRY(p,x); mov _CAT(SYS_,x),%g1; t ST_SYSCALL; bcc 1f; nop; ERROR(); 1:
+#define	__SYSCALL_HIDDEN(p,x) \
+	__ENTRY_HIDDEN(p,x); mov _CAT(SYS_,x),%g1; t ST_SYSCALL; bcc 1f; nop; ERROR(); 1:
 
 /*
  * RSYSCALL is used when the system call should just return.  Here
@@ -97,6 +100,7 @@
 
 # define SYSCALL(x)		__SYSCALL(_thread_sys_,x)
 # define RSYSCALL(x)		__RSYSCALL(_thread_sys_,x)
+# define RSYSCALL_HIDDEN(x)	__RSYSCALL(_thread_sys_,x)
 # define PSEUDO(x,y)		__PSEUDO(_thread_sys_,x,y)
 # define PSEUDO_NOERROR(x,y)	__PSEUDO_NOERROR(_thread_sys_,x,y)
 # define SYSENTRY(x)		__ENTRY(_thread_sys_,x)

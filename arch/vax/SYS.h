@@ -66,6 +66,7 @@
 				__SYSCALL(_thread_sys_,x,x)
 #define	RSYSCALL(x)		__ALIAS(_thread_sys_,x)		\
 				__PSEUDO(_thread_sys_,x,x)
+#define	RSYSCALL_HIDDEN(x)	__PSEUDO(_thread_sys_,x,x)
 #define	PSEUDO(x,y)		__ALIAS(_thread_sys_,x)		\
 				__PSEUDO(_thread_sys_,x,y)
 #define	PSEUDO_NOERROR(x,y)	__ALIAS(_thread_sys_,x)		\

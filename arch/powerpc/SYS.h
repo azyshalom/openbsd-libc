@@ -68,9 +68,11 @@
 				sc ; \
 				PSEUDO_NOERROR_SUFFIX
 
-#define	PSEUDO(x,y)		ALIAS(_thread_sys_,x) \
-				PSEUDO_PREFIX(_thread_sys_,x,y) ; \
+#define	PSEUDO_HIDDEN(x,y)	PSEUDO_PREFIX(_thread_sys_,x,y) ; \
 				sc ; \
 				PSEUDO_SUFFIX
+#define	PSEUDO(x,y)		ALIAS(_thread_sys_,x) \
+				PSEUDO_HIDDEN(x,y)
 
 #define RSYSCALL(x)		PSEUDO(x,x)
+#define RSYSCALL_HIDDEN(x)	PSEUDO_HIDDEN(x,x)

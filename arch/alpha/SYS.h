@@ -90,6 +90,7 @@ __END(p,label);
 				__SYSCALL_NOERROR(_thread_sys_,x)
 # define RSYSCALL(x)		ALIAS(_thread_sys_,x) \
 				__RSYSCALL(_thread_sys_,x)
+# define RSYSCALL_HIDDEN(x)	__RSYSCALL(_thread_sys_,x)
 # define RSYSCALL_NOERROR(x)	ALIAS(_thread_sys_,x) \
 				__RSYSCALL_NOERROR(_thread_sys_,x)
 # define PSEUDO(x,y)		ALIAS(_thread_sys_,x) \
