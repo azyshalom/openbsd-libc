@@ -61,8 +61,8 @@ ENTRY(__tfork_thread)
 	/*
 	 * Check to see if we are in the parent or child
 	 */
-	cmpl	$0, %edx
-	jnz	1f
+	cmpl	$0, %eax
+	jz	1f
 	ret
 
 	/*
