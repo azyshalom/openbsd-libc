@@ -124,7 +124,7 @@ clntraw_create(u_long prog, u_long vers)
 	return (client);
 
 fail:
-	mem_free((caddr_t)clntraw_private, sizeof(clntraw_private));
+	mem_free((caddr_t)clntraw_private, sizeof(*clntraw_private));
 	clntraw_private = NULL;
 	rpc_createerr.cf_stat = RPC_SYSTEMERROR;
 	rpc_createerr.cf_error.re_errno = errno;
