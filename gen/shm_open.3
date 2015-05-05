@@ -45,7 +45,7 @@ and must include at least
 or
 .Dv O_RDWR
 and may also include a combination of
-.Dv O_CREAT , O_EXCL ,
+.Dv O_CREAT , O_EXCL , O_CLOEXEC , O_NOFOLLOW ,
 or
 .Dv O_TRUNC .
 This implementation forces the
@@ -81,6 +81,13 @@ and
 .Fn shm_unlink
 appear in
 .St -p1003.1-2001 .
+Using
+.Dv O_CLOEXEC
+or
+.Dv O_NOFOLLOW
+with
+.Fn shm_open
+is an extension to that standard.
 This implementation deviates from the standard by permitting less sharing.
 .Pp
 .Fn shm_mkstemp
