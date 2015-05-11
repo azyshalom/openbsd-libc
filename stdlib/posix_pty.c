@@ -35,7 +35,8 @@ posix_openpt(int oflag)
 	int fd, mfd = -1;
 
 	/* User must specify O_RDWR in oflag. */
-	if (!(oflag & O_RDWR)) {
+	if ((oflag & O_ACCMODE) != O_RDWR ||
+	    (oflag & ~(O_ACCMODE | O_NOCTTY)) != 0) {
 		errno = EINVAL;
 		return -1;
 	}

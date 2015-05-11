@@ -48,9 +48,10 @@ dbopen(const char *fname, int flags, int mode, DBTYPE type,
 #define	DB_FLAGS	(DB_LOCK | DB_SHMEM | DB_TXN)
 #define	USE_OPEN_FLAGS							\
 	(O_CREAT | O_EXCL | O_EXLOCK | O_NOFOLLOW | O_NONBLOCK | 	\
-	 O_RDONLY | O_RDWR | O_SHLOCK | O_SYNC | O_TRUNC)
+	 O_SHLOCK | O_SYNC | O_TRUNC)
 
-	if ((flags & ~(USE_OPEN_FLAGS | DB_FLAGS)) == 0)
+	if (((flags & O_ACCMODE) == O_RDONLY || (flags & O_ACCMODE) == O_RDWR)
+	    && (flags & ~(O_ACCMODE | USE_OPEN_FLAGS | DB_FLAGS)) == 0)
 		switch (type) {
 		case DB_BTREE:
 			return (__bt_open(fname, flags & USE_OPEN_FLAGS,
