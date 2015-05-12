@@ -33,7 +33,8 @@
 WEAK_ALIAS(__cerror,___cerror)
 
 	.globl	_C_LABEL(errno)
-_C_LABEL(__cerror):
+	.globl	_C_LABEL(___cerror)
+_C_LABEL(___cerror):
 	movl	%r0,_C_LABEL(errno)
 	mnegl	$1,%r0
 	mnegl	$1,%r1
