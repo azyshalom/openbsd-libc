@@ -114,8 +114,6 @@ inet_net_ntop_ipv4(const u_char *src, int bits, char *dst, size_t size)
 		if (ep - dst < sizeof ".255")
 			goto emsgsize;
 		if (dst != odst)
-			if (dst + 1 >= ep)
-				goto emsgsize;
 			*dst++ = '.';
 		m = ((1 << b) - 1) << (8 - b);
 		advance = snprintf(dst, ep - dst, "%u", *src & m);
