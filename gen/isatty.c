@@ -28,13 +28,10 @@
  * SUCH DAMAGE.
  */
 
-#include <termios.h>
-#include <unistd.h>
+#include <fcntl.h>
 
 int
 isatty(int fd)
 {
-	struct termios t;
-
-	return (tcgetattr(fd, &t) != -1);
+	return (fcntl(fd, F_ISATTY));
 }
