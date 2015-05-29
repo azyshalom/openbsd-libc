@@ -1,4 +1,4 @@
-/*	$OpenBSD: fpsetround.S,v 1.1 2004/01/28 01:44:45 mickey Exp $	*/
+/*	$OpenBSD$	*/
 /*	$NetBSD: fpsetround.S,v 1.3 2002/06/12 19:17:22 fvdl Exp $	*/
 
 /*
@@ -47,3 +47,8 @@ ENTRY(fpsetround)
 	ldmxcsr	-8(%rsp)
 	fldcw	-4(%rsp)
 	ret
+#ifdef WEAK_ALIAS
+END(_fpsetround)
+#else
+END(fpsetround)
+#endif

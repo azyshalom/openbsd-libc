@@ -1,4 +1,4 @@
-/*	$OpenBSD: modf.S,v 1.4 2011/07/08 22:28:32 martynas Exp $	*/
+/*	$OpenBSD$	*/
 /*	$NetBSD: modf.S,v 1.1 2001/06/19 00:25:03 fvdl Exp $	*/
 
 /*-
@@ -89,3 +89,4 @@ ENTRY(modf)
 	movsd   -8(%rsp),%xmm0
 
 	ret
+END(modf)

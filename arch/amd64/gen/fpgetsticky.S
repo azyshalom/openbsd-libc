@@ -1,4 +1,4 @@
-/*	$OpenBSD: fpgetsticky.S,v 1.1 2004/01/28 01:44:45 mickey Exp $	*/
+/*	$OpenBSD$	*/
 /*	$NetBSD: fpgetsticky.S,v 1.3 2002/06/12 19:17:22 fvdl Exp $	*/
 
 /*
@@ -26,3 +26,8 @@ ENTRY(fpgetsticky)
 	orl	-8(%rsp),%eax
 	andl	$63,%eax
 	ret
+#ifdef WEAK_ALIAS
+END(_fpgetsticky)
+#else
+END(fpgetsticky)
+#endif
