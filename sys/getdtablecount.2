@@ -21,11 +21,11 @@
 .Nm getdtablecount
 .Nd get descriptor table count
 .Sh SYNOPSIS
-.Fd #include <unistd.h>
+.In unistd.h
 .Ft int
 .Fn getdtablecount void
 .Sh DESCRIPTION
-.Nm
+.Fn getdtablecount
 returns the number of file descriptors the process currently has
 open.
 .Sh SEE ALSO
@@ -33,6 +33,6 @@ open.
 .Xr getdtablesize 3
 .Sh HISTORY
 The
-.Nm
+.Fn getdtablecount
 function appeared in
 .Ox 5.2 .

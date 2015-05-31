@@ -37,11 +37,11 @@
 .Nm getthrid
 .Nd get thread identifier
 .Sh SYNOPSIS
-.Fd #include <unistd.h>
+.In unistd.h
 .Ft pid_t
 .Fn getthrid void
 .Sh DESCRIPTION
-.Nm
+.Fn getthrid
 returns the thread ID of the calling thread.
 This is used in the implementation of the thread library
 .Pq Fl lpthread
@@ -69,12 +69,12 @@ reserved to indicate an error.
 .Xr pthread_self 3
 .Sh STANDARDS
 The
-.Nm
+.Fn getthrid
 syscall is specific to
 .Ox
 and should not be used in portable applications.
 .Sh HISTORY
 The
-.Nm
+.Fn getthrid
 syscall appeared in
 .Ox 3.9 .
