@@ -204,8 +204,8 @@ getgrouplist(const char *uname, gid_t agroup, gid_t *groups, int *grpcnt)
 		if (getpwnam_r(uname, &pwstore, buf, sizeof buf, NULL) ||
 		    (!__ypdomain && yp_get_default_domain(&__ypdomain)))
 			goto out;
-		asprintf(&key, "unix.%u@%s", pwstore.pw_uid, __ypdomain);
-		if (key == NULL)
+		i = asprintf(&key, "unix.%u@%s", pwstore.pw_uid, __ypdomain);
+		if (i == -1)
 			goto out;
 
 		/* First scan the static netid file. */
