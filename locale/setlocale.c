@@ -77,7 +77,7 @@ static char current_locale_string[_LC_LAST * 33];
 
 static char	*currentlocale(void);
 static void revert_to_default(int);
-static int load_locale_sub(int, const char *, int);
+static int load_locale_sub(int, const char *);
 static char	*loadlocale(int);
 static const char *__get_locale_env(int);
 
@@ -238,7 +238,7 @@ set_lc_messages_locale(const char *locname)
 }
 
 static int
-load_locale_sub(int category, const char *locname, int isspecial)
+load_locale_sub(int category, const char *locname)
 {
 	/* check for the default locales */
 	if (!strcmp(new_categories[category], "C") ||
@@ -278,7 +278,7 @@ loadlocale(int category)
 	    current_categories[category]) == 0)
 		return (current_categories[category]);
 
-	if (!load_locale_sub(category, new_categories[category], 0)) {
+	if (!load_locale_sub(category, new_categories[category])) {
 		(void)strlcpy(current_categories[category],
 		    new_categories[category], sizeof(current_categories[category]));
 		return current_categories[category];
