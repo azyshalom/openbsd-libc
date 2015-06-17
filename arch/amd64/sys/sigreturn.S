@@ -1,4 +1,4 @@
-/*	$OpenBSD: sigreturn.S,v 1.4 2011/09/05 02:56:44 guenther Exp $	*/
+/*	$OpenBSD$	*/
 /*	$NetBSD: __sigreturn14.S,v 1.1 2001/06/19 00:25:06 fvdl Exp $	*/
 
 /*-
@@ -54,3 +54,4 @@
 
 SYSCALL(sigreturn)
 	ret
+SYSCALL_END(sigreturn)

@@ -1,4 +1,4 @@
-/*	$OpenBSD: sigsuspend.S,v 1.3 2012/08/22 17:19:34 pascal Exp $	*/
+/*	$OpenBSD$	*/
 /*	$NetBSD: sigsuspend.S,v 1.1 2001/06/19 00:25:07 fvdl Exp $	*/
 
 /*-
@@ -52,3 +52,4 @@ err:
 #else
 	jmp	CERROR
 #endif
+SYSEXIT(sigsuspend)
