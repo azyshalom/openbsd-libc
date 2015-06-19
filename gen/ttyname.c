@@ -48,17 +48,18 @@ char *
 ttyname(int fd)
 {
 	_THREAD_PRIVATE_KEY(ttyname);
-	char * bufp = (char*) _THREAD_PRIVATE(ttyname, buf, NULL);
+	char *bufp = (char *) _THREAD_PRIVATE(ttyname, buf, NULL);
 	int err;
 
-	if (bufp == NULL) 
+	if (bufp == NULL)
 		return NULL;
+
 	err = ttyname_r(fd, bufp, sizeof buf);
 	if (err) {
 		errno = err;
 		return NULL;
 	}
-	else
+
 	return bufp;
 }
 
