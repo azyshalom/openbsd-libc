@@ -426,7 +426,7 @@ udp_send(struct asr_query *as)
 #endif
 
 	DPRINT("asr: [%p] connecting to %s UDP\n", as,
-	    print_sockaddr(AS_NS_SA(as), buf, sizeof buf));
+	    asr_print_sockaddr(AS_NS_SA(as), buf, sizeof buf));
 
 	as->as_fd = sockaddr_connect(AS_NS_SA(as), SOCK_DGRAM);
 	if (as->as_fd == -1)
@@ -503,7 +503,7 @@ tcp_write(struct asr_query *as)
 	/* First try to connect if not already */
 	if (as->as_fd == -1) {
 		DPRINT("asr: [%p] connecting to %s TCP\n", as,
-		    print_sockaddr(AS_NS_SA(as), buf, sizeof buf));
+		    asr_print_sockaddr(AS_NS_SA(as), buf, sizeof buf));
 		as->as_fd = sockaddr_connect(AS_NS_SA(as), SOCK_STREAM);
 		if (as->as_fd == -1)
 			return (-1); /* errno set */
