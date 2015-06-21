@@ -101,6 +101,9 @@ mergesort(void *base, size_t nmemb, size_t size,
 		return (-1);
 	}
 
+	if (nmemb == 0)
+		return (0);
+
 	/*
 	 * XXX
 	 * Stupid subtraction for the Cray.
