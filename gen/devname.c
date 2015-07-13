@@ -52,7 +52,6 @@ devname(int dev, mode_t type)
 
 	if (!db && !failure &&
 	    !(db = dbopen(_PATH_DEVDB, O_RDONLY, 0, DB_HASH, NULL))) {
-		_warn("warning: %s", _PATH_DEVDB);
 		failure = 1;
 	}
 	if (failure)
