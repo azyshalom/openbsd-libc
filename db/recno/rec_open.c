@@ -138,39 +138,10 @@ slow:			if ((t->bt_rfp = fdopen(rfd, "r")) == NULL)
 
 			if (fstat(rfd, &sb))
 				goto err;
-			/*
-			 * Kluge -- we'd like to test to see if the file is too
-			 * big to mmap.  Since, we don't know what size or type
-			 * off_t's or size_t's are, what the largest unsigned
-			 * integral type is, or what random insanity the local
-			 * C compiler will perpetrate, doing the comparison in
-			 * a portable way is flatly impossible.  Hope that mmap
-			 * fails if the file is too large.
-			 */
 			if (sb.st_size == 0)
 				F_SET(t, R_EOF);
 			else {
-#ifdef MMAP_NOT_AVAILABLE
-				/*
-				 * XXX
-				 * Mmap doesn't work correctly on many current
-				 * systems.  In particular, it can fail subtly,
-				 * with cache coherency problems.  Don't use it
-				 * for now.
-				 */
-				t->bt_msize = sb.st_size;
-				if ((t->bt_smap = mmap(NULL, t->bt_msize,
-				    PROT_READ, MAP_FILE | MAP_PRIVATE, rfd,
-				    (off_t)0)) == MAP_FAILED)
-					goto slow;
-				t->bt_cmap = t->bt_smap;
-				t->bt_emap = t->bt_smap + sb.st_size;
-				t->bt_irec = F_ISSET(t, R_FIXLEN) ?
-				    __rec_fmap : __rec_vmap;
-				F_SET(t, R_MEMMAPPED);
-#else
 				goto slow;
-#endif
 			}
 		}
 	}
