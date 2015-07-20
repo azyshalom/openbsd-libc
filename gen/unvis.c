@@ -78,6 +78,7 @@ unvis(char *cp, char c, int *astate, int flag)
 			*astate = S_GROUND;
 			return (0);
 		case '\\':
+		case '"':
 			*cp = c;
 			*astate = S_GROUND;
 			return (UNVIS_VALID);
