@@ -103,7 +103,7 @@ __xprt_register(SVCXPRT *xprt)
 
 		while (sock + 1 > size)
 			size += FD_SETSIZE;
-		xp = (SVCXPRT **)calloc(size, sizeof(SVCXPRT *));
+		xp = calloc(size, sizeof(SVCXPRT *));
 		if (xp == NULL)
 			return (0);
 		if (xports) {

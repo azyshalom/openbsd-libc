@@ -36,7 +36,7 @@ asprintf(char **str, const char *fmt, ...)
 	_FILEEXT_SETUP(&f, &fext);
 	f._file = -1;
 	f._flags = __SWR | __SSTR | __SALC;
-	f._bf._base = f._p = (unsigned char *)malloc(128);
+	f._bf._base = f._p = malloc(128);
 	if (f._bf._base == NULL)
 		goto err;
 	f._bf._size = f._w = 127;		/* Leave room for the NUL */

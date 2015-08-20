@@ -40,7 +40,7 @@ tsearch(const void *vkey, void **vrootp,
 	    &(*rootp)->left :		/* T3: follow left branch */
 	    &(*rootp)->right;		/* T4: follow right branch */
     }
-    q = (node *) malloc(sizeof(node));	/* T5: key not found */
+    q = malloc(sizeof(node));	/* T5: key not found */
     if (q != (struct node_t *)0) {	/* make new node */
 	*rootp = q;			/* link new node to old */
 	q->key = key;			/* initialize new node */

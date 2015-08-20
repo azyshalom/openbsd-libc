@@ -82,7 +82,7 @@ fflagstostr(u_int32_t flags)
 	u_int32_t setflags;
 	int i;
 
-	if ((string = (char *)calloc(nmappings, longestflaglen + 1)) == NULL)
+	if ((string = calloc(nmappings, longestflaglen + 1)) == NULL)
 		return (NULL);
 
 	setflags = flags;

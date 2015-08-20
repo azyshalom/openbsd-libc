@@ -75,7 +75,7 @@ authnone_create(void)
 	XDR *xdrs;
 
 	if (ap == NULL) {
-		ap = (struct authnone_private *)calloc(1, sizeof (*ap));
+		ap = calloc(1, sizeof (*ap));
 		if (ap == NULL)
 			return (NULL);
 		authnone_private = ap;

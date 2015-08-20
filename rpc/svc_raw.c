@@ -76,7 +76,7 @@ svcraw_create(void)
 	struct svcraw_private *srp = svcraw_private;
 
 	if (srp == NULL) {
-		srp = (struct svcraw_private *)calloc(1, sizeof (*srp));
+		srp = calloc(1, sizeof (*srp));
 		if (srp == NULL)
 			return (NULL);
 	}

@@ -55,7 +55,7 @@ __cvt(double value, int ndigit, int *decpt, int *sign, int fmode, int pad)
 	if (value == 0.0) {
 		*decpt = 1 - fmode;	/* 1 for 'e', 0 for 'f' */
 		*sign = 0;
-		if ((rve = s = (char *)malloc(siz)) == NULL)
+		if ((rve = s = malloc(siz)) == NULL)
 			return(NULL);
 		*rve++ = '0';
 		*rve = '\0';
@@ -73,7 +73,7 @@ __cvt(double value, int ndigit, int *decpt, int *sign, int fmode, int pad)
 		/* Make a local copy and adjust rve to be in terms of s */
 		if (pad && fmode)
 			siz += *decpt;
-		if ((s = (char *)malloc(siz)) == NULL) {
+		if ((s = malloc(siz)) == NULL) {
 			__freedtoa(p);
 			return(NULL);
 		}

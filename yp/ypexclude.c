@@ -40,7 +40,7 @@ __ypexclude_add(struct _ypexclude **headp, const char *name)
 	if (name[0] == '\0')    /* skip */
 		return (0);
 
-	new = (struct _ypexclude *)malloc(sizeof(struct _ypexclude));
+	new = malloc(sizeof(struct _ypexclude));
 	if (new == NULL)
 		return (1);
 	new->name = strdup(name);

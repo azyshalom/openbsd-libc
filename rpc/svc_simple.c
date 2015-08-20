@@ -79,7 +79,7 @@ registerrpc(int prognum, int versnum, int procnum, char *(*progname)(),
 		    prognum, versnum);
 		return (-1);
 	}
-	pl = (struct proglst *)malloc(sizeof(struct proglst));
+	pl = malloc(sizeof(struct proglst));
 	if (pl == NULL) {
 		(void) fprintf(stderr, "registerrpc: out of memory\n");
 		return (-1);
