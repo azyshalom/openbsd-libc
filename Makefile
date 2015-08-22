@@ -15,6 +15,11 @@ CFLAGS+=-Wimplicit
 #CFLAGS+=-Werror
 LDADD=-nodefaultlibs -lgcc
 
+VERSION_SCRIPT=	Symbols.map
+SYMBOL_LISTS=	${LIBCSRCDIR}/Symbols.list \
+		${LIBCSRCDIR}/arch/${MACHINE_CPU}/Symbols.list
+
+
 LIBCSRCDIR=${.CURDIR}
 .include "${LIBCSRCDIR}/Makefile.inc"
 
@@ -35,5 +40,10 @@ tags: ${SRCS}
 beforeinstall:
 	${INSTALL} ${INSTALL_COPY} -o ${BINOWN} -g ${BINGRP} -m 444 tags \
 		${DESTDIR}/var/db/lib${LIB}.tags
+
+${VERSION_SCRIPT}: ${SYMBOL_LISTS}
+	{ printf '{\n\tglobal:\n'; \
+	  sed '/^[._a-zA-Z]/s/$$/;/; s/^/		/' ${SYMBOL_LISTS}; \
+	  printf '\n\tlocal:\n\t\t*;\n};\n'; } >$@.tmp && mv $@.tmp $@
 
 .include <bsd.lib.mk>
