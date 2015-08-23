@@ -46,4 +46,4 @@ ENTRY(__tfork_thread)
 1:
 	li	%r3, -1
 2:
-	b PIC_PLT(_C_LABEL(__cerror))
+	b	_C_LABEL(___cerror)

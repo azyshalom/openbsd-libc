@@ -49,7 +49,7 @@ PREFIX(sigprocmask)
 	/* didnt work? */
 	cmpwi	0, 0
 	beq+	.L_sigprocmask_ok
-	b	PIC_PLT(_ASM_LABEL(__cerror))
+	b	_ASM_LABEL(___cerror)
 
 .L_sigprocmask_ok:
 	lwz	5, 12(1)
