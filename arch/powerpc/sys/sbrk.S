@@ -46,8 +46,10 @@ PREFIX2(sbrk,break)
 	ori	6, 6, _ASM_LABEL(__curbrk)@L	/* # 6 = &__curbrk */
 #else
 	mflr	10
-	bl	_GLOBAL_OFFSET_TABLE_@local-4
-	mflr	9
+	bcl	20, 31, 1f
+1:	mflr	9
+	addis	9, 9, _GLOBAL_OFFSET_TABLE_-1b@ha
+	addi	9, 9, _GLOBAL_OFFSET_TABLE_-1b@l
 	mtlr	10
 	lwz	6,_ASM_LABEL(__curbrk)@got(9)
 #endif
@@ -60,7 +62,7 @@ PREFIX2(sbrk,break)
 	/* check for error */
 	cmpwi	0, 0
 	beq+	.L_sbrk_ok
-	b	PIC_PLT(_ASM_LABEL(__cerror))
+	b	_ASM_LABEL(___cerror)
 
 	/* update, __curbrk and return */
 .L_sbrk_ok:
