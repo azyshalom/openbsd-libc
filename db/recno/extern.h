@@ -33,6 +33,7 @@
 
 #include "../btree/extern.h"
 
+__BEGIN_HIDDEN_DECLS
 int	 __rec_close(DB *);
 int	 __rec_delete(const DB *, const DBT *, u_int);
 int	 __rec_dleaf(BTREE *, PAGE *, u_int32_t);
@@ -50,3 +51,4 @@ int	 __rec_sync(const DB *, u_int);
 int	 __rec_vmap(BTREE *, recno_t);
 int	 __rec_vout(BTREE *);
 int	 __rec_vpipe(BTREE *, recno_t);
+__END_HIDDEN_DECLS

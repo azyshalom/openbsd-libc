@@ -30,8 +30,10 @@
 #ifndef _CITRUS_NONE_H_
 #define _CITRUS_NONE_H_
 
+__BEGIN_HIDDEN_DECLS
 extern struct _citrus_ctype_ops_rec	_citrus_none_ctype_ops;
 
 _CITRUS_CTYPE_DECLS(none);
+__END_HIDDEN_DECLS
 
 #endif

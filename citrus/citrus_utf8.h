@@ -30,10 +30,12 @@
 #ifndef _CITRUS_UTF8_H_
 #define _CITRUS_UTF8_H_
 
+__BEGIN_HIDDEN_DECLS
 extern struct _citrus_ctype_ops_rec	_citrus_utf8_ctype_ops;
 
 #define _CITRUS_UTF8_MB_CUR_MAX	4
 
 _CITRUS_CTYPE_DECLS(utf8);
+__END_HIDDEN_DECLS
 
 #endif

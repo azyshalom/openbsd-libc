@@ -45,5 +45,7 @@ struct __suio {
 	int	uio_resid;
 };
 
+__BEGIN_HIDDEN_DECLS
 extern int __sfvwrite(FILE *, struct __suio *);
 wint_t __fputwc_unlock(wchar_t wc, FILE *fp);
+__END_HIDDEN_DECLS

@@ -33,8 +33,10 @@
 
 #include "citrus_ctype_local.h"
 
+__BEGIN_HIDDEN_DECLS
 extern struct _citrus_ctype_rec _citrus_ctype_none;
 
 int _citrus_ctype_open(struct _citrus_ctype_rec **, char const *);
+__END_HIDDEN_DECLS
 
 #endif

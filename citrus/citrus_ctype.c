@@ -41,7 +41,7 @@ struct _citrus_ctype_rec _citrus_ctype_none = {
 	1				/* cc_mb_cur_max */
 };
 
-struct _citrus_ctype_rec _citrus_ctype_utf8 = {
+static struct _citrus_ctype_rec _citrus_ctype_utf8 = {
 	&_citrus_utf8_ctype_ops,	/* cc_ops */
 	_CITRUS_UTF8_MB_CUR_MAX		/* cc_mb_cur_max */
 };

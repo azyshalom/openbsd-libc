@@ -48,6 +48,8 @@ struct _dirdesc {
 	void	*dd_lock;	/* mutex to protect struct */
 };
 
+__BEGIN_HIDDEN_DECLS
 int _readdir_unlocked(DIR *, struct dirent **);
+__END_HIDDEN_DECLS
 
 #endif

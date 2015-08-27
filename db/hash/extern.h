@@ -31,6 +31,7 @@
  *	@(#)extern.h    8.4 (Berkeley) 6/16/94
  */
 
+__BEGIN_HIDDEN_DECLS
 BUFHEAD	*__add_ovflpage(HTAB *, BUFHEAD *);
 int	 __addel(HTAB *, BUFHEAD *, const DBT *, const DBT *);
 int	 __big_delete(HTAB *, BUFHEAD *);
@@ -61,3 +62,4 @@ extern u_int32_t (*__default_hash)(const void *, size_t);
 #ifdef HASH_STATISTICS
 extern int hash_accesses, hash_collisions, hash_expansions, hash_overflows;
 #endif
+__END_HIDDEN_DECLS

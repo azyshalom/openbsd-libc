@@ -42,4 +42,6 @@ struct glue {
 	FILE	*iobs;
 };
 
+__BEGIN_HIDDEN_DECLS
 extern struct glue __sglue;
+__END_HIDDEN_DECLS
