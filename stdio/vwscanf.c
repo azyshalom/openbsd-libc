@@ -36,3 +36,4 @@ vwscanf(const wchar_t * __restrict fmt, __va_list ap)
 
 	return (vfwscanf(stdin, fmt, ap));
 }
+DEF_STRONG(vwscanf);

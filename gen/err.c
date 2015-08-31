@@ -31,17 +31,13 @@
 #include <err.h>
 #include <stdarg.h>
 
-/* PRINTFLIKE2 */
 __dead void
-_err(int eval, const char *fmt, ...)
+err(int eval, const char *fmt, ...)
 {
 	va_list ap;
 
 	va_start(ap, fmt);
-	_verr(eval, fmt, ap);
+	verr(eval, fmt, ap);
 	va_end(ap);
 }
-
-/* PRINTFLIKE2 */
-__weak_alias(err, _err);
-
+DEF_WEAK(err);

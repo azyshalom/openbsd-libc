@@ -54,3 +54,4 @@ strstr(const char *s, const char *find)
 	}
 	return ((char *)s);
 }
+DEF_STRONG(strstr);

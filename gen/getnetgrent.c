@@ -364,7 +364,7 @@ addgroup(char *ypdom, struct stringlist *sl, char *grp)
 #endif
 	/* check for cycles */
 	if (_ng_sl_find(sl, grp) != NULL) {
-		_warnx("netgroup: Cycle in group `%s'", grp);
+		warnx("netgroup: Cycle in group `%s'", grp);
 		free(grp);
 		return;
 	}
@@ -445,7 +445,7 @@ in_find(char *ypdom, struct stringlist *sl, char *grp, const char *host,
 #endif
 	/* check for cycles */
 	if (_ng_sl_find(sl, grp) != NULL) {
-		_warnx("netgroup: Cycle in group `%s'", grp);
+		warnx("netgroup: Cycle in group `%s'", grp);
 		free(grp);
 		return 0;
 	}

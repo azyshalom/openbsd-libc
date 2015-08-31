@@ -143,3 +143,4 @@ inc_ret:	fp->_r++;
 	FUNLOCKFILE(fp);
 	return (c);
 }
+DEF_STRONG(ungetc);

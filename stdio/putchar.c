@@ -44,6 +44,7 @@ putchar_unlocked(int c)
 
 	return (putc_unlocked(c,so));
 }
+DEF_WEAK(putchar_unlocked);
 
 #undef putchar
 
@@ -57,3 +58,4 @@ putchar(int c)
 
 	return (putc(c, so));
 }
+DEF_STRONG(putchar);

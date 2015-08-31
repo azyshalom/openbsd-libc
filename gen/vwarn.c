@@ -37,7 +37,7 @@
 extern char *__progname;		/* Program name, from crt0. */
 
 void
-_vwarn(const char *fmt, va_list ap)
+vwarn(const char *fmt, va_list ap)
 {
 	int sverrno;
 
@@ -49,6 +49,4 @@ _vwarn(const char *fmt, va_list ap)
 	}
 	(void)fprintf(stderr, "%s\n", strerror(sverrno));
 }
-
-__weak_alias(vwarn, _vwarn);
-
+DEF_WEAK(vwarn);

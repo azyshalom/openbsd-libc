@@ -46,3 +46,4 @@ wprintf(const wchar_t * __restrict fmt, ...)
 	va_end(ap);
 	return (ret);
 }
+DEF_STRONG(wprintf);

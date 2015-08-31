@@ -29,7 +29,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /*
  * ffs - find first set bit, this algorithm isolates the first set
@@ -61,6 +61,7 @@ ENTRY(ffs)
 	ldrneb  r0, [ r2, r0, lsr #26 ]
 
         mov   pc, lr
+END_WEAK(ffs)
 .text;
 .type .L_ffs_table, _ASM_TYPE_OBJECT;
 .L_ffs_table:

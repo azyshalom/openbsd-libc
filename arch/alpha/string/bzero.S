@@ -28,7 +28,7 @@
  * rights to redistribute these changes.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 LEAF(bzero,2)
 	ble	a1,bzero_done
@@ -108,4 +108,4 @@ bzero_finish_lp_done:
 bzero_done:
 	RET
 
-	END(bzero)
+	END_WEAK(bzero)

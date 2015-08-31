@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /* bzero(s1, n) */
 
@@ -63,4 +63,4 @@ smallclr:
 2:
 	j	ra
 	nop
-END(bzero)
+END_WEAK(bzero)

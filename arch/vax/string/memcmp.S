@@ -63,3 +63,4 @@ ENTRY(memcmp, 0)
 	subl3	%r4,%r3,%r0
 9:
 	ret
+END_STRONG(memcmp)

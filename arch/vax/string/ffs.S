@@ -39,3 +39,4 @@ ENTRY(ffs, 0)
 1:
 	incl	%r0
 	ret
+END_WEAK(ffs)

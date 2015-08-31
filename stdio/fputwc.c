@@ -86,3 +86,4 @@ fputwc(wchar_t wc, FILE *fp)
 
 	return (r);
 }
+DEF_STRONG(fputwc);

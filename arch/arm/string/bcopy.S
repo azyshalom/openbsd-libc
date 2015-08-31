@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /* bcopy = memcpy/memmove with arguments reversed. */
 
@@ -40,3 +40,4 @@ ENTRY(bcopy)
 	eor     r1, r0, r1 
 	eor     r0, r1, r0 
 	b	PIC_SYM(_C_LABEL(_memcpy), PLT)
+END_WEAK(bcopy)

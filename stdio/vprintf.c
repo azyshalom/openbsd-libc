@@ -38,3 +38,4 @@ vprintf(const char *fmt, __va_list ap)
 {
 	return (vfprintf(stdout, fmt, ap));
 }
+DEF_STRONG(vprintf);

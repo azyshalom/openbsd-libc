@@ -49,3 +49,4 @@ __srget(FILE *fp)
 	}
 	return (EOF);
 }
+DEF_STRONG(__srget);

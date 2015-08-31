@@ -39,8 +39,6 @@
 #include <unistd.h>
 #include <limits.h>
 
-extern char *__strsignal(int , char *);
-
 void
 psignal(unsigned int sig, const char *s)
 {

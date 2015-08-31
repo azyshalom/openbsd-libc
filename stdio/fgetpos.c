@@ -41,3 +41,4 @@ fgetpos(FILE *fp, fpos_t *pos)
 {
 	return((*pos = ftello(fp)) == (fpos_t)-1);
 }
+DEF_STRONG(fgetpos);

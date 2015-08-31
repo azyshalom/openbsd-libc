@@ -62,3 +62,4 @@ vsnprintf(char *str, size_t n, const char *fmt, __va_list ap)
 	*f._p = '\0';
 	return (ret);
 }
+DEF_STRONG(vsnprintf);

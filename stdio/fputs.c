@@ -56,3 +56,4 @@ fputs(const char *s, FILE *fp)
 	FUNLOCKFILE(fp);
 	return (ret);
 }
+DEF_STRONG(fputs);

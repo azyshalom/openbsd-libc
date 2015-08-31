@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-/* SCANFLIKE1 */
 int
 scanf(const char *fmt, ...)
 {
@@ -46,3 +45,4 @@ scanf(const char *fmt, ...)
 	va_end(ap);
 	return (ret);
 }
+DEF_STRONG(scanf);

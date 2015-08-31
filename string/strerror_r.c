@@ -125,6 +125,7 @@ strerror_r(int errnum, char *strerrbuf, size_t buflen)
 	errno = ret_errno ? ret_errno : save_errno;
 	return (ret_errno);
 }
+DEF_WEAK(strerror_r);
 
 #define USIGPREFIX "Unknown signal: "
 

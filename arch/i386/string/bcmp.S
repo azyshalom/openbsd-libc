@@ -4,7 +4,7 @@
  * Public domain.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(bcmp)
 	pushl	%edi
@@ -30,3 +30,4 @@ L1:	incl	%eax
 L2:	popl	%esi
 	popl	%edi
 	ret
+END_WEAK(bcmp)

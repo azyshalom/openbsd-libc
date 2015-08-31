@@ -134,3 +134,4 @@ Lstd:
 1:
 	retl
 	 nop
+END_WEAK(bzero)

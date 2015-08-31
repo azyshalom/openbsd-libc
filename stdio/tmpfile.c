@@ -79,3 +79,4 @@ tmpfile(void)
 	}
 	return (fp);
 }
+DEF_STRONG(tmpfile);

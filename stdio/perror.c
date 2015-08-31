@@ -60,3 +60,4 @@ perror(const char *s)
 	v->iov_len = 1;
 	(void)writev(STDERR_FILENO, iov, (v - iov) + 1);
 }
+DEF_STRONG(perror);

@@ -61,3 +61,4 @@ fclose(FILE *fp)
 	FUNLOCKFILE(fp);
 	return (r);
 }
+DEF_STRONG(fclose);

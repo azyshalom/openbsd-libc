@@ -88,3 +88,4 @@ fgetwc(FILE *fp)
 
 	return (r);
 }
+DEF_STRONG(fgetwc);

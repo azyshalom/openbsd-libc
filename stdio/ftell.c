@@ -83,6 +83,7 @@ ftello(FILE *fp)
 out:	FUNLOCKFILE(fp);
 	return (pos);
 }
+DEF_WEAK(ftello);
 
 long
 ftell(FILE *fp)
@@ -94,3 +95,4 @@ ftell(FILE *fp)
 	}
 	return ((long)offset);
 }
+DEF_STRONG(ftell);

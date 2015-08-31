@@ -47,3 +47,4 @@ remove(const char *file)
 		return (rmdir(file));
 	return (unlink(file));
 }
+DEF_STRONG(remove);

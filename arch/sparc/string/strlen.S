@@ -43,3 +43,4 @@ ENTRY(strlen)
 	inc	%o0		! always increment pointer
 	retl
 	sub	%o0, %o1, %o0	! return length (ptr - (origptr+1))
+END_STRONG(strlen)

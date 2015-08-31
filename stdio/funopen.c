@@ -66,3 +66,4 @@ funopen(const void *cookie, int (*readfn)(void *, char *, int),
 	fp->_close = closefn;
 	return (fp);
 }
+DEF_WEAK(funopen);

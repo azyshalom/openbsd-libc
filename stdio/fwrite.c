@@ -86,3 +86,4 @@ fwrite(const void *buf, size_t size, size_t count, FILE *fp)
 		return (count);
 	return ((n - uio.uio_resid) / size);
 }
+DEF_STRONG(fwrite);

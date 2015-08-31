@@ -41,3 +41,4 @@ rewind(FILE *fp)
 	clearerr(fp);
 	errno = 0;      /* not required, but seems reasonable */
 }
+DEF_STRONG(rewind);

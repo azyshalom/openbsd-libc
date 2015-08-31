@@ -169,3 +169,4 @@ freopen(const char *file, const char *mode, FILE *fp)
 	FUNLOCKFILE(fp);
 	return (fp);
 }
+DEF_STRONG(freopen);

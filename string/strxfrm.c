@@ -49,3 +49,4 @@ strxfrm(char *dst, const char *src, size_t n)
 		return (strlen(src));
 	return (strlcpy(dst, src, n));
 }
+DEF_STRONG(strxfrm);

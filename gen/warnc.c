@@ -32,14 +32,12 @@
 #include <stdarg.h>
 
 void
-_warnc(int code, const char *fmt, ...)
+warnc(int code, const char *fmt, ...)
 {
 	va_list ap;
 
 	va_start(ap, fmt);
-	_vwarnc(code, fmt, ap);
+	vwarnc(code, fmt, ap);
 	va_end(ap);
 }
-
-__weak_alias(warnc, _warnc);
-
+DEF_WEAK(warnc);

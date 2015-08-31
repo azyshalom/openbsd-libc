@@ -84,3 +84,4 @@ ENTRY(memmove, R2|R3|R4|R5)
 	subl2	%r0,%r1
 	subl2	%r0,%r3
 	brb	5b
+END_STRONG(memmove)

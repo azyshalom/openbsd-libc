@@ -31,17 +31,13 @@
 #include <err.h>
 #include <stdarg.h>
 
-/* PRINTFLIKE1 */
 void
-_warn(const char *fmt, ...)
+warn(const char *fmt, ...)
 {
 	va_list ap;
 
 	va_start(ap, fmt);
-	_vwarn(fmt, ap);
+	vwarn(fmt, ap);
 	va_end(ap);
 }
-
-/* PRINTFLIKE1 */
-__weak_alias(warn, _warn);
-
+DEF_WEAK(warn);

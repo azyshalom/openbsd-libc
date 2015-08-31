@@ -34,7 +34,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(strlen)
 	add	%o0, 1, %o1	! save starting point + 1
@@ -44,3 +44,4 @@ ENTRY(strlen)
 	 inc	%o0		! always increment pointer
 	retl
 	 sub	%o0, %o1, %o0	! return length (ptr - (origptr+1))
+END_STRONG(strlen)

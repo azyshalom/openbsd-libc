@@ -56,3 +56,4 @@ strcspn(const char *s1, const char *s2)
 	}
 	/* NOTREACHED */
 }
+DEF_STRONG(strcspn);

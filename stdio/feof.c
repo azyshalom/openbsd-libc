@@ -49,3 +49,4 @@ feof(FILE *fp)
 	FUNLOCKFILE(fp);
 	return (ret);
 }
+DEF_STRONG(feof);

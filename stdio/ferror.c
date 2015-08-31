@@ -49,3 +49,4 @@ ferror(FILE *fp)
 	FUNLOCKFILE(fp);
 	return (ret);
 }
+DEF_STRONG(ferror);

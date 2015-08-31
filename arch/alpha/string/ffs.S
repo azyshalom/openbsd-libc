@@ -32,7 +32,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 LEAF(ffs, 1)
 	addl	a0, 0, t0
@@ -89,4 +89,4 @@ Ldone:
 Lallzero:
 	bis	zero, zero, v0
 	RET
-END(ffs)
+END_WEAK(ffs)

@@ -52,6 +52,7 @@ fflush(FILE *fp)
 	FUNLOCKFILE(fp);
 	return (r);
 }
+DEF_STRONG(fflush);
 
 int
 __sflush(FILE *fp)

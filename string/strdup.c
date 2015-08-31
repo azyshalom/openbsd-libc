@@ -47,3 +47,4 @@ strdup(const char *str)
 	(void)memcpy(copy, str, siz);
 	return(copy);
 }
+DEF_WEAK(strdup);

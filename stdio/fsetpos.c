@@ -41,3 +41,4 @@ fsetpos(FILE *iop, const fpos_t *pos)
 {
 	return (fseeko(iop, (off_t)*pos, SEEK_SET));
 }
+DEF_STRONG(fsetpos);

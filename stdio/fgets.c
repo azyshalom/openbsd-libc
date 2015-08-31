@@ -103,3 +103,4 @@ fgets(char *buf, int n, FILE *fp)
 	FUNLOCKFILE(fp);
 	return (buf);
 }
+DEF_STRONG(fgets);

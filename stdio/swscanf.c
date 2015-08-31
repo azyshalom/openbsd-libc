@@ -42,3 +42,4 @@ swscanf(const wchar_t * __restrict str, const wchar_t * __restrict fmt, ...)
 
 	return (r);
 }
+DEF_STRONG(swscanf);

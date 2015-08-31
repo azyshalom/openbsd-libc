@@ -138,3 +138,4 @@ strmode(int mode, char *p)
 	*p++ = ' ';		/* will be a '+' if ACL's implemented */
 	*p = '\0';
 }
+DEF_WEAK(strmode);

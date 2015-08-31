@@ -46,3 +46,4 @@ ENTRY(memset, R2|R3|R4|R5)
 	subl2	%r0,12(%ap)
 	movc5	$0,(%r3),%r1,%r0,(%r3)
 	jbr	1b
+END_STRONG(memset)

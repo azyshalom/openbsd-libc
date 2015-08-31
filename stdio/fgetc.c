@@ -38,3 +38,4 @@ fgetc(FILE *fp)
 {
 	return (getc(fp));
 }
+DEF_STRONG(fgetc);

@@ -34,7 +34,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-/* PRINTFLIKE2 */
 int
 fprintf(FILE *fp, const char *fmt, ...)
 {
@@ -46,3 +45,4 @@ fprintf(FILE *fp, const char *fmt, ...)
 	va_end(ap);
 	return (ret);
 }
+DEF_STRONG(fprintf);

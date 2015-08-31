@@ -43,3 +43,4 @@ putwchar(wchar_t wc)
 
 	return fputwc(wc, stdout);
 }
+DEF_STRONG(putwchar);

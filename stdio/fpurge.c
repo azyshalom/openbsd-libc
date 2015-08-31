@@ -59,3 +59,4 @@ fpurge(FILE *fp)
 	FUNLOCKFILE(fp);
 	return (0);
 }
+DEF_WEAK(fpurge);

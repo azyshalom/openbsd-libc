@@ -4,7 +4,7 @@
  * Public domain.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(memchr)
 	pushl	%edi
@@ -24,3 +24,4 @@ ENTRY(memchr)
 L1:	xorl	%eax,%eax
 	popl	%edi
 	ret
+END_STRONG(memchr)

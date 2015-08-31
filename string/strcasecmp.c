@@ -85,6 +85,7 @@ strcasecmp(const char *s1, const char *s2)
 			return (0);
 	return (cm[*us1] - cm[*--us2]);
 }
+DEF_WEAK(strcasecmp);
 
 int
 strncasecmp(const char *s1, const char *s2, size_t n)
@@ -103,3 +104,4 @@ strncasecmp(const char *s1, const char *s2, size_t n)
 	}
 	return (0);
 }
+DEF_WEAK(strncasecmp);

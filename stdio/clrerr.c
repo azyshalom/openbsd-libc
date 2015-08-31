@@ -42,3 +42,4 @@ clearerr(FILE *fp)
 	__sclearerr(fp);
 	FUNLOCKFILE(fp);
 }
+DEF_STRONG(clearerr);

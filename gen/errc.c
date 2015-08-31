@@ -32,14 +32,12 @@
 #include <stdarg.h>
 
 __dead void
-_errc(int eval, int code, const char *fmt, ...)
+errc(int eval, int code, const char *fmt, ...)
 {
 	va_list ap;
 
 	va_start(ap, fmt);
-	_verrc(eval, code, fmt, ap);
+	verrc(eval, code, fmt, ap);
 	va_end(ap);
 }
-
-__weak_alias(errc, _errc);
-
+DEF_WEAK(errc);

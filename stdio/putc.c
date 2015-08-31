@@ -50,6 +50,7 @@ putc_unlocked(int c, FILE *fp)
 	_SET_ORIENTATION(fp, -1);
 	return (__sputc(c, fp));
 }
+DEF_WEAK(putc_unlocked);
 
 /*
  * A subroutine version of the macro putc.
@@ -66,3 +67,4 @@ putc(int c, FILE *fp)
 	FUNLOCKFILE(fp);
 	return (ret);
 }
+DEF_STRONG(putc);

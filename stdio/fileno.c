@@ -49,3 +49,4 @@ fileno(FILE *fp)
 	FUNLOCKFILE(fp);
 	return (ret);
 }
+DEF_WEAK(fileno);

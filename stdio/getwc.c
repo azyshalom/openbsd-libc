@@ -43,3 +43,4 @@ getwc(FILE *fp)
 
 	return fgetwc(fp);
 }
+DEF_STRONG(getwc);

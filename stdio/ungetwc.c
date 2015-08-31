@@ -75,3 +75,4 @@ ungetwc(wint_t wc, FILE *fp)
 	FUNLOCKFILE(fp);
 	return (r);
 }
+DEF_STRONG(ungetwc);

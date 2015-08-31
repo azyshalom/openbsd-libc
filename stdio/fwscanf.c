@@ -42,3 +42,4 @@ fwscanf(FILE * __restrict fp, const wchar_t * __restrict fmt, ...)
 
 	return (r);
 }
+DEF_STRONG(fwscanf);

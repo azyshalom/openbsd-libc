@@ -967,3 +967,4 @@ vfscanf(FILE *fp, const char *fmt0, __va_list ap)
 	FUNLOCKFILE(fp);
 	return (r);
 }
+DEF_STRONG(vfscanf);

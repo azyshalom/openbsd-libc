@@ -1,4 +1,4 @@
-/*	$OpenBSD: SYS.h,v 1.8 2015/03/31 12:31:19 jsing Exp $	*/
+/*	$OpenBSD: SYS.h,v 1.10 2015/08/26 01:54:09 guenther Exp $	*/
 /*	$NetBSD: SYS.h,v 1.8 2003/08/07 16:42:02 agc Exp $	*/
 
 /*-
@@ -38,6 +38,30 @@
 #include <machine/asm.h>
 #include <sys/syscall.h>
 
+
+/*
+ * We define a hidden alias with the prefix "_libc_" for each global symbol
+ * that may be used internally.  By referencing _libc_x instead of x, other
+ * parts of libc prevent overriding by the application and avoid unnecessary
+ * relocations.
+ */
+#define _HIDDEN(x)		_libc_##x
+#define _HIDDEN_ALIAS(x,y)			\
+	STRONG_ALIAS(_HIDDEN(x),y);		\
+	.hidden _HIDDEN(x)
+#define _HIDDEN_FALIAS(x,y)			\
+	_HIDDEN_ALIAS(x,y);			\
+	.type _HIDDEN(x),@function
+
+/*
+ * For functions implemented in ASM that aren't syscalls.
+ *   END_STRONG(x)	Like DEF_STRONG() in C; for standard/reserved C names
+ *   END_WEAK(x)	Like DEF_WEAK() in C; for non-ISO C names
+ */
+#define	END_STRONG(x)	END(x); _HIDDEN_FALIAS(x,x); END(_HIDDEN(x))
+#define	END_WEAK(x)	END_STRONG(x); .weak x
+
+
 #define SYSENTRY(x)					\
 	.weak _C_LABEL(x);				\
 	_C_LABEL(x) = _C_LABEL(_thread_sys_ ## x);	\
@@ -51,7 +75,6 @@
 
 #define	CERROR		_C_LABEL(__cerror)
 #define	_CERROR		_C_LABEL(___cerror)
-#define	CURBRK		_C_LABEL(__curbrk)
 
 #define _SYSCALL_NOERROR(x,y)						\
 	SYSENTRY(x);							\

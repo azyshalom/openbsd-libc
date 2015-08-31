@@ -54,3 +54,4 @@ ENTRY(bcmp, 0)
 	clrl	%r0		# we have a match!
 9:
 	ret
+END_WEAK(bcmp)

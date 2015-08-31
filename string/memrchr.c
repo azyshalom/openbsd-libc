@@ -36,3 +36,4 @@ memrchr(const void *s, int c, size_t n)
 	}
 	return(NULL);
 }
+DEF_WEAK(memrchr);

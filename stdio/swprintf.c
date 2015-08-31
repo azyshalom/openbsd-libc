@@ -43,3 +43,4 @@ swprintf(wchar_t * __restrict s, size_t n, const wchar_t * __restrict fmt, ...)
 
 	return (ret);
 }
+DEF_STRONG(swprintf);

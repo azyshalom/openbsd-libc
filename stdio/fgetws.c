@@ -77,3 +77,4 @@ error:
 	FUNLOCKFILE(fp);
 	return (NULL);
 }
+DEF_STRONG(fgetws);

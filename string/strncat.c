@@ -55,3 +55,4 @@ strncat(char *dst, const char *src, size_t n)
 	}
 	return (dst);
 }
+DEF_STRONG(strncat);

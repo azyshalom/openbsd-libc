@@ -69,3 +69,4 @@ ENTRY(bcopy, R2|R3|R4|R5|R6)
 	subl2	%r6,%r3
 	movc3	%r6,(%r1),(%r3)
 	ret
+END_WEAK(bcopy)

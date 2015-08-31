@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(strcmp)
 1:
@@ -40,3 +40,4 @@ ENTRY(strcmp)
 	beq	1b
 	sub	r0, r2, r3
 	mov	pc, lr
+END_STRONG(strcmp)

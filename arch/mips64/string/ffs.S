@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /* bit = ffs(value) */
 
@@ -46,4 +46,4 @@ LEAF(ffs, 0)
 	beq	v1, zero, 1b		# no, continue
 done:
 	j	ra
-END(ffs)
+END_WEAK(ffs)

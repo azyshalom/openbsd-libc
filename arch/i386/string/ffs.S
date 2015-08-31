@@ -4,7 +4,7 @@
  * Public domain.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(ffs)
 	bsfl	4(%esp),%eax
@@ -15,3 +15,4 @@ ENTRY(ffs)
 	.align 2
 L1:	xorl	%eax,%eax		/* clear result */
 	ret
+END_WEAK(ffs)

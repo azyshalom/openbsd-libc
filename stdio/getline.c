@@ -35,3 +35,4 @@ getline(char **__restrict buf, size_t *__restrict buflen, FILE *__restrict fp)
 {
 	return getdelim(buf, buflen, '\n', fp);
 }
+DEF_WEAK(getline);

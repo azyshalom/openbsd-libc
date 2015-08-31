@@ -62,3 +62,4 @@ fwide(FILE *fp, int mode)
 
 	return mode;
 }
+DEF_STRONG(fwide);

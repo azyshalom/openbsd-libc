@@ -243,9 +243,11 @@ dumb:
 	FUNLOCKFILE(fp);
 	return (0);
 }
+DEF_WEAK(fseeko);
 
 int
 fseek(FILE *fp, long offset, int whence)
 {
 	return (fseeko(fp, offset, whence));
 }
+DEF_STRONG(fseek);

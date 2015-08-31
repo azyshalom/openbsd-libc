@@ -43,3 +43,4 @@ getwchar()
 
 	return fgetwc(stdin);
 }
+DEF_STRONG(getwchar);

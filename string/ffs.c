@@ -38,3 +38,4 @@ ffs(int mask)
 
 	return (bit + t[ r & 0xf ]);
 }
+DEF_WEAK(ffs);

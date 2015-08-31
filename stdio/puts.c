@@ -60,3 +60,4 @@ puts(const char *s)
 	FUNLOCKFILE(stdout);
 	return (ret ? EOF : '\n');
 }
+DEF_STRONG(puts);

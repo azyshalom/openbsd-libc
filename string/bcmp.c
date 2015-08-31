@@ -49,3 +49,4 @@ bcmp(const void *b1, const void *b2, size_t length)
 	while (--length);
 	return (0);
 }
+DEF_WEAK(bcmp);

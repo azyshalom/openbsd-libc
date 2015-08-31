@@ -4,7 +4,7 @@
  * Public domain.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(bzero)
 	pushl	%edi
@@ -41,3 +41,4 @@ L1:	movl	%edx,%ecx		/* zero remainder by bytes */
 
 	popl	%edi
 	ret
+END_WEAK(bzero)

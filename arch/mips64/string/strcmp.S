@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /*
  * NOTE: this version assumes unsigned chars in order to be "8 bit clean".
@@ -55,4 +55,4 @@ NotEq:
 LessOrEq:
 	dsubu	v0, zero, t1
 	j	ra
-END(strcmp)
+END_STRONG(strcmp)

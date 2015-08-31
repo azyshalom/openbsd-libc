@@ -46,3 +46,4 @@ memccpy(void *t, const void *f, int c, size_t n)
 	}
 	return (0);
 }
+DEF_WEAK(memccpy);

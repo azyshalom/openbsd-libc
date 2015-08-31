@@ -796,3 +796,4 @@ vfwscanf(FILE * __restrict fp, const wchar_t * __restrict fmt, __va_list ap)
 	FUNLOCKFILE(fp);
 	return (r);
 }
+DEF_STRONG(vfwscanf);

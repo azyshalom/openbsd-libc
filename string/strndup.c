@@ -37,3 +37,4 @@ strndup(const char *str, size_t maxlen)
 
 	return copy;
 }
+DEF_WEAK(strndup);

@@ -58,3 +58,4 @@ strcasestr(const char *s, const char *find)
 	}
 	return ((char *)s);
 }
+DEF_WEAK(strcasestr);

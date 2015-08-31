@@ -39,8 +39,6 @@
 __warn_references(tmpnam,
     "warning: tmpnam() possibly used unsafely; consider using mkstemp()");
 
-extern char *_mktemp(char *);
-
 char *
 tmpnam(char *s)
 {

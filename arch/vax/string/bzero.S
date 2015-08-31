@@ -44,3 +44,4 @@ ENTRY(bzero, R2|R3|R4|R5)
 	jgtr	1b
 	movc5	$0,(%r3),$0,8(%ap),(%r3)
 	ret
+END_WEAK(bzero)

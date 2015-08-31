@@ -39,3 +39,4 @@ fputc(int c, FILE *fp)
 {
 	return (putc(c, fp));
 }
+DEF_STRONG(fputc);

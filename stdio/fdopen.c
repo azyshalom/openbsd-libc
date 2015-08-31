@@ -89,3 +89,4 @@ fdopen(int fd, const char *mode)
 	fp->_close = __sclose;
 	return (fp);
 }
+DEF_WEAK(fdopen);

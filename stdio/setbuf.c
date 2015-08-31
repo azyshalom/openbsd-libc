@@ -39,3 +39,4 @@ setbuf(FILE *fp, char *buf)
 {
 	(void) setvbuf(fp, buf, buf ? _IOFBF : _IONBF, BUFSIZ);
 }
+DEF_STRONG(setbuf);

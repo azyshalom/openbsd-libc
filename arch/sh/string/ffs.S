@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /*
  * ffs - find first bit set
@@ -91,3 +91,4 @@ L8bit:
 
 Lzero:	rts
 	 nop
+END_WEAK(ffs)

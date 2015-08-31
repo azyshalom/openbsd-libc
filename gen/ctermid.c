@@ -43,3 +43,4 @@ ctermid(char *s)
 	}
 	return(def);
 }
+DEF_WEAK(ctermid);

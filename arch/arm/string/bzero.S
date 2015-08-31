@@ -30,9 +30,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(bzero)
 	mov	r2, r1
 	mov	r1, #0
 	b	PIC_SYM(_C_LABEL(memset), PLT)
+END_WEAK(bzero)

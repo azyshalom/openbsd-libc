@@ -30,9 +30,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(memmove)
 	stmfd	sp!, {r0, lr}
 	bl	PIC_SYM(_C_LABEL(_memcpy), PLT)
 	ldmfd	sp!, {r0, pc}
+END_STRONG(memmove)

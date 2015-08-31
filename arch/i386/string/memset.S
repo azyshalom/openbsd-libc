@@ -4,7 +4,7 @@
  * Public domain.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(memset)
 	pushl	%edi
@@ -53,3 +53,4 @@ L1:	rep
 	popl	%ebx
 	popl	%edi
 	ret
+END_STRONG(memset)

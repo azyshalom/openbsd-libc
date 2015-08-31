@@ -44,3 +44,4 @@ timingsafe_memcmp(const void *b1, const void *b2, size_t len)
 
         return (res);
 }
+DEF_WEAK(timingsafe_memcmp);

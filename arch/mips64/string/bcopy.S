@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /* bcopy(s1, s2, n) */
 
@@ -116,4 +116,4 @@ smallcpy:
 	j	ra
 	nop
 	.set	reorder
-END(bcopy)
+END_WEAK(bcopy)

@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /* bcmp(s1, s2, n) */
 
@@ -109,4 +109,4 @@ nomatch:
 	j	ra
 	li	v0, 1
 	.set	reorder
-END(bcmp)
+END_WEAK(bcmp)

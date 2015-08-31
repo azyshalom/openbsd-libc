@@ -44,6 +44,7 @@ getc_unlocked(FILE *fp)
 {
 	return (__sgetc(fp));
 }
+DEF_WEAK(getc_unlocked);
 
 /*
  * A subroutine version of the macro getc.
@@ -60,3 +61,4 @@ getc(FILE *fp)
 	FUNLOCKFILE(fp);
 	return (c);
 }
+DEF_STRONG(getc);

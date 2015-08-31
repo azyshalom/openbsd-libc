@@ -82,3 +82,4 @@ __swbuf(int c, FILE *fp)
 			return (EOF);
 	return (c);
 }
+DEF_STRONG(__swbuf);

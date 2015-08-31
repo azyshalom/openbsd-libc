@@ -43,6 +43,7 @@ getchar_unlocked(void)
 {
 	return (getc_unlocked(stdin));
 }
+DEF_WEAK(getchar_unlocked);
 
 
 /*
@@ -56,3 +57,4 @@ getchar(void)
 {
 	return (getc(stdin));
 }
+DEF_STRONG(getchar);

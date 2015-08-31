@@ -39,6 +39,7 @@ setbuffer(FILE *fp, char *buf, int size)
 
 	(void)setvbuf(fp, buf, buf ? _IOFBF : _IONBF, size);
 }
+DEF_WEAK(setbuffer);
 
 /*
  * set line buffering
@@ -49,3 +50,4 @@ setlinebuf(FILE *fp)
 
 	return (setvbuf(fp, (char *)NULL, _IOLBF, (size_t)0));
 }
+DEF_WEAK(setlinebuf);

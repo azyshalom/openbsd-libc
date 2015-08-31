@@ -110,8 +110,6 @@ mktemp_internal(char *path, int slen, int mode, int flags)
 	return(-1);
 }
 
-char *_mktemp(char *);
-
 char *
 _mktemp(char *path)
 {

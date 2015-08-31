@@ -36,7 +36,7 @@
 extern char *__progname;		/* Program name, from crt0. */
 
 __dead void
-_verrx(int eval, const char *fmt, va_list ap)
+verrx(int eval, const char *fmt, va_list ap)
 {
 	(void)fprintf(stderr, "%s: ", __progname);
 	if (fmt != NULL)
@@ -44,6 +44,4 @@ _verrx(int eval, const char *fmt, va_list ap)
 	(void)fprintf(stderr, "\n");
 	exit(eval);
 }
-
-__weak_alias(verrx, _verrx);
-
+DEF_WEAK(verrx);

@@ -8,7 +8,8 @@ all:
 	@echo "need to define LIBCSRCDIR" >&2; exit 1
 .endif
 
-CFLAGS+=	-I${LIBCSRCDIR}/include -Werror-implicit-function-declaration
+CFLAGS+=-I${LIBCSRCDIR}/include -I${LIBCSRCDIR}/hidden \
+	-Werror-implicit-function-declaration
 
 # Include link-time warnings about unsafe API uses (ie. strcpy)
 CFLAGS+=-DAPIWARN

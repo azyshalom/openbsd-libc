@@ -31,7 +31,7 @@
  * SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 LEAF(strlen, 0)
 	.set	reorder
@@ -42,4 +42,4 @@ LEAF(strlen, 0)
 	bne	v0, zero, 1b		# continue if not end
 	dsubu	v0, a0, v1		# compute length - 1 for '\0' char
 	j	ra
-END(strlen)
+END_STRONG(strlen)

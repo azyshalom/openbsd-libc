@@ -39,3 +39,4 @@ strerror(int num)
 	(void)strerror_r(num, buf, sizeof(buf));
 	return (buf);
 }
+DEF_STRONG(strerror);

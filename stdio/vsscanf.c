@@ -35,7 +35,6 @@
 #include <string.h>
 #include "local.h"
 
-/* ARGSUSED */
 static int
 eofread(void *cookie, char *buf, int len)
 {
@@ -57,3 +56,4 @@ vsscanf(const char *str, const char *fmt, __va_list ap)
 	f._lb._base = NULL;
 	return (__svfscanf(&f, fmt, ap));
 }
+DEF_STRONG(vsscanf);

@@ -41,3 +41,4 @@ strlen(const char *str)
 	return (s - str);
 }
 
+DEF_STRONG(strlen);

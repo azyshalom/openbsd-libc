@@ -40,3 +40,4 @@ getw(FILE *fp)
 
 	return (fread((void *)&x, sizeof(x), 1, fp) == 1 ? x : EOF);
 }
+DEF_WEAK(getw);

@@ -4,7 +4,7 @@
  * Public domain.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(memcmp)
 	pushl	%edi
@@ -41,3 +41,4 @@ L6:	movzbl  -1(%edi),%eax		/* Perform unsigned comparison	*/
 	popl	%esi
 	popl	%edi
 	ret
+END_STRONG(memcmp)

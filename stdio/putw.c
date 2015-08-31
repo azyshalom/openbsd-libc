@@ -52,3 +52,4 @@ putw(int w, FILE *fp)
 	FUNLOCKFILE(fp);
 	return (ret);
 }
+DEF_WEAK(putw);

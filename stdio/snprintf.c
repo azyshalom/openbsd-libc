@@ -37,7 +37,6 @@
 #include <stdarg.h>
 #include "local.h"
 
-/* PRINTFLIKE3 */
 int
 snprintf(char *str, size_t n, const char *fmt, ...)
 {
@@ -66,3 +65,4 @@ snprintf(char *str, size_t n, const char *fmt, ...)
 	*f._p = '\0';
 	return (ret);
 }
+DEF_STRONG(snprintf);

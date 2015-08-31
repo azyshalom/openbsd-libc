@@ -36,7 +36,6 @@
 #include <stdarg.h>
 #include "local.h"
 
-/* ARGSUSED */
 static int
 eofread(void *cookie, char *buf, int len)
 {
@@ -44,7 +43,6 @@ eofread(void *cookie, char *buf, int len)
 	return (0);
 }
 
-/* SCANFLIKE2 */
 int
 sscanf(const char *str, const char *fmt, ...)
 {
@@ -64,3 +62,4 @@ sscanf(const char *str, const char *fmt, ...)
 	va_end(ap);
 	return (ret);
 }
+DEF_STRONG(sscanf);

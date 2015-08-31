@@ -71,3 +71,4 @@ vdprintf(int fd, const char * __restrict fmt, va_list ap)
 
 	return fflush(&f) ? EOF : ret;
 }
+DEF_WEAK(vdprintf);

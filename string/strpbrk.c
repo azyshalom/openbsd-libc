@@ -46,3 +46,4 @@ strpbrk(const char *s1, const char *s2)
 	}
 	return (NULL);
 }
+DEF_STRONG(strpbrk);

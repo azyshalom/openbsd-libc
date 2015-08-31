@@ -42,3 +42,4 @@ bzero(void *b, size_t length)
 	for (p = b; length--;)
 		*p++ = '\0';
 }
+DEF_WEAK(bzero);

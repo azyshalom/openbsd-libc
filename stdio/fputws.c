@@ -55,3 +55,4 @@ fputws(ws, fp)
 
 	return (0);
 }
+DEF_STRONG(fputws);

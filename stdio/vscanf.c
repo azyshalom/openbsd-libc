@@ -39,3 +39,4 @@ vscanf(const char *fmt, __va_list ap)
 
 	return (vfscanf(stdin, fmt, ap));
 }
+DEF_STRONG(vscanf);

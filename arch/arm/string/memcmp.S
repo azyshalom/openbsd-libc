@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 ENTRY(memcmp)
 /* if (len == 0) return 0 */
@@ -50,3 +50,4 @@ ENTRY(memcmp)
 	beq	1b
 	sub	r0, r2, r3
 	mov	pc, lr
+END_STRONG(memcmp)

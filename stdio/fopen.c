@@ -84,3 +84,4 @@ fopen(const char *file, const char *mode)
 		(void) __sseek((void *)fp, (fpos_t)0, SEEK_END);
 	return (fp);
 }
+DEF_STRONG(fopen);
