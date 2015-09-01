@@ -69,11 +69,8 @@ xdr_reference(XDR *xdrs,
 
 		case XDR_DECODE:
 			*pp = loc = (caddr_t) calloc(size, 1);
-			if (loc == NULL) {
-				(void) fprintf(stderr,
-				    "xdr_reference: out of memory\n");
+			if (loc == NULL)
 				return (FALSE);
-			}
 			break;
 	}
 

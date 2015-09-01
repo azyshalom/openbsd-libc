@@ -86,11 +86,8 @@ xdr_array(XDR *xdrs,
 			if (c == 0)
 				return (TRUE);
 			*addrp = target = mem_alloc(nodesize);
-			if (target == NULL) {
-				(void) fprintf(stderr, 
-				    "xdr_array: out of memory\n");
+			if (target == NULL)
 				return (FALSE);
-			}
 			memset(target, 0, nodesize);
 			break;
 		case XDR_FREE:
