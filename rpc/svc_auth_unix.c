@@ -97,8 +97,6 @@ _svcauth_unix(struct svc_req *rqst, struct rpc_msg *msg)
 		 * timestamp, hostname len (0), uid, gid, and gids len (0).
 		 */
 		if ((5 + gid_len) * BYTES_PER_XDR_UNIT + str_len > auth_len) {
-			(void) printf("bad auth_len gid %u str %u auth %u\n",
-			    gid_len, str_len, auth_len);
 			stat = AUTH_BADCRED;
 			goto done;
 		}
