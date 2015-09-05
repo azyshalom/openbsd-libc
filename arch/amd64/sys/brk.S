@@ -1,4 +1,4 @@
-/*	$OpenBSD$	*/
+/*	$OpenBSD: brk.S,v 1.6 2015/08/26 01:54:09 guenther Exp $	*/
 /*	$NetBSD: brk.S,v 1.2 2002/06/03 18:30:33 fvdl Exp $	*/
 
 /*-
@@ -40,47 +40,43 @@
 #include "SYS.h"
 
 	.globl	_end
-	.globl	_C_LABEL(__minbrk)
-	.globl	_C_LABEL(minbrk)
 	.globl	__curbrk
 
-#ifdef WEAK_ALIAS
-WEAK_ALIAS(brk, _brk)
-#endif
-
 	.data
-_C_LABEL(minbrk):
-_C_LABEL(__minbrk):
+__minbrk:
 	.quad	_end
+	END(__minbrk)
+	.type	__minbrk,@object
 	.text
 
-SYSENTRY(_brk)
+	.weak	brk
+ENTRY(brk)
 #ifdef __PIC__
-	movq	PIC_GOT(_C_LABEL(__minbrk)),%rdx
+	movq	PIC_GOT(__minbrk),%rdx
 	cmpq	%rdi,(%rdx)
 	jb	1f
 	movq	(%rdx),%rdi
 1:
 	SYSTRAP(break)
-	jc	err
+	jc	1f
 	movq	PIC_GOT(__curbrk),%rdx	# set up GOT addressing
 	movq	%rdi,(%rdx)
 	xorl	%eax,%eax
 	ret
-err:
+1:
 	movq	PIC_GOT(CERROR),%rdx
 	jmp	*%rdx
 #else
-	cmpq	%rdi,_C_LABEL(__minbrk)(%rip)
+	cmpq	%rdi,__minbrk(%rip)
 	jb	1f
-	movq	_C_LABEL(__minbrk)(%rip),%rdi
+	movq	__minbrk(%rip),%rdi
 1:
 	SYSTRAP(break)
-	jc	err
+	jc	1f
 	movq	%rdi,__curbrk(%rip)
 	xorl	%eax,%eax
 	ret
-err:
+1:
 	jmp	CERROR
 #endif
-SYSEXIT(_brk)
+END(brk)

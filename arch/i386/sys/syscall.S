@@ -39,9 +39,9 @@ SYSENTRY(syscall)
 	push	%ecx
 	int	$0x80
 	push	%ecx	/* Keep stack frame consistent */
-	jc	err
+	jc	1f
 	ret
-err:
+1:
 #ifdef __PIC__
 	PIC_PROLOGUE             
 	movl	PIC_GOT(CERROR), %ecx
@@ -50,3 +50,4 @@ err:
 #else
 	jmp	CERROR
 #endif
+SYSCALL_END(syscall)

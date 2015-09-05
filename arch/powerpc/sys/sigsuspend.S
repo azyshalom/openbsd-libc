@@ -33,4 +33,4 @@
 PREFIX(sigsuspend)
 	lwz 3, 0(3)		/* load the mask */
 	sc
-	SUFFIX
+SYSCALL_END(sigsuspend)

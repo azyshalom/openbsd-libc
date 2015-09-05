@@ -66,3 +66,4 @@ ENTRY(__tfork_thread)
 	 * System call failure.
 	 */
 	ERROR()
+END(__tfork_thread)

@@ -26,3 +26,4 @@ PREFIX(sigpending)
 	stw	%r3, 0(%r5)
 	li	%r3, 0
 	blr
+SYSCALL_END(sigpending)

@@ -49,3 +49,4 @@ _ENTRY(_CERROR)
 	movl	$-1,%eax
 	movl	$-1,%edx
 	ret
+END(_CERROR)

@@ -1,4 +1,4 @@
-/* $OpenBSD: sbrk.S,v 1.7 2012/08/22 22:26:16 deraadt Exp $ */
+/* $OpenBSD: sbrk.S,v 1.9 2015/08/26 01:54:09 guenther Exp $ */
 
 /*
  * Copyright (c) 1996 Dale Rahn
@@ -29,21 +29,22 @@
 
 	.data
 	.globl _end
-	.globl _ASM_LABEL(__curbrk)
-	.globl minbrk
-_ASM_LABEL(__curbrk):
+	.globl __curbrk
+	.hidden __curbrk
+__curbrk:
 	.long _C_LABEL(end)
-_ASM_LABEL(minbrk):
-	.long _C_LABEL(end)
+	END(__curbrk)
+	.type	__curbrk,@object
 
+	.weak	sbrk
 
 	.text
-PREFIX2(sbrk,break)
+PSEUDO_PREFIX(,sbrk,break)
 	
 	/* call break(__curbrk + size) */
 #ifndef __PIC__
-	addis	6, 0, _ASM_LABEL(__curbrk)@H
-	ori	6, 6, _ASM_LABEL(__curbrk)@L	/* # 6 = &__curbrk */
+	addis	6, 0, __curbrk@H
+	ori	6, 6, __curbrk@L	/* # 6 = &__curbrk */
 #else
 	mflr	10
 	bcl	20, 31, 1f
@@ -51,7 +52,7 @@ PREFIX2(sbrk,break)
 	addis	9, 9, _GLOBAL_OFFSET_TABLE_-1b@ha
 	addi	9, 9, _GLOBAL_OFFSET_TABLE_-1b@l
 	mtlr	10
-	lwz	6,_ASM_LABEL(__curbrk)@got(9)
+	lwz	6,__curbrk@got(9)
 #endif
 	lwz	5, 0(6)		/* # 5 = *6 (old_curbrk) */
 	add	3, 5, 3		/* # 3 = new_curbrk */
@@ -69,3 +70,4 @@ PREFIX2(sbrk,break)
 	stw	7, 0(6)		/* # remember, 6=&__curbrk, 7=new_curbrk */
 	mr	3, 5		/* # remember, 5=old_curbrk */
 	blr
+END(sbrk)

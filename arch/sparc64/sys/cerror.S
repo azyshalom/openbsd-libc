@@ -54,3 +54,4 @@ FUNC(___cerror)
 	mov	-1, %o0
 	retl
 	 mov	-1, %o1
+END(___cerror)

@@ -39,10 +39,10 @@ SYSENTRY(sigsuspend)
 	movl	%eax,4(%esp)
 	movl	$(SYS_sigsuspend),%eax
 	int	$0x80
-	jc	err
+	jc	1f
 	xorl	%eax,%eax		# shouldn t happen
 	ret
-err:
+1:
 #ifdef __PIC__
 	PIC_PROLOGUE             
 	movl	PIC_GOT(CERROR), %ecx
@@ -51,3 +51,4 @@ err:
 #else
 	jmp	CERROR
 #endif
+SYSCALL_END(sigsuspend)

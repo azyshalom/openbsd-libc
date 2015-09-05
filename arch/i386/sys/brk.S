@@ -1,4 +1,4 @@
-/*	$OpenBSD: brk.S,v 1.9 2012/08/22 17:19:34 pascal Exp $ */
+/*	$OpenBSD: brk.S,v 1.10 2015/08/26 01:54:09 guenther Exp $ */
 /*-
  * Copyright (c) 1990 The Regents of the University of California.
  * All rights reserved.
@@ -34,18 +34,22 @@
 #include "SYS.h"
 
 	.globl	_end
-	.globl	minbrk
 	.globl	__curbrk
 
 	.data
-minbrk:	.long	_end
+__minbrk:
+	.long	_end
+	END(__minbrk)
+	.type	__minbrk,@object
 	.text
+
+	.weak	brk
 
 ENTRY(brk)
 #ifdef __PIC__
 	movl	4(%esp),%ecx
 	PIC_PROLOGUE
-	movl	PIC_GOT(minbrk),%edx
+	movl	PIC_GOT(__minbrk),%edx
 	PIC_EPILOGUE
 	cmpl	%ecx,(%edx)
 	jb	1f
@@ -54,14 +58,14 @@ ENTRY(brk)
 1:
 	movl	$(SYS_break),%eax
 	int	$0x80
-	jc	err
+	jc	2f
 	PIC_PROLOGUE
 	movl	PIC_GOT(__curbrk),%edx	# set up GOT addressing
 	PIC_EPILOGUE
 	xorl	%eax,%eax
 	movl	%ecx,(%edx)
 	ret
-err:
+2:
 	PIC_PROLOGUE
 	movl	PIC_GOT(CERROR),%ecx	# set up GOT addressing
 	PIC_EPILOGUE
@@ -70,17 +74,18 @@ err:
 #else
 
 	movl	4(%esp),%ecx
-	cmpl	%ecx,minbrk
+	cmpl	%ecx,__minbrk
 	jb	1f
-	movl	minbrk,%ecx
+	movl	__minbrk,%ecx
 	movl	%ecx,4(%esp)
 1:
 	movl	$(SYS_break),%eax
 	int	$0x80
-	jc	err
+	jc	2f
 	xorl	%eax,%eax
 	movl	%ecx,__curbrk
 	ret
-err:
+2:
 	jmp	CERROR
 #endif
+END(brk)

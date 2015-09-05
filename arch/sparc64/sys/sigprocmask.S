@@ -56,3 +56,4 @@ SYSENTRY(sigprocmask)
 3:
 	retl			/* in any case, return 0 */
 	 clr	%o0
+SYSCALL_END(sigprocmask)

@@ -1,4 +1,4 @@
-/*	$OpenBSD: brk.S,v 1.5 2011/04/04 12:42:39 guenther Exp $ */
+/*	$OpenBSD: brk.S,v 1.6 2015/08/26 01:54:09 guenther Exp $ */
 /*-
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -33,21 +33,25 @@
 
 #include "SYS.h"
 
-	.globl	minbrk
-	.globl	curbrk
+	.globl	__curbrk
 
 	.data
-minbrk:	PTR_VAL	_C_LABEL(end)
+__minbrk:
+	PTR_VAL	_C_LABEL(end)
+	.size	__minbrk, . - __minbrk
+	.type	__minbrk,@object
 	.text
 
 FRAMESZ= MKFSIZ(1,1)
 GPOFF= FRAMESZ-2*REGSZ
 
+	.weak	brk
+
 LEAF(brk, FRAMESZ)
 	PTR_SUBU sp, FRAMESZ
 	SETUP_GP64(GPOFF, brk)
 	.set	reorder
-	PTR_L	v0, minbrk
+	PTR_L	v0, __minbrk
 	bgtu	a0, v0, 1f
 	
 	move	a0, v0		# dont allow break < minbrk
@@ -55,7 +59,7 @@ LEAF(brk, FRAMESZ)
 	li	v0, SYS_break
 	syscall
 	bne	a3, zero, 2f
-	PTR_S	a0, curbrk
+	PTR_S	a0, __curbrk
 	move	v0, zero
 	RESTORE_GP64
 	PTR_ADDU sp, FRAMESZ
@@ -66,25 +70,3 @@ LEAF(brk, FRAMESZ)
 	PTR_ADDU sp, FRAMESZ
 	jr	t9
 END(brk)
-
-FRAMESZ= MKFSIZ(1,1)
-GPOFF= FRAMESZ-2*REGSZ
-
-LEAF(_brk, FRAMESZ)
-	PTR_SUBU sp, FRAMESZ
-	SETUP_GP64(GPOFF, brk)
-	.set	reorder
-	li	v0, SYS_break
-	syscall
-	bne	a3, zero, 1f
-	PTR_S	a0, curbrk
-	move	v0, zero
-	RESTORE_GP64
-	PTR_ADDU sp, FRAMESZ
-	j	ra
-1:
-	LA	t9, CERROR
-	RESTORE_GP64
-	PTR_ADDU sp, FRAMESZ
-	jr	t9
-END(_brk)

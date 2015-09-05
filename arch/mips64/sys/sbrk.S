@@ -1,4 +1,4 @@
-/*	$OpenBSD: sbrk.S,v 1.5 2011/04/04 12:42:39 guenther Exp $ */
+/*	$OpenBSD: sbrk.S,v 1.6 2015/08/26 01:54:09 guenther Exp $ */
 /*-
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -33,27 +33,32 @@
 
 #include "SYS.h"
 
-	.globl	curbrk
+	.globl	__curbrk
+	.hidden	__curbrk
 
 	.data
-curbrk:	PTR_VAL	_C_LABEL(end)
+__curbrk:	PTR_VAL	_C_LABEL(end)
+	.size	__curbrk, . - __curbrk
+	.type	__curbrk,@object
 	.text
 
 FRAMESZ= MKFSIZ(1,1)
 GPOFF= FRAMESZ-2*REGSZ
 
+	.weak	sbrk
+
 LEAF(sbrk, FRAMESZ)
 	PTR_SUBU sp, FRAMESZ
 	SETUP_GP64(GPOFF, sbrk)
 	.set	reorder
-	PTR_L	v1, curbrk
+	PTR_L	v1, __curbrk
 	li	v0, SYS_break
 	PTR_ADDU a0, a0, v1	# compute current break
 	syscall
 
 	bne	a3, zero, 1f
 	move	v0, v1		# return old val of curbrk from above
-	PTR_S	a0, curbrk	# save current val of curbrk from above
+	PTR_S	a0, __curbrk	# save current val of curbrk from above
 	RESTORE_GP64
 	PTR_ADDU sp, FRAMESZ
 	j	ra

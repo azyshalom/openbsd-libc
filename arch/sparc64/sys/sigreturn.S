@@ -40,3 +40,4 @@ SYSENTRY(sigreturn)
 	mov	SYS_sigreturn, %g1
 	t	ST_SYSCALL
 	ERROR()
+SYSCALL_END(sigreturn)
