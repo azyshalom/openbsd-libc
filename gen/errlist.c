@@ -28,7 +28,9 @@
  * SUCH DAMAGE.
  */
 
-const char *const _sys_errlist[] = {
+#include <errno.h>
+
+const char *const sys_errlist[] = {
 	"Undefined error: 0",			/*  0 - ENOERROR */
 	"Operation not permitted",		/*  1 - EPERM */
 	"No such file or directory",		/*  2 - ENOENT */
@@ -141,4 +143,9 @@ const char *const _sys_errlist[] = {
 	"No message of desired type",		/* 90 - ENOMSG */
 	"Not supported",			/* 91 - ENOTSUP */
 };
-int _sys_nerr = { sizeof _sys_errlist/sizeof _sys_errlist[0] };
+DEF_WEAK(sys_errlist);
+const int sys_nerr = { sizeof sys_errlist/sizeof sys_errlist[0] };
+DEF_WEAK(sys_nerr);
+
+__strong_alias(_sys_errlist, sys_errlist);  
+__strong_alias(_sys_nerr, sys_nerr);  

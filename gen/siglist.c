@@ -30,7 +30,7 @@
 
 #include <signal.h>
 
-const char *const _sys_siglist[NSIG] = {
+const char *const sys_siglist[NSIG] = {
 	"Signal 0",
 	"Hangup",			/* SIGHUP */
 	"Interrupt",			/* SIGINT */
@@ -65,3 +65,5 @@ const char *const _sys_siglist[NSIG] = {
 	"User defined signal 2",	/* SIGUSR2 */
 	"Thread AST",			/* SIGTHR */
 };
+DEF_WEAK(sys_siglist);
+__strong_alias(_sys_siglist, sys_siglist);

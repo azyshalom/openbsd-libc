@@ -66,3 +66,4 @@ const char *const sys_signame[NSIG] = {
 	"USR2",		/* SIGUSR2 */
 	"THR",		/* SIGTHR */
 };
+DEF_WEAK(sys_signame);

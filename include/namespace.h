@@ -1,17 +1,7 @@
-/*	$OpenBSD: namespace.h,v 1.2 1996/08/19 08:28:08 tholo Exp $	*/
+/*	$OpenBSD: namespace.h,v 1.4 2015/09/05 11:25:30 guenther Exp $	*/
 
 #ifndef _LIBC_NAMESPACE_H_
 #define _LIBC_NAMESPACE_H_
-
-/* These will be replaced with symbol renaming ala PROTO_NORMAL */
-#define catclose	_catclose
-#define catgets		_catgets
-#define catopen		_catopen
-#define strtoq		_strtoq
-#define strtouq		_strtouq
-#define sys_errlist	_sys_errlist
-#define sys_nerr	_sys_nerr
-#define sys_siglist	_sys_siglist
 
 /*
  * Copyright (c) 2015 Philip Guenther <guenther@openbsd.org>
