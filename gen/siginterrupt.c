@@ -37,7 +37,6 @@
 int
 siginterrupt(int sig, int flag)
 {
-	extern sigset_t __sigintr;
 	struct sigaction sa;
 	int ret;
 

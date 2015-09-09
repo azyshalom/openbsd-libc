@@ -37,7 +37,7 @@
 sigset_t __sigintr;		/* shared with siginterrupt */
 
 sig_t
-_signal(int s, sig_t a)
+signal(int s, sig_t a)
 {
 	struct sigaction sa, osa;
 
@@ -51,6 +51,6 @@ _signal(int s, sig_t a)
 		return (SIG_ERR);
 	return (osa.sa_handler);
 }
+DEF_STRONG(signal);
 
-__weak_alias(signal, _signal);
-__weak_alias(bsd_signal, _signal);
+__weak_alias(bsd_signal, signal);
