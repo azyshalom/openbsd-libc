@@ -47,7 +47,6 @@
  * nobody had a copy in the office, so...
  */
 
-#include "namespace.h"
 #include <assert.h>
 #include <errno.h>
 #include <stdint.h>

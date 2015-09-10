@@ -30,8 +30,6 @@
  * $FreeBSD: src/lib/libc/uuid/uuid_to_string.c,v 1.2 2003/08/08 19:18:43 marcel Exp $
  */
 
-#include "namespace.h"
-
 #include <stdio.h>
 #include <string.h>
 #include <uuid.h>

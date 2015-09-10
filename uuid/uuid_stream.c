@@ -54,8 +54,6 @@
  * $FreeBSD: src/sys/sys/endian.h,v 1.7 2010/05/20 06:16:13 phk Exp $
  */
 
-#include "namespace.h"
-
 #include <sys/types.h>
 #include <endian.h>
 #include <uuid.h>
