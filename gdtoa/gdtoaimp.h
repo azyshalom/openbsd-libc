@@ -463,7 +463,6 @@ extern double rnd_prod(double, double), rnd_quot(double, double);
 #define FREE_DTOA_LOCK(n)	/*nothing*/
 #else
 #include "thread_private.h"
-extern void *__dtoa_locks[];
 #define ACQUIRE_DTOA_LOCK(n)	_MUTEX_LOCK(&__dtoa_locks[n])
 #define FREE_DTOA_LOCK(n)	_MUTEX_UNLOCK(&__dtoa_locks[n])
 #endif
@@ -590,7 +589,7 @@ extern void memcpy_D2A ANSI((void*, const void*, size_t));
 			int *decpt, int *sign, char **rve));
  extern char *g__fmt ANSI((char*, char*, char*, int, ULong, size_t));
  extern int gethex ANSI((CONST char**, FPI*, Long*, Bigint**, int));
- extern void hexdig_init_D2A(Void);
+ extern void __hexdig_init_D2A(Void);
  extern int hexnan ANSI((CONST char**, FPI*, ULong*));
  extern int hi0bits_D2A ANSI((ULong));
  extern Bigint *i2b ANSI((int));
