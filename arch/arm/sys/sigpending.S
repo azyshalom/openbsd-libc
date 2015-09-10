@@ -41,3 +41,4 @@ SYSENTRY(sigpending)
 	str	r0, [r2]
 	mov	r0, #0x00000000
 	mov	r15, r14
+SYSCALL_END(sigpending)

@@ -40,4 +40,4 @@ SYSENTRY(syscall)
 	tb0	0,%r0,450
 	br	CERROR
 	jmp	%r1
-END(syscall)
+SYSCALL_END(syscall)

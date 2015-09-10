@@ -65,3 +65,4 @@ ENTRY(__tfork_thread, R2|R3)
 	 * system call failed.
 	 */
 	jmp	_C_LABEL(__cerror)
+END(__tfork_thread)

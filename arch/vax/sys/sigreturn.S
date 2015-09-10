@@ -44,3 +44,4 @@
 
 SYSCALL(sigreturn)
 	ret
+SYSCALL_END(sigreturn)

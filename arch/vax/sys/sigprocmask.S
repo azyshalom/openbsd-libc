@@ -30,8 +30,6 @@
 
 #include "SYS.h"
 
-err:
-	jmp	_C_LABEL(__cerror)
 
 SYSENTRY(sigprocmask)
 	tstl	8(%ap)			# check new sigset pointer
@@ -41,10 +39,13 @@ SYSENTRY(sigprocmask)
 	jbr	2f
 1:	movl	*8(%ap),8(%ap)		# indirect to new mask arg
 2:	chmk	$ SYS_sigprocmask
-	jcs	err
+	jcs	4f
 	tstl	12(%ap)			# test if old mask requested
-	beql	out
+	beql	3f
 	movl	%r0,*12(%ap)		# store old mask
-out:
+3:
 	clrl	%r0
 	ret
+4:
+	jmp	_C_LABEL(__cerror)
+SYSCALL_END(sigprocmask)

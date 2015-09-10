@@ -49,4 +49,4 @@ SYSENTRY(sigsuspend)
 	br	CERROR
 	jmp.n	%r1
 	 or	%r2,%r0,0
-END(sigsuspend)
+SYSCALL_END(sigsuspend)

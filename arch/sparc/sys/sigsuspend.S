@@ -39,3 +39,4 @@ SYSENTRY(sigsuspend)
 	mov	SYS_sigsuspend, %g1
 	t	ST_SYSCALL
 	ERROR()				! always terminates with EINTR
+SYSCALL_END(sigsuspend)

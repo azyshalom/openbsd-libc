@@ -44,3 +44,4 @@ SYSENTRY(sigpending)
 1:
 	retl				! and return 0
 	 clr	%o0
+SYSCALL_END(sigpending)

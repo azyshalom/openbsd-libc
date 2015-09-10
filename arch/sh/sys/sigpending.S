@@ -38,4 +38,4 @@ SYSCALL(sigpending)
 	mov.l	r0, @r4		/* store returned mask */
 	rts
 	 mov	#0, r0
-
+SYSCALL_END(sigpending)

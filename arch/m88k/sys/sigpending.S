@@ -35,7 +35,7 @@
 
 #include "SYS.h"
 
-ENTRY(sigpending)
+SYSENTRY(sigpending)
 	or	%r4,%r2,0		/* save r2 */
 	or	%r13,%r0,SYS_sigpending
 	tb0	0,%r0,450
@@ -43,4 +43,4 @@ ENTRY(sigpending)
 	st	%r2,%r4,0
 	jmp.n	%r1
 	 or	%r2,%r0,0
-END(sigpending)
+SYSCALL_END(sigpending)

@@ -62,3 +62,4 @@ L_errno:	.long	_C_LABEL(errno)@GOT
 #else
 L_errno:	.long	_C_LABEL(errno)
 #endif
+	SET_ENTRY_SIZE(_CERROR)

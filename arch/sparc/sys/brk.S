@@ -1,4 +1,4 @@
-/*	$OpenBSD: brk.S,v 1.8 2012/09/04 19:08:15 deraadt Exp $ */
+/*	$OpenBSD: brk.S,v 1.9 2015/08/26 01:54:09 guenther Exp $ */
 /*
  * Copyright (c) 1992, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -35,20 +35,25 @@
 #include "SYS.h"
 
 	.globl	__curbrk
-	.globl	minbrk
 
 	.data
-minbrk:	.long	_end			! lower brk limit; also for gmon code
+__minbrk:
+	.long	_end			! lower brk limit; also for gmon code
+	END(__minbrk)
+	.type	__minbrk,@object
+
 	.text
+
+	.weak	brk
 
 #ifdef __PIC__
 ENTRY(brk)
 	PIC_PROLOGUE(%o5,%o4)
 #if __PIC__ == 1
-	ld	[%o5 + minbrk], %o4
+	ld	[%o5 + __minbrk], %o4
 #else /* __PIC__ == 2 */
-	sethi   %hi(minbrk), %o4
-	or      %o4, %lo(minbrk), %o4
+	sethi   %hi(__minbrk), %o4
+	or      %o4, %lo(__minbrk), %o4
 	ld	[%o5 + %o4], %o4
 #endif
 	ld	[%o4], %o1		! %o1 = minbrk
@@ -71,10 +76,11 @@ ENTRY(brk)
 1:
 	retl				! success, return 0 & record new break
 	 st	%o2, [%o4]
+END(brk)
 #else
 ENTRY(brk)
-	sethi	%hi(minbrk), %o1	! %o1 = minbrk
-	ld	[%o1 + %lo(minbrk)], %o1
+	sethi	%hi(__minbrk), %o1	! %o1 = minbrk
+	ld	[%o1 + %lo(__minbrk)], %o1
 	cmp	%o1, %o0		! if (minbrk > %o0)
 	bgu,a	0f
 	 mov	%o1, %o0		!	%o0 = minbrk
@@ -88,4 +94,5 @@ ENTRY(brk)
 1:
 	retl				! success, return 0 & record new break
 	 st	%o2, [%g1 + %lo(__curbrk)]
+END(brk)
 #endif

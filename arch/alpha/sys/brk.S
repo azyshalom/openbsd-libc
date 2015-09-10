@@ -1,4 +1,4 @@
-/*	$OpenBSD: brk.S,v 1.6 2005/08/07 16:40:13 espie Exp $	*/
+/*	$OpenBSD: brk.S,v 1.7 2015/08/26 01:54:09 guenther Exp $	*/
 /*	$NetBSD: brk.S,v 1.4 1996/10/17 03:08:15 cgd Exp $	*/
 
 /*
@@ -34,14 +34,17 @@
 IMPORT(__curbrk, 8)
 
 	.data
-EXPORT(minbrk)
+__minbrk:
 	.quad	_end
+	.size	__minbrk, . - __minbrk
+	.type	__minbrk,@object
 
 	.text
+	.weak	brk
 LEAF(brk, 1)
 	br	pv, L1				/* XXX profiling */
 L1:	LDGP(pv)
-	ldq	v0, minbrk
+	ldq	v0, __minbrk
 	cmpult  a0, v0, t0
 	cmovne  t0, v0, a0
 	CALLSYS_ERROR(break)

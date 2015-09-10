@@ -34,3 +34,4 @@ SYSCALL(sigpending)
 	movl	%r0,*4(%ap)		# store old mask
 	clrl	%r0
 	ret
+SYSCALL_END(sigpending)

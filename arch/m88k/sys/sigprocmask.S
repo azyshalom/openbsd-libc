@@ -50,4 +50,4 @@ SYSENTRY(sigprocmask)
 3:
 	jmp.n	%r1
 	 or	%r2,%r0,0
-END(sigprocmask)
+SYSCALL_END(sigprocmask)

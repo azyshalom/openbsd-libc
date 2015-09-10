@@ -39,3 +39,4 @@ ENTRY(__tfork_thread)
 	SYSTRAP(__threxit)
 1:
 	b	PIC_SYM(CERROR, PLT)
+END(__tfork_thread)

@@ -30,12 +30,13 @@
 
 #include "SYS.h"
 
-err:
-	jmp	_C_LABEL(__cerror)
 
 SYSENTRY(sigsuspend)
 	movl	*4(%ap),4(%ap)		# indirect to mask arg
 	chmk	$ SYS_sigsuspend
-	jcs	err
+	jcs	1f
 	clrl	%r0			# shouldnt happen
 	ret
+1:
+	jmp	_C_LABEL(__cerror)
+SYSCALL_END(sigsuspend)

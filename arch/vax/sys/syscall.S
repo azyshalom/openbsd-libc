@@ -43,3 +43,4 @@ SYSENTRY(syscall)
 	ret
 1:
 	jmp	_C_LABEL(__cerror)
+SYSCALL_END(syscall)

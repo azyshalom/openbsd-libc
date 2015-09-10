@@ -62,3 +62,4 @@ ASENTRY(_CERROR)
 
 .Lerrno:
 	.word	PIC_SYM(_C_LABEL(errno), GOT)
+END(_CERROR)

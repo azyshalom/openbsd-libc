@@ -40,3 +40,4 @@ SYSENTRY(sigsuspend)
 	bcs	PIC_SYM(CERROR, PLT)
 	mov	r0, #0x00000000
 	mov	r15, r14
+SYSCALL_END(sigsuspend)
