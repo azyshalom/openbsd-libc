@@ -29,7 +29,7 @@
  */
 
 #include <sys/ioctl.h>
-#include <sys/fcntl.h>
+#include <fcntl.h>
 #include <termios.h>
 #include <errno.h>
 
