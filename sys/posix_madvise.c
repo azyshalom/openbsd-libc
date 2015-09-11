@@ -5,10 +5,8 @@
 #include <sys/mman.h>
 #include <errno.h>
 
-int _thread_sys_madvise(void *addr, size_t len, int behav);
-
 int
 posix_madvise(void *addr, size_t len, int behav)
 {
-	return (_thread_sys_madvise(addr, len, behav) ? errno : 0);
+	return (madvise(addr, len, behav) ? errno : 0);
 }

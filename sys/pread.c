@@ -29,14 +29,15 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 #include "thread_private.h"
 
-register_t __syscall(quad_t, ...);
+ssize_t	__syscall(quad_t, ...);
+PROTO_NORMAL(__syscall);
 
-/* pread is weak to support libpthread cancellation */
+DEF_SYS(ftruncate);
+
 
 STUB_PROTOTYPE(pread);
 
@@ -49,6 +50,5 @@ STUB_ALIAS(pread);
 ssize_t
 STUB_NAME(pread)(int fd, void *buf, size_t nbyte, off_t offset)
 {
-
-	return (__syscall((quad_t)SYS_pread, fd, buf, nbyte, 0, offset));
+	return (__syscall(SYS_pread, fd, buf, nbyte, 0, offset));
 }
