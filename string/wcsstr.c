@@ -68,3 +68,6 @@ wcsstr(const wchar_t *big, const wchar_t *little)
 	}
 	return NULL;
 }
+#ifndef WCSWCS
+DEF_STRONG(wcsstr);
+#endif

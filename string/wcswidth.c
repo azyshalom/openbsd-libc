@@ -48,3 +48,4 @@ wcswidth(const wchar_t *s, size_t n)
 
 	return w;
 }
+DEF_WEAK(wcswidth);

@@ -114,3 +114,4 @@ FUNCNAME(const wchar_t *nptr, wchar_t **endptr, int base)
 		*endptr = (wchar_t *)(any ? s - 1 : nptr);
 	return (acc);
 }
+DEF_STRONG(FUNCNAME);

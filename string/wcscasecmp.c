@@ -41,6 +41,7 @@ wcscasecmp(const wchar_t *s1, const wchar_t *s2)
 	/* XXX assumes wchar_t = int */
 	return ((rune_t)l1 - (rune_t)l2);
 }
+DEF_WEAK(wcscasecmp);
 
 int
 wcsncasecmp(const wchar_t *s1, const wchar_t *s2, size_t n)
@@ -59,3 +60,4 @@ wcsncasecmp(const wchar_t *s1, const wchar_t *s2, size_t n)
 	} while (--n != 0);
 	return (0);
 }
+DEF_WEAK(wcsncasecmp);

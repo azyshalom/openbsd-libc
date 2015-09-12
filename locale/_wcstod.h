@@ -151,3 +151,4 @@ fail:
 
 	return 0;
 }
+DEF_STRONG(FUNCNAME);

@@ -50,3 +50,4 @@ btowc(int c)
 		return (WEOF);
 	return (wc);
 }
+DEF_STRONG(btowc);

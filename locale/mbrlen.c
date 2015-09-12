@@ -37,3 +37,4 @@ mbrlen(const char * __restrict s, size_t n, mbstate_t * __restrict ps)
 		ps = &mbs;
 	return (mbrtowc(NULL, s, n, ps));
 }
+DEF_STRONG(mbrlen);

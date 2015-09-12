@@ -41,3 +41,4 @@ wctob(wint_t c)
 		return (EOF);
 	return ((unsigned char)*buf);
 }
+DEF_STRONG(wctob);
