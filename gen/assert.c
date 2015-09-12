@@ -52,3 +52,4 @@ __assert2(const char *file, int line, const char *func, const char *failedexpr)
 	abort();
 	/* NOTREACHED */
 }
+DEF_STRONG(__assert2);
