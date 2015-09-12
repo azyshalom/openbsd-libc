@@ -72,3 +72,4 @@ seekdir(DIR *dirp, long loc)
 	dirp->dd_bufpos = dirp->dd_curpos = lseek(dirp->dd_fd, loc, SEEK_SET);
 	_MUTEX_UNLOCK(&dirp->dd_lock);
 }
+DEF_WEAK(seekdir);

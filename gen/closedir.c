@@ -52,3 +52,4 @@ closedir(DIR *dirp)
 	free(dirp);
 	return (close(fd));
 }
+DEF_WEAK(closedir);

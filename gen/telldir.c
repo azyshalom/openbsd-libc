@@ -46,3 +46,4 @@ telldir(DIR *dirp)
 
 	return (i);
 }
+DEF_WEAK(telldir);

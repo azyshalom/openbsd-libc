@@ -79,3 +79,4 @@ readdir(DIR *dirp)
 
 	return (dp);
 }
+DEF_WEAK(readdir);
