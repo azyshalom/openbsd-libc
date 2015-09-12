@@ -28,8 +28,8 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
 #include <sys/time.h>
+#include <time.h>
 
 time_t
 time(time_t *t)
@@ -42,3 +42,4 @@ time(time_t *t)
 		*t = (time_t)tt.tv_sec;
 	return (tt.tv_sec);
 }
+DEF_STRONG(time);
