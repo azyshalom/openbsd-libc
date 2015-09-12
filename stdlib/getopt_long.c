@@ -61,6 +61,11 @@ int	optopt = '?';		/* character checked for validity */
 int	optreset;		/* reset getopt */
 char    *optarg;		/* argument associated with option */
 
+/* DEF_* only work on initialized (non-COMMON) variables */
+DEF_WEAK(opterr);
+DEF_WEAK(optind);
+DEF_WEAK(optopt);
+
 #define PRINT_ERROR	((opterr) && (*options != ':'))
 
 #define FLAG_PERMUTE	0x01	/* permute non-options to the end of argv */
