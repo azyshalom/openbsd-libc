@@ -67,6 +67,7 @@ execl(const char *name, const char *arg, ...)
 	va_end(ap);
 	return (execve(name, argv, environ));
 }
+DEF_WEAK(execl);
 
 int
 execle(const char *name, const char *arg, ...)
@@ -242,10 +243,12 @@ retry:		(void)execve(bp, argv, envp);
 done:
 	return (-1);
 }
+DEF_WEAK(execvpe);
 
 int
 execvp(const char *name, char *const *argv)
 {
     return execvpe(name, argv, environ);
 }
+DEF_WEAK(execvp);
 

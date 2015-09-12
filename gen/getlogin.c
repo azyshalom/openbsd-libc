@@ -83,6 +83,7 @@ getlogin_r(char *name, size_t namelen)
 	_THREAD_PRIVATE_MUTEX_UNLOCK(logname);
 	return 0;
 }
+DEF_WEAK(getlogin_r);
 
 int
 setlogin(const char *name)
