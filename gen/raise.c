@@ -31,10 +31,9 @@
 #include <signal.h>
 #include <unistd.h>
 
-int	_thread_sys_getthrid(void);
-
 int
 raise(int s)
 {
-	return(kill(_thread_sys_getthrid(), s));
+	return (kill(getthrid(), s));
 }
+DEF_STRONG(raise);
