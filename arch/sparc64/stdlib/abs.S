@@ -45,3 +45,4 @@ ENTRY(abs)
 	neg	%o0, %o1
 	retl
 	 movrlz	%o0, %o1, %o0
+END_STRONG(abs)
