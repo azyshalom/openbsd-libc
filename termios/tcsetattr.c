@@ -54,3 +54,4 @@ tcsetattr(int fd, int opt, const struct termios *t)
 		return (-1);
 	}
 }
+DEF_WEAK(tcsetattr);

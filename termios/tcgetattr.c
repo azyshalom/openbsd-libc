@@ -36,3 +36,4 @@ tcgetattr(int fd, struct termios *t)
 {
 	return (ioctl(fd, TIOCGETA, t));
 }
+DEF_WEAK(tcgetattr);
