@@ -64,6 +64,7 @@ void float_raise( fp_except flags )
 	raise( SIGFPE );
     }
 }
+DEF_STRONG(float_raise);
 
 /*
 -------------------------------------------------------------------------------
