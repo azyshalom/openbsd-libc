@@ -127,6 +127,7 @@ getttyent(void)
 		*p = '\0';
 	return (&tty);
 }
+DEF_WEAK(getttyent);
 
 #define	QUOTED	1
 
@@ -185,6 +186,7 @@ setttyent(void)
 		return (1);
 	return (0);
 }
+DEF_WEAK(setttyent);
 
 int
 endttyent(void)
@@ -198,3 +200,4 @@ endttyent(void)
 	}
 	return (1);
 }
+DEF_WEAK(endttyent);
