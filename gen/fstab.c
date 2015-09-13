@@ -202,6 +202,7 @@ setfsent(void)
 fail:
 	return(0);
 }
+DEF_WEAK(setfsent);
 
 void
 endfsent(void)
