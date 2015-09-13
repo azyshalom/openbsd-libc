@@ -80,3 +80,4 @@ pw_dup(const struct passwd *pw)
 
 	return (newpw);
 }
+DEF_WEAK(pw_dup);
