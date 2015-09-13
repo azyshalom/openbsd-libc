@@ -49,7 +49,7 @@ ENTRY(setjmp, R6)
 	calls	$4,_C_LABEL(sigaltstack)# pop args plus signal stack value
 	movl	(%sp)+,(%r6)+		# save onsigstack status of caller
 	pushl	$0
-	calls	$1,_C_LABEL(sigblock)	# get signal mask
+	calls	$1,_C_LABEL(_libc_sigblock)	# get signal mask
 	movl	%r0,(%r6)+		# save signal mask of caller
 	movl	(%ap),%r0
 	moval	4(%ap)[%r0],(%r6)+	# save sp of caller

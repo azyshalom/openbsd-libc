@@ -64,7 +64,7 @@ ALTENTRY(setjmp)
 	copy	%sp, %r3
 	stw,ma	%r1, HPPA_FRAME_SIZE(%sp)
 
-	bl	sigblock, %rp
+	bl	_libc_sigblock, %rp
 	copy	%r0, %arg0
 
 	ldo	HPPA_FRAME_SIZE(%r3), %sp
@@ -139,7 +139,7 @@ ALTENTRY(longjmp)
 	copy	%sp, %r3
 	stw,ma	%r1, HPPA_FRAME_SIZE(%sp)
 
-	bl	sigsetmask, %rp
+	bl	_libc_sigsetmask, %rp
 	ldw	4(%arg0), %arg0
 
 	ldo	HPPA_FRAME_SIZE(%r3), %sp

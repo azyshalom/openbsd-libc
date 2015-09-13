@@ -54,7 +54,7 @@ NON_LEAF(setjmp, FRAMESZ, ra)
 	REG_S	a0, A0OFF(sp)
 
 	move	a0, zero			# get current signal mask
-	jal	sigblock
+	jal	_libc_sigblock
 
 	REG_L	v1, A0OFF(sp)			# v1 = jmpbuf
 	REG_S	v0, SC_MASK(v1)			# save sc_mask = sigblock(0)

@@ -51,7 +51,7 @@ ENTRY(setjmp)
 	stmfd	sp!, {r0, r14}
 	mov	r0, #0x00000000
 
-	bl	PIC_SYM(_C_LABEL(sigblock), PLT)
+	bl	PIC_SYM(_C_LABEL(_libc_sigblock), PLT)
 	mov	r1, r0
 
 	ldmfd	sp!, {r0, r14}
@@ -94,7 +94,7 @@ ENTRY(longjmp)
 	sub	sp, sp, #4	/* align the stack */
 
 	mov	r0, r2
-	bl	PIC_SYM(_C_LABEL(sigsetmask), PLT)
+	bl	PIC_SYM(_C_LABEL(_libc_sigsetmask), PLT)
 
 	add	sp, sp, #4	/* unalign the stack */
 	ldmfd	sp!, {r0, r1, r14} 

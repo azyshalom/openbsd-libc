@@ -77,9 +77,9 @@ ENTRY(setjmp)
 	st	%r4,%r2,80	/* setjmp type to _setjmp */
 	or	%r14,%r2,0	/* store address of env in r14 */
 #ifdef __PIC__
-	bsr.n	_C_LABEL(sigblock)#plt /* r2 = sigblock(0) */
+	bsr.n	_C_LABEL(_libc_sigblock)#plt /* r2 = sigblock(0) */
 #else
-	bsr.n	_C_LABEL(sigblock) /* r2 = sigblock(0) */
+	bsr.n	_C_LABEL(_libc_sigblock) /* r2 = sigblock(0) */
 #endif
 	 or	%r2,%r0,0
 	st	%r2,%r14,4	/* save signal set in offset 4 of env */
@@ -120,9 +120,9 @@ ENTRY(longjmp)
 	subu	%r31,%r31,16	/* get a temporary stack */
 	st.d	%r2,%r31,0	/* save r2 and r3 on stack (env + return val) */
 #ifdef __PIC__
-	bsr.n	_C_LABEL(sigsetmask)#plt /* restore the signal set */
+	bsr.n	_C_LABEL(_libc_sigsetmask)#plt /* restore the signal set */
 #else
-	bsr.n	_C_LABEL(sigsetmask) /* restore the signal set */
+	bsr.n	_C_LABEL(_libc_sigsetmask) /* restore the signal set */
 #endif
 	 ld	%r2,%r2,4
 	ld.d	%r2,%r31,0	/* restore r2 and r3 */

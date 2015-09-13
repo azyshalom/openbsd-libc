@@ -63,7 +63,7 @@ LEAF(setjmp, 1)
 
 	/* see what's blocked */
 	mov	zero, a0
-	CALL(sigblock)				/* see what's blocked */
+	CALL(_libc_sigblock)			/* see what's blocked */
 	stq	v0, (1 * 8)(s0)			/* and remember it in sc_mask */
 
 	lda	sp, -24(sp)			/* padded struct sigaltstack */
