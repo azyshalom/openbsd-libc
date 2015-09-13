@@ -7,7 +7,7 @@
 
 #include "softfloat-for-gcc.h"
 #include "milieu.h"
-#include "softfloat.h"
+#include <softfloat.h>
 
 float32 __negsf2(float32);
 

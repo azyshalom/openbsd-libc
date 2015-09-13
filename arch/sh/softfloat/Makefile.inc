@@ -6,5 +6,6 @@ SRCS += lesf2.c ltdf2.c ltsf2.c nedf2.c negdf2.c negsf2.c nesf2.c
 SRCS += unorddf2.c unordsf2.c
 SRCS += softfloat.c
 CFLAGS += -DSOFTFLOAT_FOR_GCC
+CFLAGS += -I${LIBCSRCDIR}/softfloat
 
 .PATH: ${.CURDIR}/softfloat

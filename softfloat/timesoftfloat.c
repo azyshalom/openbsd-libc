@@ -37,7 +37,7 @@ this code that are retained.
 #include <stdio.h>
 #include <time.h>
 #include "milieu.h"
-#include "softfloat.h"
+#include <softfloat.h>
 
 enum {
     minIterations = 1000

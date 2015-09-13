@@ -7,7 +7,7 @@
 
 #include "softfloat-for-gcc.h"
 #include "milieu.h"
-#include "softfloat.h"
+#include <softfloat.h>
 
 flag __gesf2(float32, float32);
 

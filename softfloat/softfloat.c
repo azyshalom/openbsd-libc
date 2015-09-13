@@ -57,7 +57,7 @@ this code that are retained.
 #endif
 
 #include "milieu.h"
-#include "softfloat.h"
+#include <softfloat.h>
 
 /*
  * Conversions between floats as stored in memory and floats as

@@ -7,7 +7,7 @@
 
 #include "softfloat-for-gcc.h"
 #include "milieu.h"
-#include "softfloat.h"
+#include <softfloat.h>
 
 flag __nedf2(float64, float64);
 
