@@ -22,3 +22,4 @@ erand48(unsigned short xseed[3])
 	       ldexp((double) xseed[1], -32) +
 	       ldexp((double) xseed[2], -16);
 }
+DEF_WEAK(erand48);

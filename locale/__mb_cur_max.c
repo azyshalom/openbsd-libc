@@ -27,9 +27,9 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
+#include <stdlib.h>
 #include <limits.h>
 
 size_t __mb_cur_max = 1;
 size_t __mb_len_max_runtime = MB_LEN_MAX;
-
+DEF_STRONG(__mb_cur_max);

@@ -31,7 +31,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *__findenv(const char *name, int len, int *offset);
 
 /*
  * __findenv --
@@ -79,3 +78,4 @@ getenv(const char *name)
 		;
 	return (__findenv(name, (int)(np - name), &offset));
 }
+DEF_STRONG(getenv);

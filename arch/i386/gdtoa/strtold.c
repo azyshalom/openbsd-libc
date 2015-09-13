@@ -43,3 +43,4 @@ strtold(const char * __restrict s, char ** __restrict sp)
 	strtorx(s, sp, FLT_ROUNDS, &result);
 	return result;
 }
+DEF_STRONG(strtold);

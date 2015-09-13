@@ -32,8 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *__findenv(const char *name, int len, int *offset);
-
 extern char **environ;
 static char **lastenv;				/* last value of environ */
 
@@ -81,6 +79,7 @@ putenv(char *str)
 	environ[cnt + 1] = NULL;
 	return (0);
 }
+DEF_WEAK(putenv);
 
 /*
  * setenv --
@@ -147,6 +146,7 @@ setenv(const char *name, const char *value, int rewrite)
 		;
 	return (0);
 }
+DEF_WEAK(setenv);
 
 /*
  * unsetenv(name) --
@@ -178,3 +178,4 @@ unsetenv(const char *name)
 	}
 	return (0);
 }
+DEF_WEAK(unsetenv);

@@ -38,3 +38,4 @@ strtold(const char * __restrict s, char ** __restrict sp)
 {
 	return strtod(s, sp);
 }
+DEF_STRONG(strtold);
