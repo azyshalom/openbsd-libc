@@ -82,3 +82,4 @@ get_myaddress(struct sockaddr_in *addr)
 	freeifaddrs(ifap);
 	return (0);
 }
+DEF_WEAK(get_myaddress);

@@ -58,4 +58,5 @@ xdr_authunix_parms(XDR *xdrs, struct authunix_parms *p)
 	}
 	return (FALSE);
 }
+DEF_WEAK(xdr_authunix_parms);
 

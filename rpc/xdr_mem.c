@@ -97,6 +97,7 @@ xdrmem_create(XDR *xdrs, caddr_t addr, u_int size, enum xdr_op op)
 	xdrs->x_private = xdrs->x_base = addr;
 	xdrs->x_handy = size;
 }
+DEF_WEAK(xdrmem_create);
 
 /*ARGSUSED*/
 static void

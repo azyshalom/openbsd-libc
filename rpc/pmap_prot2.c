@@ -110,3 +110,4 @@ xdr_pmaplist(XDR *xdrs, struct pmaplist **rp)
 		rp = (freeing) ? next : &((*rp)->pml_next);
 	}
 }
+DEF_WEAK(xdr_pmaplist);
