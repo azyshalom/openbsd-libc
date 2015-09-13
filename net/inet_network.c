@@ -82,3 +82,4 @@ again:
 	}
 	return (val);
 }
+DEF_WEAK(inet_network);
