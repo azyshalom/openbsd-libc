@@ -47,6 +47,7 @@ const short _C_toupper_[1 + CTYPE_NUM_CHARS] = {
 };
 
 const short *_toupper_tab_ = _C_toupper_;
+DEF_STRONG(_toupper_tab_);
 
 #undef toupper
 int
@@ -56,3 +57,4 @@ toupper(int c)
 		return(c);
 	return((_toupper_tab_ + 1)[c]);
 }
+DEF_STRONG(toupper);

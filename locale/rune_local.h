@@ -30,6 +30,8 @@
 #ifndef _RUNE_LOCAL_H_
 #define _RUNE_LOCAL_H_
 
+__BEGIN_HIDDEN_DECLS
+
 /* rune.c */
 extern _RuneLocale *_Read_RuneMagi(FILE *fp);
 extern void _NukeRune(_RuneLocale *);
@@ -45,5 +47,7 @@ extern void __install_currentrunelocale_ctype(void);
 
 /* ___runetype_mb.c */
 extern _RuneType ___runetype_mb(wint_t);
+
+__END_HIDDEN_DECLS
 
 #endif

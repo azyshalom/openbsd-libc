@@ -74,3 +74,4 @@ const char _C_ctype_[1 + CTYPE_NUM_CHARS] = {
 };
 
 const char *_ctype_ = _C_ctype_;
+DEF_STRONG(_ctype_);

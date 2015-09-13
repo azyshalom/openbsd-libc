@@ -30,7 +30,7 @@
  */
 
 
-__inline static int
+inline static int
 wctoint(wchar_t wc)
 {
 	int n;
