@@ -63,3 +63,4 @@ localeconv(void)
 
     return (&ret);
 }
+DEF_STRONG(localeconv);
