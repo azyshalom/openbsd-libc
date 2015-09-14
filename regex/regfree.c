@@ -70,3 +70,4 @@ regfree(regex_t *preg)
 		free(g->must);
 	free((char *)g);
 }
+DEF_WEAK(regfree);

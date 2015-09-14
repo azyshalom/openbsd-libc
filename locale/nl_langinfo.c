@@ -112,3 +112,4 @@ nl_langinfo(nl_item item)
 
 	return (char *) s;
 }
+DEF_WEAK(nl_langinfo);
