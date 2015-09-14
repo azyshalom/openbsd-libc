@@ -171,6 +171,7 @@ restart:
 		errno = save_errno;
 	return(nr == -1 ? NULL : buf);
 }
+DEF_WEAK(readpassphrase);
 
 char *
 getpass(const char *prompt)
