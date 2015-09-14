@@ -39,6 +39,7 @@ bindresvport(int sd, struct sockaddr_in *sin)
 {
 	return bindresvport_sa(sd, (struct sockaddr *)sin);
 }
+DEF_WEAK(bindresvport);
 
 /*
  * Bind a socket to a privileged port for whatever protocol.
@@ -121,3 +122,4 @@ bindresvport_sa(int sd, struct sockaddr *sa)
 	}
 	return (error);
 }
+DEF_WEAK(bindresvport_sa);
