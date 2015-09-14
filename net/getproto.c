@@ -46,6 +46,7 @@ getprotobynumber_r(int num, struct protoent *pe, struct protoent_data *pd)
 	}
 	return (error);
 }
+DEF_WEAK(getprotobynumber_r);
 
 struct protoent *
 getprotobynumber(int num)

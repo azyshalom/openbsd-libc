@@ -47,6 +47,7 @@ setprotoent_r(int f, struct protoent_data *pd)
 		rewind(pd->fp);
 	pd->stayopen |= f;
 }
+DEF_WEAK(setprotoent_r);
 
 void
 endprotoent_r(struct protoent_data *pd)
@@ -62,6 +63,7 @@ endprotoent_r(struct protoent_data *pd)
 	pd->line = NULL;
 	pd->stayopen = 0;
 }
+DEF_WEAK(endprotoent_r);
 
 int
 getprotoent_r(struct protoent *pe, struct protoent_data *pd)
@@ -140,6 +142,7 @@ again:
 	*q = NULL;
 	return (0);
 }
+DEF_WEAK(getprotoent_r);
 
 struct protoent_data _protoent_data;	/* shared with getproto{,name}.c */
 

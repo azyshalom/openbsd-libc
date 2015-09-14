@@ -51,3 +51,4 @@ getaddrinfo(const char *hostname, const char *servname,
 
 	return (ar.ar_gai_errno);
 }
+DEF_WEAK(getaddrinfo);

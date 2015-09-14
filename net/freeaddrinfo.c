@@ -48,3 +48,4 @@ freeaddrinfo(struct addrinfo *ai)
 		free((void *)p);
 	} while (ai);
 }
+DEF_WEAK(freeaddrinfo);

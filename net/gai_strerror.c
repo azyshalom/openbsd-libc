@@ -76,3 +76,4 @@ gai_strerror(int errnum)
 		return "unknown/invalid error";
 	}
 }
+DEF_WEAK(gai_strerror);

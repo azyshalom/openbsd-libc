@@ -51,6 +51,7 @@ getservbyport_r(int port, const char *proto, struct servent *se,
 	}
 	return (error);
 }
+DEF_WEAK(getservbyport_r);
 
 struct servent *
 getservbyport(int port, const char *proto)

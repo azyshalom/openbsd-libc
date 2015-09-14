@@ -57,6 +57,7 @@ gotname:
 	}
 	return (error);
 }
+DEF_WEAK(getservbyname_r);
 
 struct servent *
 getservbyname(const char *name, const char *proto)
@@ -68,3 +69,4 @@ getservbyname(const char *name, const char *proto)
 		return (NULL);
 	return (&serv);
 }
+DEF_WEAK(getservbyname);

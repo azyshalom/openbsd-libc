@@ -54,6 +54,7 @@ found:
 	}
 	return (error);
 }
+DEF_WEAK(getprotobyname_r);
 
 struct protoent *
 getprotobyname(const char *name)
@@ -65,3 +66,4 @@ getprotobyname(const char *name)
 		return (NULL);
 	return (&proto);
 }
+DEF_WEAK(getprotobyname);

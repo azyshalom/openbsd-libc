@@ -80,3 +80,4 @@ freerrset(struct rrsetinfo *rrset)
 		free(rrset->rri_name);
 	free(rrset);
 }
+DEF_WEAK(freerrset);
