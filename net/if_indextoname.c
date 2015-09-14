@@ -84,3 +84,4 @@ if_indextoname(unsigned int ifindex, char *ifname)
 	errno = error;
 	return(ifname);
 }
+DEF_WEAK(if_indextoname);

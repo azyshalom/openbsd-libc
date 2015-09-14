@@ -79,3 +79,4 @@ if_nametoindex(const char *ifname)
 		errno = ENXIO;
 	return(ni);
 }
+DEF_WEAK(if_nametoindex);
