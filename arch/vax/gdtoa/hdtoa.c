@@ -199,6 +199,7 @@ __hdtoa(double d, const char *xdigs, int ndigits, int *decpt, int *sign,
 
 	return (s0);
 }
+DEF_STRONG(__hdtoa);
 
 /*
  * This is the long double version of __hdtoa().
@@ -209,3 +210,4 @@ __hldtoa(long double e, const char *xdigs, int ndigits, int *decpt, int *sign,
 {
 	return (__hdtoa((double)e, xdigs, ndigits, decpt, sign, rve));
 }
+DEF_STRONG(__hldtoa);
