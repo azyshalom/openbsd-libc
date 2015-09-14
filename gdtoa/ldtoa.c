@@ -106,6 +106,7 @@ __ldtoa(long double *ld, int mode, int ndigits, int *decpt, int *sign,
 		*decpt = INT_MAX;
 	return ret;
 }
+DEF_STRONG(__ldtoa);
 
 #else   /* (LDBL_MANT_DIG == DBL_MANT_DIG) */
 
@@ -120,5 +121,6 @@ __ldtoa(long double *ld, int mode, int ndigits, int *decpt, int *sign,
 		*decpt = INT_MAX;
 	return ret;
 }
+DEF_STRONG(__ldtoa);
 
 #endif  /* (LDBL_MANT_DIG == DBL_MANT_DIG) */
