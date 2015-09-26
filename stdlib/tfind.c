@@ -10,7 +10,6 @@
  *
  * Totally public domain.
  */
-/*LINTLIBRARY*/
 #include <search.h>
 
 typedef struct node_t
