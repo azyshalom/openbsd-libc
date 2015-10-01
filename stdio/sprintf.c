@@ -42,7 +42,6 @@ __warn_references(sprintf,
     "warning: sprintf() is often misused, please use snprintf()");
 #endif
 
-/* PRINTFLIKE2 */
 int
 sprintf(char *str, const char *fmt, ...)
 {
