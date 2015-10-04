@@ -38,3 +38,4 @@ recv(int s, void *buf, size_t len, int flags)
 {
 	return (recvfrom(s, buf, len, flags, NULL, 0));
 }
+DEF_WEAK(recv);

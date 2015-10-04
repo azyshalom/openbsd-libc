@@ -38,3 +38,4 @@ send(int s, const void *msg, size_t len, int flags)
 {
 	return (sendto(s, msg, len, flags, NULL, 0));
 }
+DEF_WEAK(send);
