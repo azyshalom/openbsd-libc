@@ -51,3 +51,4 @@ _fwalk(int (*function)(FILE *))
 		}
 	return (ret);
 }
+DEF_STRONG(_fwalk);
