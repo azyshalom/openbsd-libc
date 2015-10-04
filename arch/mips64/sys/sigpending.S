@@ -40,7 +40,7 @@ SYSLEAF(sigpending, FRAMESZ)
 	PTR_SUBU sp, FRAMESZ
 	SETUP_GP64(GPOFF, sigpending)
 	.set	reorder
-	li	v0, SYS_sigpending	# setlogin(name)
+	li	v0, SYS_sigpending
 	syscall
 	bne	a3, zero, 1f
 	sw	v0, 0(a0)
