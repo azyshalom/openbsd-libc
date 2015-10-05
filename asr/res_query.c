@@ -67,6 +67,7 @@ res_query(const char *name, int class, int type, u_char *ans, int anslen)
 
 	return (ar.ar_datalen);
 }
+DEF_WEAK(res_query);
 
 int
 res_search(const char *name, int class, int type, u_char *ans, int anslen)
