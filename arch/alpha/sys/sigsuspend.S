@@ -35,4 +35,4 @@ SYSLEAF(sigsuspend, 1)
 	CALLSYS_ERROR(sigsuspend)
 	mov	zero, v0		/* shouldn't need; just in case... */
 	RET
-SYSEND(sigsuspend)
+SYSCALL_END(sigsuspend)

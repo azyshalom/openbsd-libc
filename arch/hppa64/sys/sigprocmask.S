@@ -28,7 +28,7 @@
 
 #include "SYS.h"
 
-SYSENTRY(sigprocmask)
+SYSENTRY_HIDDEN(sigprocmask)
 	std	%arg2, HPPA_FRAME_ARG(2)(%sp)
 
 	comb,<>,n %r0, %arg1, sigprocmask$nblock
@@ -47,6 +47,6 @@ sigprocmask$call
 	stw	%ret0, 0(%arg2)
 	bv	%r0(%rp)
 	copy	%r0, %ret0
-SYSEXIT(sigprocmask)
+SYSEXIT_HIDDEN(sigprocmask)
 
 	.end

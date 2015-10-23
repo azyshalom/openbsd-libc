@@ -1,4 +1,4 @@
-#	$OpenBSD: Makefile.inc,v 1.129 2015/09/09 09:16:39 guenther Exp $
+#	$OpenBSD: Makefile.inc,v 1.134 2015/10/23 00:52:49 deraadt Exp $
 #	$NetBSD: Makefile.inc,v 1.35 1995/10/16 23:49:07 jtc Exp $
 #	@(#)Makefile.inc	8.1 (Berkeley) 6/17/93
 
@@ -11,7 +11,8 @@ SRCS+=	Ovfork.S brk.S cerror.S fork.S \
 	sigsuspend.S syscall.S tfork_thread.S
 
 # glue to offer userland wrappers for some syscalls
-SRCS+=	posix_madvise.c w_fork.c
+SRCS+=	posix_madvise.c pthread_sigmask.c \
+	w_fork.c w_sigaction.c w_sigprocmask.c
 
 # glue to provide compatibility between GCC 1.X and 2.X and for compat
 # with old syscall interfaces.
@@ -45,7 +46,7 @@ ASM=	__get_tcb.o __getcwd.o __semctl.o __set_tcb.o __syscall.o \
 	mknod.o mknodat.o mlock.o mlockall.o mount.o mprotect.o \
 	msgctl.o msgget.o msgrcv.o msgsnd.o msync.o munlock.o \
 	munlockall.o munmap.o nanosleep.o nfssvc.o \
-	open.o openat.o pathconf.o pipe.o pipe2.o \
+	open.o openat.o pathconf.o pipe.o pipe2.o pledge.o \
 	poll.o ppoll.o profil.o pselect.o \
 	quotactl.o read.o readlink.o readlinkat.o readv.o reboot.o \
 	recvfrom.o recvmsg.o rename.o renameat.o revoke.o rmdir.o \
@@ -54,9 +55,9 @@ ASM=	__get_tcb.o __getcwd.o __semctl.o __set_tcb.o __syscall.o \
 	setpgid.o setpriority.o setregid.o setresgid.o setresuid.o \
 	setreuid.o setrlimit.o setrtable.o setsid.o setsockopt.o \
 	settimeofday.o setuid.o shmat.o shmctl.o shmdt.o \
-	shmget.o shutdown.o sigaction.o sigaltstack.o socket.o \
+	shmget.o shutdown.o sigaltstack.o socket.o \
 	socketpair.o stat.o statfs.o swapctl.o symlink.o symlinkat.o \
-	sync.o sysarch.o sysctl.o tame.o umask.o unlink.o unlinkat.o \
+	sync.o sysarch.o sysctl.o umask.o unlink.o unlinkat.o \
 	unmount.o utimensat.o utimes.o utrace.o wait4.o write.o writev.o
 
 SRCS+=	${SRCS_${MACHINE_CPU}}
@@ -81,7 +82,13 @@ PPSEUDO_NOERR=${PSEUDO_NOERR:.o=.po}
 SPSEUDO_NOERR=${PSEUDO_NOERR:.o=.so}
 DPSEUDO_NOERR=${PSEUDO_NOERR:.o=.do}
 
-OBJS+=	${ASM} ${PSEUDO} ${PSEUDO_NOERR}
+HIDDEN= sigaction.o
+GHIDDEN=${HIDDEN:.o=.go}
+PHIDDEN=${HIDDEN:.o=.po}
+SHIDDEN=${HIDDEN:.o=.so}
+DHIDDEN=${HIDDEN:.o=.do}
+
+OBJS+=	${ASM} ${PSEUDO} ${PSEUDO_NOERR} ${HIDDEN}
 
 SYS_DEP =  ${LIBCSRCDIR}/arch/${MACHINE_CPU}/SYS.h /usr/include/sys/syscall.h
 
@@ -100,6 +107,9 @@ GENERATE.pseudo=\
 GENERATE.pseudo_noerr=\
 	echo creating ${.TARGET} && \
 	printf '\#include "SYS.h"\nPSEUDO_NOERROR(${.PREFIX},${.PREFIX:S/_//})\n'
+GENERATE.rsyscall_hidden=\
+	echo creating ${.TARGET} && \
+	printf '\#include "SYS.h"\nRSYSCALL_HIDDEN(${.PREFIX:S/_//})\n'
 
 # ...and one of these to control how it's compiled
 FINISH=	${COMPILE.S} ${CFLAGS:M-[ID]*} ${AINC} -x assembler-with-cpp -
@@ -128,6 +138,12 @@ ${SPSEUDO_NOERR}: ${SYS_DEP} ; @${GENERATE.pseudo_noerr} | ${FINISH.so}
 ${DPSEUDO_NOERR}: ${SYS_DEP} ; @${GENERATE.pseudo_noerr} | ${FINISH.do}
 ${PSEUDO_NOERR}:  ${SYS_DEP} ; @${GENERATE.pseudo_noerr} | ${FINISH.o}
 
+${GHIDDEN}: ${SYS_DEP} ; @${GENERATE.rsyscall_hidden} | ${FINISH.go}
+${PHIDDEN}: ${SYS_DEP} ; @${GENERATE.rsyscall_hidden} | ${FINISH.po}
+${SHIDDEN}: ${SYS_DEP} ; @${GENERATE.rsyscall_hidden} | ${FINISH.so}
+${DHIDDEN}: ${SYS_DEP} ; @${GENERATE.rsyscall_hidden} | ${FINISH.do}
+${HIDDEN}:  ${SYS_DEP} ; @${GENERATE.rsyscall_hidden} | ${FINISH.o}
+
 
 MAN+=	__get_tcb.2 __thrsigdivert.2 __thrsleep.2 _exit.2 accept.2 \
 	access.2 acct.2 adjfreq.2 adjtime.2 bind.2 brk.2 chdir.2 \
@@ -142,7 +158,7 @@ MAN+=	__get_tcb.2 __thrsigdivert.2 __thrsleep.2 _exit.2 accept.2 \
 	mincore.2 minherit.2 mkdir.2 mkfifo.2 mknod.2 mlock.2 \
 	mlockall.2 mmap.2 mount.2 mprotect.2 mquery.2 msgctl.2 \
 	msgget.2 msgrcv.2 msgsnd.2 msync.2 munmap.2 nanosleep.2 \
-	nfssvc.2 open.2 pathconf.2 pipe.2 poll.2 profil.2 \
+	nfssvc.2 open.2 pathconf.2 pipe.2 pledge.2 poll.2 profil.2 \
 	ptrace.2 quotactl.2 read.2 readlink.2 reboot.2 recv.2 \
 	rename.2 revoke.2 rmdir.2 sched_yield.2 select.2 semctl.2 semget.2 \
 	semop.2 send.2 setgroups.2 setpgid.2 setregid.2 \
@@ -150,7 +166,7 @@ MAN+=	__get_tcb.2 __thrsigdivert.2 __thrsleep.2 _exit.2 accept.2 \
 	shmctl.2 shmget.2 shutdown.2 sigaction.2 sigaltstack.2 sigpending.2 \
 	sigprocmask.2 sigreturn.2 sigsuspend.2 socket.2 \
 	socketpair.2 stat.2 statfs.2 swapctl.2 symlink.2 \
-	sync.2 sysarch.2 syscall.2 tame.2 truncate.2 umask.2 unlink.2 \
+	sync.2 sysarch.2 syscall.2 truncate.2 umask.2 unlink.2 \
 	utimes.2 utrace.2 vfork.2 wait.2 write.2
 
 MLINKS+=__get_tcb.2 __set_tcb.2

@@ -34,4 +34,4 @@ SYSCALL(sigpending)
 	stl	v0, 0(a0)
 	mov	zero, v0
 	RET
-SYSEND(sigpending)
+SYSCALL_END(sigpending)

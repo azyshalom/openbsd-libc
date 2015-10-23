@@ -38,7 +38,7 @@ GPOFF= FRAMESZ-2*REGSZ
 
 SYSLEAF(sigsuspend, FRAMESZ)
 	PTR_SUBU sp, FRAMESZ
-	SETUP_GP64(GPOFF, sigsuspend)
+	SETUP_GP64(GPOFF, _HIDDEN(sigsuspend))
 	.set	reorder
 	lw	a0, 0(a0)		# indirect to mask arg
 	li	v0, SYS_sigsuspend
@@ -53,4 +53,4 @@ SYSLEAF(sigsuspend, FRAMESZ)
 	RESTORE_GP64
 	PTR_ADDU sp, FRAMESZ
 	jr	t9
-SYSEND(sigsuspend)
+SYSCALL_END(sigsuspend)
