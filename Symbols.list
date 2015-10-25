@@ -162,8 +162,9 @@ _thread_sys_nfssvc
 _thread_sys_open
 _thread_sys_openat
 _thread_sys_pathconf
-_thread_sys_pipe2
 _thread_sys_pipe
+_thread_sys_pipe2
+_thread_sys_pledge
 _thread_sys_poll
 _thread_sys_ppoll
 _thread_sys_pread
@@ -229,7 +230,6 @@ _thread_sys_symlinkat
 _thread_sys_sync
 _thread_sys_sysarch
 _thread_sys_sysctl
-_thread_sys_tame
 _thread_sys_truncate
 _thread_sys_umask
 _thread_sys_unlink
@@ -354,8 +354,9 @@ nfssvc
 open
 openat
 pathconf
-pipe2
 pipe
+pipe2
+pledge
 poll
 posix_madvise
 ppoll
@@ -363,6 +364,7 @@ pread
 preadv
 profil
 pselect
+pthread_sigmask
 ptrace
 pwrite
 pwritev
@@ -425,7 +427,6 @@ symlinkat
 sync
 sysarch
 syscall
-tame
 timer_create
 timer_delete
 timer_getoverrun
@@ -1427,8 +1428,6 @@ random
 
 /* stdlib */
 _Exit
-__atexit
-__atexit_register_cleanup
 __cxa_atexit
 __cxa_finalize
 __isthreaded
