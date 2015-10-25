@@ -1,4 +1,4 @@
-/*	$OpenBSD: abort.c,v 1.17 2014/05/14 21:54:20 tedu Exp $ */
+/*	$OpenBSD: abort.c,v 1.19 2015/10/23 04:39:24 guenther Exp $ */
 /*
  * Copyright (c) 1985 Regents of the University of California.
  * All rights reserved.
@@ -34,13 +34,12 @@
 #include "thread_private.h"
 #include "atexit.h"
 
-int	_thread_sys_sigprocmask(int, const sigset_t *, sigset_t *);
 
 void
 abort(void)
 {
 	sigset_t mask;
-
+	struct sigaction sa;
 
 	sigfillset(&mask);
 	/*
@@ -48,7 +47,7 @@ abort(void)
 	 * any errors -- X311J doesn't allow abort to return anyway.
 	 */
 	sigdelset(&mask, SIGABRT);
-	(void)_thread_sys_sigprocmask(SIG_SETMASK, &mask, (sigset_t *)NULL);
+	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	(void)raise(SIGABRT);
 
@@ -56,8 +55,10 @@ abort(void)
 	 * if SIGABRT ignored, or caught and the handler returns, do
 	 * it again, only harder.
 	 */
-	(void)signal(SIGABRT, SIG_DFL);
-	(void)_thread_sys_sigprocmask(SIG_SETMASK, &mask, (sigset_t *)NULL);
+	memset(&sa, 0, sizeof(sa));
+	sa.sa_handler = SIG_DFL;
+	(void)sigaction(SIGABRT, &sa, NULL);
+	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 	(void)raise(SIGABRT);
 	_exit(1);
 }

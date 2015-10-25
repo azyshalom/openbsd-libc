@@ -1,4 +1,4 @@
-/*	$OpenBSD: signal.c,v 1.7 2005/08/08 08:05:34 espie Exp $ */
+/*	$OpenBSD: signal.c,v 1.9 2015/10/23 04:39:24 guenther Exp $ */
 /*
  * Copyright (c) 1985, 1989, 1993
  *	The Regents of the University of California.  All rights reserved.
@@ -47,10 +47,9 @@ signal(int s, sig_t a)
 	sa.sa_flags = 0;
 	if (!sigismember(&__sigintr, s))
 		sa.sa_flags |= SA_RESTART;
-	if (sigaction(s, &sa, &osa) < 0)
+	if (WRAP(sigaction)(s, &sa, &osa) < 0)
 		return (SIG_ERR);
 	return (osa.sa_handler);
 }
-DEF_STRONG(signal);
 
 __weak_alias(bsd_signal, signal);
