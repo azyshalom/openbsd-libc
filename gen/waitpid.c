@@ -28,13 +28,12 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
 #include <sys/time.h>
 #include <sys/wait.h>
-#include <sys/resource.h>
 
 pid_t
 waitpid(pid_t pid, int *istat, int options)
 {
-	return (wait4(pid, istat, options, (struct rusage *)0));
+	return (wait4(pid, istat, options, NULL));
 }
+DEF_WEAK(waitpid);
