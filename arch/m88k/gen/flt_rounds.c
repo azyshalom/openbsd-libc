@@ -27,3 +27,4 @@ __flt_rounds()
 	__asm__("fldcr %0, %%fcr63" : "=r" (x));
 	return map[(x >> 14) & 0x03];
 }
+DEF_STRONG(__flt_rounds);

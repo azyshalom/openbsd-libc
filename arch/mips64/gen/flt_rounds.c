@@ -23,3 +23,4 @@ __flt_rounds()
 	__asm__("nop");
 	return map[x & 0x03];
 }
+DEF_STRONG(__flt_rounds);

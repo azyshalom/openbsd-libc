@@ -39,3 +39,4 @@ __flt_rounds()
 	return rndmap[fpgetround()];
 #endif
 }
+DEF_STRONG(__flt_rounds);

@@ -41,6 +41,7 @@ __fpclassify(double d)
 
 	return FP_NORMAL;
 }
+DEF_STRONG(__fpclassify);
 
 int
 __fpclassifyf(float f)
@@ -63,7 +64,9 @@ __fpclassifyf(float f)
 
 	return FP_NORMAL;
 }
+DEF_STRONG(__fpclassifyf);
 
 #if	LDBL_MANT_DIG == DBL_MANT_DIG
-__strong_alias(__fpclassifyl, __fpclassify);
+MAKE_CLONE(__fpclassifyl, __fpclassify);
+DEF_STRONG(__fpclassifyl);
 #endif	/* LDBL_MANT_DIG == DBL_MANT_DIG */

@@ -4,7 +4,7 @@
  * Public domain.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 	.text
 	.align 2
@@ -30,3 +30,4 @@ ENTRY(__flt_rounds)
 #endif
 	addl $4,%esp
 	ret
+END_STRONG(__flt_rounds);

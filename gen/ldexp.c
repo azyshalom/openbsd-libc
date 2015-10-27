@@ -120,6 +120,7 @@ ldexp(double x, int n)
 	SET_HIGH_WORD(x,(hx&0x800fffff)|(k<<20));
         return x*twom54;
 }
+DEF_STRONG(ldexp);
 
 #if	LDBL_MANT_DIG == DBL_MANT_DIG
 __strong_alias(ldexpl, ldexp);

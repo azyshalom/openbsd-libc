@@ -22,3 +22,4 @@ __flt_rounds()
 	__asm__ volatile("fstd %%fr0,0(%1)" : "=m" (fpsr) : "r" (&fpsr));
 	return map[(fpsr >> 41) & 0x03];
 }
+DEF_STRONG(__flt_rounds);

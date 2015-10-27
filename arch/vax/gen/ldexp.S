@@ -75,6 +75,7 @@ ENTRY(ldexp, R2)
 1:
 	movl	$ ERANGE,_C_LABEL(errno)
 	ret
+END_STRONG(ldexp);
 
 	.data
 huge:	.word	0x7fff		/* the largest number that can */

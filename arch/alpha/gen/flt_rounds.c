@@ -55,3 +55,4 @@ __flt_rounds()
 
 	return map[(old >> 58) & 0x3];
 }
+DEF_STRONG(__flt_rounds);

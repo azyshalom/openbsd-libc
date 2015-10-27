@@ -42,3 +42,4 @@ __fpclassifyl(long double e)
 
 	return FP_NORMAL;
 }
+DEF_STRONG(__fpclassifyl);
