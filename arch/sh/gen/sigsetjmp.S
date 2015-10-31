@@ -35,7 +35,8 @@
  *	from: @(#)setjmp.s	5.1 (Berkeley) 4/23/90
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
+
 #include <machine/setjmp.h>
 
 ENTRY(sigsetjmp)
@@ -99,7 +100,7 @@ ENTRY(sigsetjmp)
 
 	.align	2
 .L_got_1:		PIC_GOT_DATUM
-.L_sigprocmask_1:	CALL_DATUM(_C_LABEL(sigprocmask), 1b)
+.L_sigprocmask_1:	CALL_DATUM(_C_LABEL(_HIDDEN(sigprocmask)), 1b)
 	SET_ENTRY_SIZE(sigsetjmp)
 
 ENTRY(siglongjmp)
@@ -162,5 +163,5 @@ ENTRY(siglongjmp)
 
 	.align	2
 .L_got_2:		PIC_GOT_DATUM
-.L_sigprocmask_2:	CALL_DATUM(_C_LABEL(sigprocmask), 1b)
+.L_sigprocmask_2:	CALL_DATUM(_C_LABEL(_HIDDEN(sigprocmask)), 1b)
 	SET_ENTRY_SIZE(siglongjmp)
