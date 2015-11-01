@@ -1201,7 +1201,6 @@ mcadd( struct parse *p, cset *cs, char *cp)
  * This would have to know the set of possibilities.  Implementation
  * is deferred.
  */
-/* ARGSUSED */
 static void
 mcinvert(struct parse *p, cset *cs)
 {
@@ -1214,7 +1213,6 @@ mcinvert(struct parse *p, cset *cs)
  * This would have to know the set of possibilities.  Implementation
  * is deferred.
  */
-/* ARGSUSED */
 static void
 mccase(struct parse *p, cset *cs)
 {

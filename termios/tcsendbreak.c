@@ -32,7 +32,6 @@
 #include <termios.h>
 #include <time.h>
 
-/* ARGSUSED */
 int
 tcsendbreak(int fd, int len)
 {
