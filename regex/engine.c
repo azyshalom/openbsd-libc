@@ -277,10 +277,8 @@ matcher(struct re_guts *g, char *string, size_t nmatch, regmatch_t pmatch[],
 			}
 	}
 
-	if (m->pmatch != NULL)
-		free((char *)m->pmatch);
-	if (m->lastpos != NULL)
-		free((char *)m->lastpos);
+	free(m->pmatch);
+	free(m->lastpos);
 	STATETEARDOWN(m);
 	return(0);
 }
