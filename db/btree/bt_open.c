@@ -318,8 +318,7 @@ eftype:	errno = EFTYPE;
 
 err:	saved_errno = errno;
 	if (t) {
-		if (t->bt_dbp)
-			free(t->bt_dbp);
+		free(t->bt_dbp);
 		if (t->bt_fd != -1)
 			(void)close(t->bt_fd);
 		free(t);
