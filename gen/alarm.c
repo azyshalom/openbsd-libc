@@ -28,9 +28,6 @@
  * SUCH DAMAGE.
  */
 
-/*
- * Backwards compatible alarm.
- */
 #include <sys/time.h>
 #include <unistd.h>
 
