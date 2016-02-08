@@ -210,10 +210,6 @@ truncated input.
 points to an incomplete byte sequence of length
 .Fa n
 which has been consumed and contains part of a valid multibyte character.
-.Fn mbrtowc
-sets
-.Va errno
-to EILSEQ.
 The character may be completed by calling
 .Fn mbrtowc
 again with
@@ -230,7 +226,7 @@ function may cause an error in the following cases:
 .Bl -tag -width Er
 .It Bq Er EILSEQ
 .Fa s
-points to an invalid or incomplete multibyte character.
+points to an invalid multibyte character.
 .It Bq Er EINVAL
 .Fa mbs
 points to an invalid or uninitialized mbstate_t object.
