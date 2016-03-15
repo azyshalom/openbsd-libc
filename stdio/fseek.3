@@ -142,6 +142,9 @@ and these routines may be the only way to portably reposition a text stream.
 The
 .Fn rewind
 function returns no value.
+Prefer
+.Fn seek ,
+which is just as portable, and does not hide errors.
 Upon successful completion,
 .Fn fgetpos ,
 .Fn fseek ,
