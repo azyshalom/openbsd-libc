@@ -4,4 +4,4 @@
 
 .include <bsd.own.mk>
 
-SRCS+=		dlfcn_stubs.c
+SRCS+=		dlfcn_stubs.c init.c
