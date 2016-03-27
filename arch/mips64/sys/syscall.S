@@ -33,7 +33,4 @@
 
 #include "SYS.h"
 
-#define SYS_syscall	0
-
-
 RSYSCALL(syscall)
