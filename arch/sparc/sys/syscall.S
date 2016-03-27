@@ -34,8 +34,4 @@
 
 #include "SYS.h"
 
-ENTRY(syscall)
-	mov	0|SYSCALL_G2RFLAG, %g1	! 0 == indir
-	add	%o7, 8, %g2
-	t	ST_SYSCALL
-	ERROR()
+RSYSCALL(syscall)
