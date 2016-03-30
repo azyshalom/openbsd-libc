@@ -8,6 +8,3 @@ SRCS+=	creat.c getdtablesize.c gethostid.c getwd.c killpg.c sethostid.c \
 
 MAN+=	creat.3 getdtablesize.3 gethostid.3 killpg.3 \
 	sigblock.3 sigpause.3 sigsetmask.3 sigvec.3
-
-MLINKS+=gethostid.3 sethostid.3
-MLINKS+=sigblock.3 sigmask.3

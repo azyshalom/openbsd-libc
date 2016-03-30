@@ -9,18 +9,3 @@ SRCS+=	asr.c asr_debug.c asr_utils.c \
 	getaddrinfo_async.c getnameinfo_async.c
 
 MAN+=	asr_run.3
-
-MLINKS+= \
-	asr_run.3	asr_run_sync.3		\
-	asr_run.3	asr_abort.3		\
-	asr_run.3	res_send_async.3	\
-	asr_run.3	res_query_async.3	\
-	asr_run.3	res_search_async.3	\
-	asr_run.3	getrrsetbyname_async.3	\
-	asr_run.3	gethostbyname_async.3	\
-	asr_run.3	gethostbyname2_async.3	\
-	asr_run.3	gethostbyaddr_async.3	\
-	asr_run.3	getnetbyname_async.3	\
-	asr_run.3	getnetbyaddr_async.3	\
-	asr_run.3	getaddrinfo_async.3	\
-	asr_run.3	getnameinfo_async.3
