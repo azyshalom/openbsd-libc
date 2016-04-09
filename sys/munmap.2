@@ -56,10 +56,9 @@ will fail if:
 .It Bq Er EINVAL
 The
 .Fa addr
-parameter was not page aligned,
-.Fa addr
 and
 .Fa len
+parameters
 specify a region that would extend beyond the end of the address space,
 or some part of the region being unmapped is not part of the currently
 valid address space.
@@ -73,8 +72,26 @@ valid address space.
 .Xr mprotect 2 ,
 .Xr msync 2 ,
 .Xr getpagesize 3
+.Sh STANDARDS
+When
+.Fa len
+is non-zero, the
+.Fn munmap
+function conforms to
+.St -p1003.1-2008 .
 .Sh HISTORY
 The
 .Fn munmap
 system call first appeared in
 .Bx 4.1c .
+.Sh CAVEATS
+.St -p1003.1-2008
+specifies that
+.Fn munmap
+shall fail with
+.Er EINVAL
+if
+.Fa len
+is 0.
+.Ox
+performs no action in this case.
