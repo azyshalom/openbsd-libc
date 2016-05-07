@@ -35,8 +35,11 @@
 .Nm monstartup
 .Nd control execution profile
 .Sh SYNOPSIS
+.In sys/gmon.h
+.Ft void
 .Fn moncontrol "int mode"
-.Fn monstartup "u_long *lowpc" "u_long *highpc"
+.Ft void
+.Fn monstartup "u_long lowpc" "u_long highpc"
 .Sh DESCRIPTION
 An executable program compiled using the
 .Fl pg
