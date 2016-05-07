@@ -3,7 +3,7 @@
 
 .include <bsd.own.mk>
 
-#SRCS+=	__sigaction14_sigtramp.c __sigtramp1.S
+CERROR=	cerror.S
 
 CPPFLAGS += -DSOFTFLOAT
 

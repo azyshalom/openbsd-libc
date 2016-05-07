@@ -1,7 +1,6 @@
-/* $OpenBSD: unithread_mutex.c,v 1.1 2007/06/05 18:11:48 kurt Exp $ */
-
+/*	$OpenBSD$ */
 /*
- * Copyright (c) 2007 Kurt Miller <kurt@openbsd.org>
+ * Copyright (c) 2015 Philip Guenther <guenther@openbsd.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -16,34 +15,17 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include <sys/types.h>
-#include "thread_private.h"
+#include <unistd.h>
+#include "cancel.h"
 
-WEAK_PROTOTYPE(_thread_mutex_lock);
-WEAK_PROTOTYPE(_thread_mutex_unlock);
-WEAK_PROTOTYPE(_thread_mutex_destroy);
-
-WEAK_ALIAS(_thread_mutex_lock);
-WEAK_ALIAS(_thread_mutex_unlock);
-WEAK_ALIAS(_thread_mutex_destroy);
-
-/* ARGSUSED */
-void
-WEAK_NAME(_thread_mutex_lock)(void **mutex)
+int
+fsync(int fd)
 {
-	return;
-}
+	int ret;
 
-/* ARGSUSED */
-void
-WEAK_NAME(_thread_mutex_unlock)(void **mutex)
-{
-	return;
+	ENTER_CANCEL_POINT(0);
+	ret = HIDDEN(fsync)(fd);
+	LEAVE_CANCEL_POINT(1);
+	return (ret);
 }
-
-/* ARGSUSED */
-void
-WEAK_NAME(_thread_mutex_destroy)(void **mutex)
-{
-	return;
-}
+DEF_CANCEL(fsync);

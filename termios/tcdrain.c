@@ -31,8 +31,15 @@
 #include <sys/ioctl.h>
 #include <termios.h>
 
+#include "cancel.h"
+
 int
 tcdrain(int fd)
 {
-	return (ioctl(fd, TIOCDRAIN, 0));
+	int ret;
+
+	ENTER_CANCEL_POINT(1);
+	ret = ioctl(fd, TIOCDRAIN, 0);
+	LEAVE_CANCEL_POINT(ret == -1);
+	return (ret);
 }

@@ -28,11 +28,11 @@
 
 #include "SYS.h"
 
-SYSENTRY(sigsuspend)
+SYSENTRY_HIDDEN(sigsuspend)
 	ldw	0(arg0), arg0
 	stw	arg0, HPPA_FRAME_ARG(0)(sp)
 
 	SYSCALL(sigsuspend)
-SYSEXIT(sigsuspend)
+SYSEXIT_HIDDEN(sigsuspend)
 
 	.end

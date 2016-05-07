@@ -1,4 +1,4 @@
-#	$OpenBSD: Makefile.inc,v 1.26 2015/10/25 10:22:09 bluhm Exp $
+#	$OpenBSD: Makefile.inc,v 1.28 2016/03/09 16:28:46 deraadt Exp $
 #
 # This file contains make rules used to build libc
 #
@@ -8,7 +8,7 @@ all:
 	@echo "need to define LIBCSRCDIR" >&2; exit 1
 .endif
 
-CFLAGS+=-I${LIBCSRCDIR}/include -I${LIBCSRCDIR}/hidden \
+CFLAGS+=-I${LIBCSRCDIR}/include -I${LIBCSRCDIR}/hidden -D__LIBC__ \
 	-Werror-implicit-function-declaration -include namespace.h
 
 .if ${COMPILER_VERSION:L} != "gcc3"
@@ -50,8 +50,8 @@ AINC+=  -nostdinc -idirafter ${DESTDIR}/usr/include
 # 32-bit systems need these
 .if (${MACHINE_CPU} == "i386") || (${MACHINE_CPU} == "powerpc") || \
     (${MACHINE_CPU} == "hppa") || (${MACHINE_CPU} == "arm") || \
-    (${MACHINE_CPU} == "sparc") || (${MACHINE_CPU} == "vax") || \
-    (${MACHINE_CPU} == "sh") || (${MACHINE_CPU} == "m88k")
+    (${MACHINE_CPU} == "sparc") || (${MACHINE_CPU} == "sh") || \
+    (${MACHINE_CPU} == "m88k")
 .include "${LIBCSRCDIR}/quad/Makefile.inc"
 .endif
 

@@ -28,10 +28,10 @@
 
 #include "SYS.h"
 
-SYSENTRY(sigsuspend)
+SYSENTRY_HIDDEN(sigsuspend)
 	ldw	0(%arg0), %arg0
 
 	SYSCALL(sigsuspend)
-SYSEXIT(sigsuspend)
+SYSEXIT_HIDDEN(sigsuspend)
 
 	.end

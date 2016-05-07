@@ -44,3 +44,4 @@ getcwd(char *buf, size_t size)
 
 	return (buf);
 }
+DEF_WEAK(getcwd);
