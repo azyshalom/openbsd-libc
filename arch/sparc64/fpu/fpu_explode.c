@@ -292,6 +292,7 @@ __fpu_qtof(fp, i, j, k, l)
 	FP_TOF(exp, EXT_EXP_BIAS, frac, f0, f1, f2, f3);
 }
 
+#if 0	/* __fpu_explode is unused */
 /*
  * Explode the contents of a / regpair / regquad.
  * If the input is a signalling NaN, an NV (invalid) exception
@@ -362,3 +363,4 @@ __fpu_explode(fe, fp, type, reg)
 	DUMPFPN(FPE_REG, fp);
 	DPRINTF(FPE_REG, ("\n"));
 }
+#endif

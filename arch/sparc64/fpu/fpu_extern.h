@@ -40,6 +40,7 @@ union instr;
 struct fpemu;
 struct fpn;
 
+__BEGIN_HIDDEN_DECLS
 /* fpu.c */
 int __fpu_exception(struct utrapframe *tf);
 
@@ -86,5 +87,6 @@ int __fpu_shr(register struct fpn *, register int);
 void __fpu_norm(register struct fpn *);
 /* Build a new Quiet NaN (sign=0, frac=all 1's). */
 struct fpn *__fpu_newnan(register struct fpemu *);
+__END_HIDDEN_DECLS
 
 #endif /* !_SPARC64_FPU_FPU_EXTERN_H_ */
