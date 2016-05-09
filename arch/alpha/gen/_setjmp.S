@@ -28,7 +28,7 @@
  * rights to redistribute these changes.
  */
 
-#include <machine/asm.h>
+#include "SYS.h"
 
 /*
  * C library -- _setjmp, _longjmp
@@ -84,7 +84,7 @@ LEAF(_setjmp, 1)
 
 	mov	zero, v0			/* return zero */
 	RET
-END(_setjmp)
+END_STRONG(_setjmp)
 
 LEAF(_longjmp, 2)
 	LDGP(pv)
@@ -121,7 +121,6 @@ LEAF(_longjmp, 2)
 	RET
 
 botch:
-	CALL(longjmperror)
-	CALL(abort)
+	CALL(_HIDDEN(abort))
 	RET					/* "can't" get here... */
-END(_longjmp)
+END_STRONG(_longjmp)
