@@ -4,9 +4,9 @@
  * Public domain.
  */
 
-#include <sys/localedef.h>
 #include <limits.h>
 #include <locale.h>
+#include "localedef.h"
 
 const _MonetaryLocale _DefaultMonetaryLocale =
 {

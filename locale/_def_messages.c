@@ -4,8 +4,8 @@
  * Public domain.
  */
 
-#include <sys/localedef.h>
 #include <locale.h>
+#include "localedef.h"
 
 const _MessagesLocale _DefaultMessagesLocale =
 {
