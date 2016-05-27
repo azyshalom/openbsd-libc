@@ -30,7 +30,7 @@
 .\"
 .\"	@(#)mmap.2	8.1 (Berkeley) 6/4/93
 .\"
-.Dd $Mdocdate: July 10 2014 $
+.Dd $Mdocdate: May 27 2016 $
 .Dt MMAP 2
 .Os
 .Sh NAME
@@ -273,6 +273,16 @@ was specified and the
 parameter wasn't available.
 .Dv MAP_ANON
 was specified and insufficient memory was available.
+.It Bq Er ENOTSUP
+The accesses requested in the
+.Ar prot
+argument are not allowed.
+In particular,
+.Dv PROT_WRITE | PROT_EXEC
+mappings are not permitted in most binaries (see
+.Dv kern.wxabort
+in sysctl 3
+for more information).
 .El
 .Sh SEE ALSO
 .Xr madvise 2 ,
