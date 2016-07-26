@@ -36,7 +36,7 @@
 #include <ieeefp.h>
 
 fp_rnd
-fpgetround()
+fpgetround(void)
 {
 	double fpcrval;
 	u_int64_t old;
@@ -48,3 +48,4 @@ fpgetround()
 
 	return ((old >> 58) & 0x3);
 }
+DEF_WEAK(fpgetround);

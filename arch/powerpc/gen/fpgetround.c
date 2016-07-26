@@ -34,10 +34,11 @@
 #include <ieeefp.h>
 
 fp_rnd
-fpgetround()
+fpgetround(void)
 {
 	u_int64_t fpscr;
 
 	__asm__ volatile("mffs %0" : "=f"(fpscr));
 	return (fpscr & 0x3);
 }
+DEF_WEAK(fpgetround);

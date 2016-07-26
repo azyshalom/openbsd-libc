@@ -20,10 +20,11 @@
 #include <ieeefp.h>
 
 fp_rnd
-fpgetround()
+fpgetround(void)
 {
 	register_t fpscr;
 
 	__asm__ volatile ("sts fpscr, %0" : "=r" (fpscr));
 	return (fpscr & 0x3);
 }
+DEF_WEAK(fpgetround);

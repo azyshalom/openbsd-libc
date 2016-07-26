@@ -1,4 +1,4 @@
-/*	$OpenBSD: fpgetround.c,v 1.4 2015/09/10 18:13:46 guenther Exp $	*/
+/*	$OpenBSD: fpgetround.c,v 1.6 2016/07/18 19:05:22 guenther Exp $	*/
 /* $NetBSD: fpgetround.c,v 1.2 2002/01/13 21:45:53 thorpej Exp $ */
 
 /*-
@@ -37,9 +37,7 @@
 #include "milieu.h"
 #include <softfloat.h>
 
-#ifdef __weak_alias
 __weak_alias(_fpgetround,fpgetround);
-#endif
 
 fp_rnd
 fpgetround(void)
@@ -47,3 +45,4 @@ fpgetround(void)
 
 	return float_rounding_mode;
 }
+DEF_WEAK(fpgetround);
