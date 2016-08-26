@@ -1,4 +1,4 @@
-/*	$OpenBSD: bcrypt.c,v 1.54 2015/09/13 12:42:39 millert Exp $	*/
+/*	$OpenBSD: bcrypt.c,v 1.56 2016/06/26 21:04:08 tedu Exp $	*/
 
 /*
  * Copyright (c) 2014 Ted Unangst <tedu@openbsd.org>
@@ -39,6 +39,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /* This implementation is adaptable to current computing power.
  * You can have up to 2^31 rounds which should be enough for some
@@ -261,7 +262,7 @@ _bcrypt_autorounds(void)
 		duration *= 2;
 	}
 	/* too slow? speed it up. */
-	while (r > 4 && duration > 120000) {
+	while (r > 6 && duration > 120000) {
 		r -= 1;
 		duration /= 2;
 	}
