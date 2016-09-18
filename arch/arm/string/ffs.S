@@ -1,4 +1,4 @@
-/*	$OpenBSD: ffs.S,v 1.3 2009/10/28 06:49:54 deraadt Exp $	*/
+/*	$OpenBSD: ffs.S,v 1.5 2016/08/06 19:16:09 guenther Exp $	*/
 /*	$NetBSD: ffs.S,v 1.5 2003/04/05 23:08:52 bjh21 Exp $	*/
 /*
  * Copyright (c) 2001 Christopher Gilbert
@@ -29,7 +29,7 @@
  * SUCH DAMAGE.
  */
 
-#include "SYS.h"
+#include "DEFS.h"
 
 /*
  * ffs - find first set bit, this algorithm isolates the first set
@@ -43,6 +43,8 @@
  * This is the ffs algorithm devised by d.seal and posted to comp.sys.arm on
  * 16 Feb 1994.
  */
+
+	.syntax unified
 
 ENTRY(ffs)
 	/* Standard trick to isolate bottom bit in r0 or 0 if r0 = 0 on entry */
@@ -58,7 +60,7 @@ ENTRY(ffs)
 	rsbne   r0, r0, r0, lsl #16 /* r0 = X * 0x0450fbaf */
               
 	/* now lookup in table indexed on top 6 bits of r0 */
-	ldrneb  r0, [ r2, r0, lsr #26 ]
+	ldrbne  r0, [ r2, r0, lsr #26 ]
 
         mov   pc, lr
 END_WEAK(ffs)
