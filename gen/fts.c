@@ -1,4 +1,4 @@
-/*	$OpenBSD: fts.c,v 1.52 2015/09/14 16:09:13 tedu Exp $	*/
+/*	$OpenBSD: fts.c,v 1.55 2016/06/28 17:21:48 millert Exp $	*/
 
 /*-
  * Copyright (c) 1990, 1993, 1994
@@ -75,10 +75,15 @@ fts_open(char * const *argv, int options,
 	FTSENT *p, *root;
 	int nitems;
 	FTSENT *parent, *tmp;
-	size_t len;
 
 	/* Options check. */
 	if (options & ~FTS_OPTIONMASK) {
+		errno = EINVAL;
+		return (NULL);
+	}
+
+	/* At least one path must be specified. */
+	if (*argv == NULL) {
 		errno = EINVAL;
 		return (NULL);
 	}
@@ -107,13 +112,7 @@ fts_open(char * const *argv, int options,
 
 	/* Allocate/initialize root(s). */
 	for (root = NULL, nitems = 0; *argv; ++argv, ++nitems) {
-		/* Don't allow zero-length paths. */
-		if ((len = strlen(*argv)) == 0) {
-			errno = ENOENT;
-			goto mem3;
-		}
-
-		if ((p = fts_alloc(sp, *argv, len)) == NULL)
+		if ((p = fts_alloc(sp, *argv, strlen(*argv))) == NULL)
 			goto mem3;
 		p->fts_level = FTS_ROOTLEVEL;
 		p->fts_parent = parent;
@@ -655,7 +654,7 @@ fts_build(FTS *sp, int type)
 		if (!ISSET(FTS_SEEDOT) && ISDOT(dp->d_name))
 			continue;
 
-		if (!(p = fts_alloc(sp, dp->d_name, (size_t)dp->d_namlen)))
+		if (!(p = fts_alloc(sp, dp->d_name, dp->d_namlen)))
 			goto mem1;
 		if (dp->d_namlen >= maxlen) {	/* include space for NUL */
 			oldaddr = sp->fts_path;
@@ -895,7 +894,7 @@ fts_sort(FTS *sp, FTSENT *head, int nitems)
 	}
 	for (ap = sp->fts_array, p = head; p; p = p->fts_link)
 		*ap++ = p;
-	qsort((void *)sp->fts_array, nitems, sizeof(FTSENT *), sp->fts_compar);
+	qsort(sp->fts_array, nitems, sizeof(FTSENT *), sp->fts_compar);
 	for (head = *(ap = sp->fts_array); --nitems; ++ap)
 		ap[0]->fts_link = ap[1];
 	ap[0]->fts_link = NULL;

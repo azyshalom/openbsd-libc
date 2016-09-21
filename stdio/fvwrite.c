@@ -63,7 +63,7 @@ __sfvwrite(FILE *fp, struct __suio *uio)
 	}
 
 #define	MIN(a, b) ((a) < (b) ? (a) : (b))
-#define	COPY(n)	  (void)memcpy((void *)fp->_p, (void *)p, (size_t)(n))
+#define	COPY(n)	  (void)memcpy(fp->_p, p, n)
 
 	iov = uio->uio_iov;
 	p = iov->iov_base;
@@ -164,7 +164,7 @@ __sfvwrite(FILE *fp, struct __suio *uio)
 		do {
 			GETIOV(nlknown = 0);
 			if (!nlknown) {
-				nl = memchr((void *)p, '\n', len);
+				nl = memchr(p, '\n', len);
 				nldist = nl ? nl + 1 - p : len + 1;
 				nlknown = 1;
 			}

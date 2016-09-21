@@ -31,9 +31,8 @@
  * SUCH DAMAGE.
  */
 
-#include <fcntl.h>
-#include <unistd.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "local.h"
 
 /*
@@ -61,7 +60,7 @@ __swrite(void *cookie, const char *buf, int n)
 	FILE *fp = cookie;
 
 	if (fp->_flags & __SAPP)
-		(void) lseek(fp->_file, (off_t)0, SEEK_END);
+		(void) lseek(fp->_file, 0, SEEK_END);
 	fp->_flags &= ~__SOFF;	/* in case FAPPEND mode is set */
 	return (write(fp->_file, buf, n));
 }
@@ -72,8 +71,8 @@ __sseek(void *cookie, fpos_t offset, int whence)
 	FILE *fp = cookie;
 	off_t ret;
 	
-	ret = lseek(fp->_file, (off_t)offset, whence);
-	if (ret == (off_t)-1)
+	ret = lseek(fp->_file, offset, whence);
+	if (ret == -1)
 		fp->_flags &= ~__SOFF;
 	else {
 		fp->_flags |= __SOFF;
