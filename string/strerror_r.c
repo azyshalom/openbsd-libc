@@ -1,9 +1,5 @@
-/* $OpenBSD: strerror_r.c,v 1.10 2015/09/05 11:25:30 guenther Exp $ */
+/* $OpenBSD: strerror_r.c,v 1.12 2015/10/25 10:22:09 bluhm Exp $ */
 /* Public Domain <marc@snafu.org> */
-
-#ifdef NLS
-#include <nl_types.h>
-#endif
 
 #include <errno.h>
 #include <limits.h>
@@ -66,26 +62,12 @@ __num2string(int num, int sign, int setid, char *buf, size_t buflen,
 	int ret = 0;
 	size_t len;
 
-#ifdef NLS
-	nl_catd catd;
-	catd = catopen("libc", NL_CAT_LOCALE);
-#endif
-
 	if (0 <= num && num < max) {
-#ifdef NLS
-		len = strlcpy(buf, catgets(catd, setid, num, list[num]),
-		    buflen);
-#else
 		len = strlcpy(buf, list[num], buflen);
-#endif
 		if (len >= buflen)
 			ret = ERANGE;
 	} else {
-#ifdef NLS
-		len = strlcpy(buf, catgets(catd, setid, 0xffff, def), buflen);
-#else
 		len = strlcpy(buf, def, buflen);
-#endif
 		if (len >= buflen)
 			ret = ERANGE;
 		else {
@@ -95,10 +77,6 @@ __num2string(int num, int sign, int setid, char *buf, size_t buflen,
 		}
 	}
 
-#ifdef NLS
-	catclose(catd);
-#endif
-
 	return ret;
 }
 
@@ -107,15 +85,13 @@ __num2string(int num, int sign, int setid, char *buf, size_t buflen,
 int
 strerror_r(int errnum, char *strerrbuf, size_t buflen)
 {
-	int save_errno;
 	int ret_errno;
-
-	save_errno = errno;
 
 	ret_errno = __num2string(errnum, 1, 1, strerrbuf, buflen,
 	    sys_errlist, sys_nerr, UPREFIX);
 
-	errno = ret_errno ? ret_errno : save_errno;
+	if (ret_errno)
+		errno = ret_errno;
 	return (ret_errno);
 }
 DEF_WEAK(strerror_r);
